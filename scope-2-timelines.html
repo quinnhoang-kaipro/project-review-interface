@@ -1,0 +1,3289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compare Dates — Scope 2 Timelines</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="scope-review-detail-modal.css" />
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --accent: #ff9f43;
+      --accent-ring: #ffb25e;
+      --blue-frame: #38bdf8;
+      --grey-frame: #cbd5e1;
+      /* Unified tint for the whole timeline + scrubber strip (no white “bubble” track). */
+      --timeline-bg: #e8edf6;
+      --orange-line: #ff9f43;
+      /* Slot has a dot but no real image file — solid fill only (no copy). */
+      --photo-no-asset-fill: #eef1f6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .topbar-left strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 4px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .main-nav a {
+      padding: 8px 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+    }
+
+    .main-nav a.active {
+      color: #0f172a;
+      border-bottom-color: #0f172a;
+    }
+
+    .topbar-right .btn {
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      background: #0f172a;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .page {
+      flex: 1;
+      padding: 16px 8px 24px;
+      max-width: none;
+      margin: 0;
+      width: 100%;
+    }
+
+    .page-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px 16px;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .page-head .view-toggle {
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .layout {
+      display: block;
+    }
+
+    .walk-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .walk-option:hover {
+      background: #f1f5f9;
+    }
+
+    .walk-option input {
+      width: 16px;
+      height: 16px;
+      accent-color: #0f172a;
+    }
+
+    .walk-option:has(input:checked) {
+      background: #e2e8f0;
+      font-weight: 600;
+    }
+
+    /* Photo grid + scrubber */
+    .compare-wrap {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Unified table: band 1 = Initial dates + 3 photos + timeline row 1; band 2 = Progress/Closeout + timeline row 2 + 3 photos; both timeline rows + scrubber share rows 3–4 in cols 2–4. */
+    .compare-unified {
+      display: grid;
+      grid-template-columns: min(168px, 22vw) repeat(3, minmax(0, 1fr));
+      grid-template-rows: auto minmax(200px, 1fr) auto auto minmax(200px, 1fr);
+      min-height: 520px;
+    }
+
+    .uni-walk-head {
+      grid-column: 1;
+      grid-row: 1;
+      padding: 10px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+    }
+
+    .uni-walk--1,
+    .uni-walk--2 {
+      grid-column: 1;
+      border-right: 1px solid var(--border);
+      background: #f8fafc;
+      padding: 10px 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-self: stretch;
+    }
+
+    /* Initial walk: first photo row + first timeline row only */
+    .uni-walk--1 {
+      grid-row: 2 / 4;
+    }
+
+    /* Progress / closeout: second timeline row + second photo row */
+    .uni-walk--2 {
+      grid-row: 4 / 6;
+      border-top: 1px solid var(--border);
+    }
+
+    .uni-walk--1 .walk-option,
+    .uni-walk--2 .walk-option {
+      padding: 8px 6px;
+    }
+
+    .uni-walk--1,
+    .uni-walk--2 {
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .col-head {
+      padding: 10px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .col-head.prev {
+      grid-column: 2;
+      grid-row: 1;
+      color: #64748b;
+    }
+
+    .col-head.current {
+      grid-column: 3;
+      grid-row: 1;
+      color: #0f172a;
+      background: linear-gradient(180deg, #fff7ed 0%, #fafbfc 100%);
+    }
+
+    .col-head.next {
+      grid-column: 4;
+      grid-row: 1;
+      color: #64748b;
+      border-right: none;
+    }
+
+    .photo-cell[data-photo-row="1"][data-col="prev"] {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .photo-cell[data-photo-row="1"][data-col="current"] {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    .photo-cell[data-photo-row="1"][data-col="next"] {
+      grid-column: 4;
+      grid-row: 2;
+    }
+
+    .photo-cell[data-photo-row="2"][data-col="prev"] {
+      grid-column: 2;
+      grid-row: 5;
+    }
+
+    .photo-cell[data-photo-row="2"][data-col="current"] {
+      grid-column: 3;
+      grid-row: 5;
+    }
+
+    .photo-cell[data-photo-row="2"][data-col="next"] {
+      grid-column: 4;
+      grid-row: 5;
+    }
+
+    .photo-cell {
+      position: relative;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      min-height: 0;
+      display: grid;
+      grid-template: 1fr / 1fr;
+      background: #fafbfc;
+    }
+
+    .photo-cell[data-col="next"] {
+      border-right: none;
+    }
+
+    .photo-cell.current-col {
+      background: linear-gradient(180deg, #fffbeb 0%, #fafbfc 55%);
+    }
+
+    .photo-frame {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      max-width: none;
+      border-radius: 0;
+      overflow: hidden;
+      border: none;
+      box-shadow: none;
+    }
+
+    .photo-frame.highlight {
+      box-shadow: inset 0 0 0 2px var(--blue-frame);
+    }
+
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-frame-fill {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .photo-frame-fill > img {
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-frame-fill img.photo-opens-task-modal {
+      cursor: pointer;
+    }
+
+    .photo-cell-caption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 14px 8px 5px;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.78) 45%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .photo-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 50%, #e2e8f0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .photo-placeholder--blank {
+      background: #f1f5f9;
+      color: #94a3b8;
+      font-weight: 600;
+      text-align: center;
+      padding: 12px;
+      line-height: 1.4;
+    }
+
+    .photo-placeholder--blank.photo-placeholder--has-title {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .photo-placeholder--blank .photo-placeholder-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .photo-placeholder--blank .photo-placeholder-sub {
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .photo-placeholder--no-asset {
+      width: 100%;
+      height: 100%;
+      min-height: 48px;
+      display: block;
+      background: var(--photo-no-asset-fill);
+    }
+
+    /* Both timeline rows + scrubber (spans grid rows 3–4, photo columns only) */
+    .timelines-scrubber-stack {
+      grid-column: 2 / -1;
+      grid-row: 3 / 5;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      row-gap: 0;
+      padding: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--timeline-bg);
+      min-height: 0;
+      /* Avoid anonymous flex items from whitespace between direct children (adds stray vertical gaps). */
+      font-size: 0;
+      line-height: 0;
+    }
+
+    .timelines-scrubber-stack .timelines {
+      flex: 0 0 auto;
+      width: 100%;
+      min-height: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      font-size: 1rem;
+      line-height: normal;
+    }
+
+    .compare-scrubber {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      z-index: 30;
+      pointer-events: none;
+      left: 50%;
+      font-size: 1rem;
+      line-height: normal;
+    }
+
+    .compare-scrubber .scrubber-line {
+      position: absolute;
+      left: -1px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--orange-line);
+      box-shadow: 0 0 0 1px rgba(255, 159, 67, 0.25);
+      border-radius: 1px;
+      pointer-events: none;
+      transition: width 0.12s ease, left 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .compare-scrubber:hover .scrubber-line {
+      width: 3px;
+      left: -1.5px;
+      box-shadow: 0 0 0 1px rgba(255, 159, 67, 0.4);
+    }
+
+    .compare-scrubber .scrubber-handle {
+      position: absolute;
+      top: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 2px solid var(--accent-ring);
+      background: var(--orange-line);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95);
+      cursor: pointer;
+      pointer-events: auto;
+      padding: 0;
+      margin: 0;
+      z-index: 31;
+    }
+
+    .compare-scrubber .scrubber-handle:hover {
+      filter: brightness(1.05);
+    }
+
+    .compare-scrubber .scrubber-label {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 2px 7px;
+      white-space: nowrap;
+      pointer-events: none;
+      max-width: min(200px, 42vw);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* GROUP / TRADE */
+    .view-toggle {
+      display: inline-flex;
+      margin: 16px 0 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #f1f5f9;
+    }
+
+    .view-toggle button {
+      padding: 10px 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .view-toggle button.active {
+      background: #0f172a;
+      color: #fff;
+    }
+
+    .view-toggle button:not(.active):hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    /* Dual timelines */
+    .timelines {
+      position: relative;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--timeline-bg);
+      overflow: hidden;
+    }
+
+    .timeline-row {
+      position: relative;
+      padding: 0;
+      border-bottom: 1px solid var(--border);
+      min-height: 0;
+    }
+
+    .timeline-row:last-child {
+      border-bottom: none;
+    }
+
+    .timeline-track {
+      position: relative;
+      min-height: 34px;
+      height: 34px;
+      margin-top: 0;
+      border-radius: 0;
+      background-color: transparent;
+      border: none;
+      background-image: linear-gradient(to right, rgba(148, 163, 184, 0.14) 1px, transparent 1px);
+      background-size: 8.33% 100%;
+    }
+
+    /* Group zones: no pill/bubble — dots sit on the flat track surface */
+    .timeline-groups-layer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      gap: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      z-index: 3;
+      pointer-events: none;
+      scrollbar-width: thin;
+    }
+
+    .timeline-groups-layer::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .timeline-groups-layer::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    .timeline-group-zone {
+      flex: 0 0 auto;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      pointer-events: auto;
+      border: none;
+      box-shadow: none;
+      min-height: 0;
+    }
+
+    /* Flat bands (no bubble); A–D cycle so neighbors always differ (5th group repeats A). */
+    /* Semi-opaque so the full-width blue range + column grid still read through this layer (z-index 3). */
+    .timeline-group-zone.zone-a {
+      background: rgba(191, 219, 254, 0.48);
+    }
+
+    .timeline-group-zone.zone-b {
+      background: rgba(167, 243, 208, 0.44);
+    }
+
+    .timeline-group-zone.zone-c {
+      background: rgba(254, 215, 170, 0.48);
+    }
+
+    .timeline-group-zone.zone-d {
+      background: rgba(233, 213, 255, 0.46);
+    }
+
+    .timeline-group-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 7px 10px;
+    }
+
+    .timeline-group-dots.timeline-group-dots--trade {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      gap: 12px;
+    }
+
+    .timeline-subgroup {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 7px 10px;
+      padding: 0 2px;
+    }
+
+    .timeline-subgroup + .timeline-subgroup {
+      border-left: 1px solid rgba(100, 116, 139, 0.35);
+      padding-left: 10px;
+      margin-left: 2px;
+    }
+
+    /* Group = black square; task = black circle (shape only). */
+    .tl-dot {
+      flex-shrink: 0;
+      pointer-events: auto;
+      cursor: default;
+      user-select: none;
+      transition: transform 0.12s ease;
+    }
+
+    .tl-dot:hover {
+      transform: scale(1.2);
+    }
+
+    .tl-dot:focus-visible {
+      outline: 2px solid var(--orange-line);
+      outline-offset: 2px;
+    }
+
+    /* Button reset only — do not set background/border here (would override group/task via specificity). */
+    button.tl-dot {
+      margin: 0;
+      padding: 0;
+      font: inherit;
+      line-height: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      display: inline-block;
+      box-sizing: border-box;
+    }
+
+    button.tl-dot.tl-dot--group {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: #0f172a;
+      border: 1px solid #020617;
+      box-shadow: none;
+    }
+
+    button.tl-dot.tl-dot--task {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #0f172a;
+      border: 1px solid #020617;
+      box-shadow: none;
+    }
+
+    .range-mask::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        to right,
+        rgba(148, 163, 184, 0.2) 0%,
+        rgba(148, 163, 184, 0.2) var(--r0, 0%),
+        transparent var(--r0, 0%),
+        transparent var(--r1, 100%),
+        rgba(148, 163, 184, 0.2) var(--r1, 100%),
+        rgba(148, 163, 184, 0.2) 100%
+      );
+      z-index: 1;
+    }
+
+    .timeline-range {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      top: 50%;
+      height: 6px;
+      transform: translateY(-50%);
+      background: #5b7cff;
+      border-radius: 0;
+      z-index: 2;
+      box-shadow: none;
+      pointer-events: none;
+    }
+
+    /* Scope group name while hovering timeline track (not dots). */
+    .timeline-group-hover-tip {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 2400;
+      padding: 6px 10px;
+      max-width: min(360px, calc(100vw - 24px));
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: #fff;
+      background: rgba(15, 23, 42, 0.92);
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+      pointer-events: none;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.06s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .timeline-group-hover-tip.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Hover preview for timeline dots */
+    .dot-preview-modal {
+      position: fixed;
+      z-index: 2500;
+      display: none;
+      width: 300px;
+      max-width: min(300px, calc(100vw - 24px));
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 20px 48px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.04);
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .dot-preview-modal.visible {
+      display: block;
+    }
+
+    .dot-preview-modal-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      background: #fafbfc;
+    }
+
+    .dot-preview-modal-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+      margin: 0 0 4px;
+    }
+
+    .dot-preview-modal-meta {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* Task dot hover: group name in meta is not bold (title is already task, .dot-preview-modal-title). */
+    .dot-preview-modal--task .dot-preview-modal-meta {
+      font-weight: 400;
+    }
+
+    .dot-preview-modal-image-wrap {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      background: #e2e8f0;
+    }
+
+    .dot-preview-modal-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span>‹ <strong>Project Overview</strong></span>
+        <span>|</span>
+        <span>3484 South Main Street, Atlanta</span>
+      </div>
+      <ul class="main-nav">
+        <li><a href="#">Scope Builder</a></li>
+        <li><a href="#" class="active">Scope Review</a></li>
+        <li><a href="#">Contractors</a></li>
+        <li><a href="#">Artifacts</a></li>
+      </ul>
+      <div class="topbar-right">
+        <button type="button" class="btn">Complete Review</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <header class="page-head">
+        <h1 class="page-title">Compare Dates</h1>
+        <div class="view-toggle" role="group" aria-label="Photo grouping">
+          <button type="button" class="active" data-mode="group">Group</button>
+          <button type="button" data-mode="trade">Trade — Contractor</button>
+        </div>
+      </header>
+
+      <div class="layout">
+        <div class="compare-wrap" id="compareWrap">
+          <div class="compare-unified" id="compareGrid">
+            <div class="uni-walk-head">Select dates</div>
+            <div class="col-head prev" id="headPrev">#50000 — Previous task</div>
+            <div class="col-head current" id="headCurrent">#50001 Powerwash All</div>
+            <div class="col-head next" id="headNext">#50002 — Next task</div>
+
+            <aside class="uni-walk uni-walk--1" aria-label="Walk dates for first band">
+              <label class="walk-option">
+                <input type="radio" name="walkBand1" value="initial" checked />
+                <span>Initial walk — Mar 22, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand1" value="progress-1" />
+                <span>Progress walk 1 — Apr 3, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand1" value="progress-2" />
+                <span>Progress walk 2 — Apr 10, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand1" value="progress-3" />
+                <span>Progress walk 3 — Apr 17, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand1" value="progress-4" />
+                <span>Progress walk 4 — Apr 24, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand1" value="progress-5" />
+                <span>Progress walk 5 — May 1, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand1" value="closeout" />
+                <span>Closeout — May 21, 2026</span>
+              </label>
+            </aside>
+
+            <div class="photo-cell" data-photo-row="1" data-col="prev">
+              <div class="photo-frame"><div class="photo-placeholder">Prev · Mar 22</div></div>
+            </div>
+            <div class="photo-cell current-col" data-photo-row="1" data-col="current">
+              <div class="photo-frame highlight"><div class="photo-placeholder">Current · Mar 22</div></div>
+            </div>
+            <div class="photo-cell" data-photo-row="1" data-col="next">
+              <div class="photo-frame"><div class="photo-placeholder">Next · Mar 22</div></div>
+            </div>
+
+            <div class="timelines-scrubber-stack" id="timelinesScrubberStack"><div class="timelines" id="timelinesBlock"></div><div class="compare-scrubber" id="scrubberRail">
+                <span class="scrubber-line" aria-hidden="true"></span>
+                <button type="button" class="scrubber-handle" id="scrubberHandle" aria-label="Place scrubber at this column"></button>
+                <span class="scrubber-label" id="scrubberLabel"></span>
+              </div></div>
+
+            <aside class="uni-walk uni-walk--2" aria-label="Walk dates for second band">
+              <label class="walk-option">
+                <input type="radio" name="walkBand2" value="initial" />
+                <span>Initial walk — Mar 22, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand2" value="progress-1" />
+                <span>Progress walk 1 — Apr 3, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand2" value="progress-2" checked />
+                <span>Progress walk 2 — Apr 10, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand2" value="progress-3" />
+                <span>Progress walk 3 — Apr 17, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand2" value="progress-4" />
+                <span>Progress walk 4 — Apr 24, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand2" value="progress-5" />
+                <span>Progress walk 5 — May 1, 2026</span>
+              </label>
+              <label class="walk-option">
+                <input type="radio" name="walkBand2" value="closeout" />
+                <span>Closeout — May 21, 2026</span>
+              </label>
+            </aside>
+
+            <div class="photo-cell" data-photo-row="2" data-col="prev">
+              <div class="photo-frame"><div class="photo-placeholder">Prev · Apr 10</div></div>
+            </div>
+            <div class="photo-cell current-col" data-photo-row="2" data-col="current">
+              <div class="photo-frame highlight"><div class="photo-placeholder">Current · Apr 10</div></div>
+            </div>
+            <div class="photo-cell" data-photo-row="2" data-col="next">
+              <div class="photo-frame"><div class="photo-placeholder">Next · Apr 10</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Detail modal (markup matches scope-review-tabs.html) -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-photo" id="modalPhoto">
+      <button class="modal-photo-nav-btn prev" id="modalPhotoPrevBtn" onclick="navigateModalPhoto(-1)" aria-label="Previous photo">‹</button>
+      <button class="modal-photo-nav-btn next" id="modalPhotoNextBtn" onclick="navigateModalPhoto(1)" aria-label="Next photo">›</button>
+      <div class="modal-photo-status-badge hidden" id="modalPhotoStatusBadge"></div>
+      <div class="modal-photo-content">
+        <div class="modal-photo-label" id="modalPhotoLabel">Photo</div>
+      </div>
+      <div class="modal-photo-overlay">
+        <div class="modal-photo-overlay-content">
+          <div class="modal-photo-date" id="modalPhotoDate">Jan 20, 2025</div>
+          <div class="modal-photo-photographer" id="modalPhotoPhotographer">R. Garcia</div>
+          <div class="modal-photo-upload-source" id="modalPhotoUploadSource">Uploaded from computer</div>
+        </div>
+      </div>
+      <div class="modal-photo-gallery" id="modalPhotoGallery">
+        <!-- Photo thumbnails will be populated here -->
+      </div>
+    </div>
+    <div class="modal-details" id="modalDetails">
+      <div class="modal-header">
+        <div class="modal-nav-row">
+          <button class="modal-nav-btn" id="modalPrevBtn" onclick="navigateTask(-1)" title="Previous task">
+            <span class="nav-arrow">‹</span>
+            <span class="nav-text" id="modalPrevText">Previous task</span>
+          </button>
+          <div class="modal-nav-spacer"></div>
+          <button class="modal-nav-btn" id="modalNextBtn" onclick="navigateTask(1)" title="Next task">
+            <span class="nav-text" id="modalNextText">Next task</span>
+            <span class="nav-arrow">›</span>
+          </button>
+        </div>
+        <div class="modal-title-section">
+          <div class="modal-subtitle" id="modalSubtitle">Task details</div>
+          <div class="modal-title" id="modalTitle">Task Name</div>
+        </div>
+        <div class="modal-task-actions">
+          <button class="modal-task-action-btn approve" id="approveTaskBtn" type="button" onclick="approveCurrentTask()">Approve Task</button>
+          <button class="modal-task-action-btn request-edit" id="requestEditTaskBtn" type="button" onclick="requestEditCurrentTask()">Request Edit</button>
+          <button class="modal-task-action-btn delete" id="deleteTaskBtn" type="button" onclick="promptDeleteCurrentTask()">Delete Task</button>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <div class="details-section-title">Details</div>
+        <div class="details-grid">
+          <div class="detail-item editable">
+            <span class="detail-label">Contractor</span>
+            <div class="detail-edit-row">
+              <select class="detail-select" id="detailContractor" data-detail-field="contractor"></select>
+              <button class="detail-edit-btn" type="button" data-focus-target="detailContractor" aria-label="Edit contractor">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.9 2.1a1.5 1.5 0 1 1 2.1 2.1L6 11.2 3 12l.8-3 7.1-6.9Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Total</span>
+            <span class="detail-value accent" id="detailTotal">—</span>
+          </div>
+          <div class="detail-item editable">
+            <span class="detail-label">Qty</span>
+            <div class="detail-edit-row">
+              <input class="detail-input" id="detailQty" data-detail-field="qty" type="number" step="any" inputmode="decimal" value="" />
+              <span class="detail-input-unit" id="detailQtyUnit">ea</span>
+              <button class="detail-edit-btn" type="button" data-focus-target="detailQty" aria-label="Edit quantity">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.9 2.1a1.5 1.5 0 1 1 2.1 2.1L6 11.2 3 12l.8-3 7.1-6.9Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">ID</span>
+            <span class="detail-value" id="detailId">—</span>
+          </div>
+          <div class="detail-item editable">
+            <span class="detail-label">Unit Price</span>
+            <div class="detail-edit-row">
+              <input class="detail-input" id="detailUnitPrice" data-detail-field="unitPrice" type="text" value="" />
+              <button class="detail-edit-btn" type="button" data-focus-target="detailUnitPrice" aria-label="Edit unit price">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.9 2.1a1.5 1.5 0 1 1 2.1 2.1L6 11.2 3 12l.8-3 7.1-6.9Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="detail-item editable">
+            <span class="detail-label">Modifier</span>
+            <div class="detail-edit-row modifier-row">
+              <div class="detail-modifier-area">
+                <div class="detail-modifier-pills" id="detailModifierPills"></div>
+                <details class="detail-multi-select" id="detailModifierSelect">
+                  <summary id="detailModifierSummary">+ Add Modifier</summary>
+                  <div class="detail-multi-options">
+                    <label class="detail-modifier-option"><input class="detail-modifier-checkbox" type="checkbox" value="Resident Responsible" />Resident Responsible</label>
+                    <label class="detail-modifier-option"><input class="detail-modifier-checkbox" type="checkbox" value="Deferred" />Deferred</label>
+                    <label class="detail-modifier-option"><input class="detail-modifier-checkbox" type="checkbox" value="Future Phase" />Future Phase</label>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <div class="details-section-title">Task Activities</div>
+        <div id="detailActivities" class="activity-list">
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent">Paint Cabinet Base</span> completed</div>
+              <div class="activity-card-time">Mar 20 14:32</div>
+            </div>
+            <div class="activity-card-author">Shane D.</div>
+            <div class="activity-card-notes">Cabinet base painting completed. Color matched perfectly to existing base.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Status</span>
+                <span class="activity-card-detail-value green">Completed</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Quality Check</span>
+                <span class="activity-card-detail-value">Passed</span>
+              </div>
+            </div>
+            <div class="activity-card-photos">
+              <div class="activity-card-photo-thumb" style="background:#c9d8e8;"></div>
+              <div class="activity-card-photo-thumb" style="background:#d4e8d4;"></div>
+              <div class="activity-card-photo-thumb" style="background:#e8d4c9;"></div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent-orange">Materials</span> delivered</div>
+              <div class="activity-card-time">Mar 19 09:15</div>
+            </div>
+            <div class="activity-card-author">R. Garcia</div>
+            <div class="activity-card-notes">Cabinet hardware and paint materials arrived on site. Stored in garage per spec.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Items Received</span>
+                <span class="activity-card-detail-value">12</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Verification</span>
+                <span class="activity-card-detail-value green">Complete</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent">Prep Work</span> in progress</div>
+              <div class="activity-card-time">Mar 18 16:42</div>
+            </div>
+            <div class="activity-card-author">Shane D.</div>
+            <div class="activity-card-notes">Cabinet surfaces sanded and cleaned. Primer application scheduled for tomorrow morning.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Surfaces Prepared</span>
+                <span class="activity-card-detail-value">8 of 12 cabinets</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Next Step</span>
+                <span class="activity-card-detail-value">Primer application</span>
+              </div>
+            </div>
+            <div class="activity-card-photos">
+              <div class="activity-card-photo-thumb" style="background:#d4cce8;"></div>
+              <div class="activity-card-photo-thumb" style="background:#e8e4c9;"></div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent-orange">Inspection</span> requested</div>
+              <div class="activity-card-time">Mar 17 13:26</div>
+            </div>
+            <div class="activity-card-author">Eric L.</div>
+            <div class="activity-card-notes">Scheduling required before repair work begins. Homeowner needs 48-hour notice.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Inspection Type</span>
+                <span class="activity-card-detail-value">Cabinet condition</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Scheduled</span>
+                <span class="activity-card-detail-value">Mar 19 10:00 AM</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent">Task Assigned</span> to contractor</div>
+              <div class="activity-card-time">Mar 16 10:22</div>
+            </div>
+            <div class="activity-card-author">You</div>
+            <div class="activity-card-notes">Cabinet base painting assigned. Work to begin following inspection clearance.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Assigned to</span>
+                <span class="activity-card-detail-value">Summit Ridge</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Estimated Duration</span>
+                <span class="activity-card-detail-value">2-3 days</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent">Budget adjustment</span> approved</div>
+              <div class="activity-card-time">Mar 15 08:55</div>
+            </div>
+            <div class="activity-card-author">Shane D.</div>
+            <div class="activity-card-notes">Additional cabinet repair costs approved. Total paint amount confirmed.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Original Price</span>
+                <span class="activity-card-detail-value">$50.00</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Adjustment</span>
+                <span class="activity-card-detail-value green">+$0.00</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Final Price</span>
+                <span class="activity-card-detail-value green">$50.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent">Scope Note</span> added</div>
+              <div class="activity-card-time">Mar 14 16:30</div>
+            </div>
+            <div class="activity-card-author">R. Garcia</div>
+            <div class="activity-card-notes">Added requirement: Match existing cabinet base color exactly. Homeowner wants seamless blend with current finishes.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Note Type</span>
+                <span class="activity-card-detail-value">Scope Group Note</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent">Photo Upload</span> documentation</div>
+              <div class="activity-card-time">Mar 13 11:18</div>
+            </div>
+            <div class="activity-card-author">Shane D.</div>
+            <div class="activity-card-notes">Before photos of cabinet base taken and uploaded. Reference images for color matching stored.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Photos Uploaded</span>
+                <span class="activity-card-detail-value">6</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Documentation</span>
+                <span class="activity-card-detail-value green">Complete</span>
+              </div>
+            </div>
+            <div class="activity-card-photos">
+              <div class="activity-card-photo-thumb" style="background:#c9e8e2;"></div>
+              <div class="activity-card-photo-thumb" style="background:#e8c9d4;"></div>
+              <div class="activity-card-photo-thumb" style="background:#ccd8e8;"></div>
+              <div class="activity-card-photo-thumb" style="background:#e8d9c9;"></div>
+            </div>
+          </div>
+
+          <div class="activity-card">
+            <div class="activity-card-head">
+              <div class="activity-card-title"><span class="accent">Task Created</span></div>
+              <div class="activity-card-time">Mar 12 09:45</div>
+            </div>
+            <div class="activity-card-author">You</div>
+            <div class="activity-card-notes">Paint Cabinet Base task created as part of Kitchen Group scope review.</div>
+            <div class="activity-card-details">
+              <div class="activity-card-detail-item">
+                <span>Task ID</span>
+                <span class="activity-card-detail-value">50048</span>
+              </div>
+              <div class="activity-card-detail-item">
+                <span>Initial Budget</span>
+                <span class="activity-card-detail-value">$50.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="modal-group-gallery-panel" id="modalGroupGalleryPanel">
+      <div class="modal-group-gallery-head">
+        <div class="modal-group-gallery-title" id="modalGroupGalleryTitle">Group Photos</div>
+        <div class="modal-group-gallery-count" id="modalGroupGalleryCount">0 photos</div>
+      </div>
+      <div class="modal-group-gallery-grid" id="modalGroupGalleryGrid"></div>
+    </aside>
+  </div>
+</div>
+
+
+  <div class="timeline-group-hover-tip" id="timelineGroupHoverTip" role="tooltip" aria-hidden="true"></div>
+
+  <aside class="dot-preview-modal" id="dotPreviewModal" role="tooltip" aria-hidden="true">
+    <div class="dot-preview-modal-header">
+      <p class="dot-preview-modal-title" id="dotPreviewTitle">Preview</p>
+      <p class="dot-preview-modal-meta" id="dotPreviewMeta"></p>
+    </div>
+    <div class="dot-preview-modal-image-wrap">
+      <img id="dotPreviewImage" src="" alt="" />
+    </div>
+  </aside>
+
+  <script src="scope-import-data.js"></script>
+  <script>
+    (function () {
+      const dotPreviewModal = document.getElementById('dotPreviewModal');
+      const dotPreviewTitle = document.getElementById('dotPreviewTitle');
+      const dotPreviewMeta = document.getElementById('dotPreviewMeta');
+      const dotPreviewImage = document.getElementById('dotPreviewImage');
+      const timelineGroupHoverTip = document.getElementById('timelineGroupHoverTip');
+
+      function phImg(seed, label) {
+        const t = encodeURIComponent(label || 'Photo');
+        return `data:image/svg+xml,${encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="280" viewBox="0 0 400 280">
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e2e8f0"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient></defs>
+            <rect width="400" height="280" fill="url(#g)"/>
+            <text x="200" y="145" text-anchor="middle" fill="#64748b" font-size="14" font-family="system-ui">${t}</text>
+            <text x="200" y="168" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="system-ui">${seed}</text>
+          </svg>`
+        )}`;
+      }
+
+      function hideTimelineGroupHoverTip() {
+        if (!timelineGroupHoverTip) return;
+        timelineGroupHoverTip.classList.remove('visible');
+        timelineGroupHoverTip.textContent = '';
+        timelineGroupHoverTip.setAttribute('aria-hidden', 'true');
+      }
+
+      function hideDotPreview() {
+        hideTimelineGroupHoverTip();
+        dotPreviewModal?.classList.remove('visible', 'dot-preview-modal--task');
+        if (dotPreviewModal) dotPreviewModal.setAttribute('aria-hidden', 'true');
+      }
+
+      function showDotPreview(anchorEl, titleText, metaText, src, alt, previewKind) {
+        if (!dotPreviewModal || !dotPreviewTitle || !dotPreviewMeta || !dotPreviewImage || !src) return;
+        dotPreviewModal.classList.remove('dot-preview-modal--task');
+        if (previewKind === 'task') dotPreviewModal.classList.add('dot-preview-modal--task');
+        dotPreviewTitle.textContent = titleText || 'Preview';
+        dotPreviewMeta.textContent = metaText || '';
+        dotPreviewImage.src = src;
+        dotPreviewImage.alt = alt || titleText || 'Preview';
+        dotPreviewModal.classList.add('visible');
+        dotPreviewModal.setAttribute('aria-hidden', 'false');
+
+        const pad = 12;
+        const gap = 10;
+        const rect = anchorEl.getBoundingClientRect();
+        function place() {
+          const mw = dotPreviewModal.offsetWidth || 300;
+          const mh = dotPreviewModal.offsetHeight || 280;
+          let left = rect.right + gap;
+          let top = rect.top + (rect.height - mh) / 2;
+          if (left + mw > window.innerWidth - pad) {
+            left = rect.left - mw - gap;
+          }
+          if (left < pad) left = pad;
+          if (top < pad) top = pad;
+          if (top + mh > window.innerHeight - pad) {
+            top = window.innerHeight - mh - pad;
+          }
+          dotPreviewModal.style.left = `${left}px`;
+          dotPreviewModal.style.top = `${top}px`;
+        }
+        requestAnimationFrame(place);
+      }
+
+      function selectionKeyFromDot(dot) {
+        return {
+          groupName: dot.getAttribute('data-group') || '',
+          kind: dot.getAttribute('data-kind') || 'task',
+          task: dot.getAttribute('data-task') || '',
+          caption: dot.getAttribute('data-caption') || ''
+        };
+      }
+
+      function bindDotHoverPreview(root) {
+        root.querySelectorAll('.tl-dot').forEach(dot => {
+          dot.addEventListener('pointerdown', e => {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            e.stopPropagation();
+            e.preventDefault();
+            const track = dot.closest('.timeline-track');
+            const r = dot.getBoundingClientRect();
+            const cx = r.left + r.width / 2;
+            moveScrubberToClientX(cx, track);
+            applySelectionKeyToMiddlePhotos(selectionKeyFromDot(dot));
+          });
+          dot.addEventListener('mouseenter', () => {
+            const src = dot.getAttribute('data-src');
+            if (!src) return;
+            const group = dot.getAttribute('data-group') || '';
+            const kind = dot.getAttribute('data-kind') || 'task';
+            const task = dot.getAttribute('data-task') || '';
+            const caption = dot.getAttribute('data-caption') || '';
+            const title = kind === 'group' ? `${group}` : `${task || 'Task photo'}`;
+            const meta = kind === 'group' ? 'Group photo' : group;
+            const alt = kind === 'group' ? `${group} — ${caption}` : `${task} — ${caption}`;
+            showDotPreview(dot, title, meta, src, alt, kind);
+          });
+          dot.addEventListener('mouseleave', hideDotPreview);
+          dot.addEventListener('focus', () => dot.dispatchEvent(new Event('mouseenter')));
+          dot.addEventListener('blur', hideDotPreview);
+        });
+      }
+
+      /** Real Exterior General paths — align with scope-review / timeline-view prototypes. */
+      const EG = p => `images/Exterior_General/${p}`;
+
+      /** Hand-authored Exterior dots per walk (initial vs progress). */
+      const EXTERIOR_GENERAL_ITEMS_BY_WALK = [
+        [
+          { kind: 'group', caption: 'Group photo — Mar 15 walk', src: EG('092593af-d454-42dd-a3ea-b88143ffe7a3.jpeg') },
+          { kind: 'group', caption: 'Group photo — Mar 22 walk', src: EG('37a4cb4c-375d-4b18-b240-290944bb51b2.jpeg') },
+          {
+            kind: 'task',
+            task: '#50001 Powerwash All',
+            caption: 'Powerwash — before (Mar 16)',
+            src: EG('Powerwash/1ca5b563-1c8d-4c7a-bf9c-11fb5f238b3f.jpeg')
+          },
+          {
+            kind: 'task',
+            task: '#50001 Powerwash All',
+            caption: 'Powerwash — stage 1 (Apr 6)',
+            src: EG('Powerwash/2b29916f-7088-4e9a-a26f-94287d30a1d0.jpeg')
+          },
+          {
+            kind: 'task',
+            task: '#50002 Paint Mailbox Post',
+            caption: 'Mailbox — before paint (Apr 10)',
+            src: EG('01598bdd-3258-4157-bbd3-ed2adcad46c1.jpeg')
+          }
+        ],
+        [
+          { kind: 'group', caption: 'Group photo — Apr 12 walk', src: EG('72b0c4a5-228a-4fe7-8237-68f3f23c8cf9.jpeg') },
+          {
+            kind: 'task',
+            task: '#50001 Powerwash All',
+            caption: 'Powerwash — complete',
+            src: EG('Powerwash/c9bde997-ffe4-4d20-81bf-9b9b2624cbe1.jpeg')
+          },
+          {
+            kind: 'task',
+            task: '#50004 Exhaust Vent Repair',
+            caption: 'Exhaust vent — louver installed',
+            src: EG('Exhaust_Vent__Exterior_Plastic_Louvered_/5d923f1f-3239-452d-82d5-02f1af1ac571.jpeg')
+          }
+        ]
+      ];
+
+      function slugForPh(seed) {
+        return String(seed || 'x')
+          .replace(/[^\w\-]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 28);
+      }
+
+      /** Stable small int from group name so dot counts vary per group but stay consistent across renders. */
+      function hashGroupName(name) {
+        const s = String(name || '');
+        let h = 0;
+        for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+        return Math.abs(h);
+      }
+
+      function taskLineFromScope(t) {
+        const id = String(t.id || '').trim();
+        const name = (t.task || '').replace(/\s+/g, ' ').trim();
+        const short = name.length > 52 ? `${name.slice(0, 49)}…` : name;
+        return id ? `#${id} ${short}` : short || 'Task';
+      }
+
+      function taskCaptionFromScope(t) {
+        const name = (t.task || '').trim();
+        return name.length > 120 ? `${name.slice(0, 117)}…` : name;
+      }
+
+      /**
+       * When `importedScopeData.groups` is missing, timeline still shows a Kitchen strip;
+       * use real scope IDs/lines so opening the task modal resolves `importedScopeData` tasks.
+       */
+      function fallbackKitchenDemoTimelineItems(wi, phImgFn) {
+        const scope = window.importedScopeData;
+        const g =
+          scope && Array.isArray(scope.groups)
+            ? scope.groups.find(x => String(x.name) === 'Kitchen (Includes small hall)')
+            : null;
+        const groupDot = { kind: 'group', caption: 'Group photos · demo', src: phImgFn('K-G1', 'Kitchen') };
+        const tasks = g?.tasks || [];
+        if (tasks.length) {
+          if (wi === 0) {
+            const t = tasks[0];
+            return [
+              groupDot,
+              {
+                kind: 'task',
+                task: taskLineFromScope(t),
+                caption: 'Initial walk — debris',
+                src: phImgFn('K-T1', 'Kitchen')
+              }
+            ];
+          }
+          const pick = (i, cap, seed) => {
+            const t = tasks[i];
+            if (!t) return null;
+            return {
+              kind: 'task',
+              task: taskLineFromScope(t),
+              caption: cap,
+              src: phImgFn(seed, 'Kitchen')
+            };
+          };
+          return [groupDot, pick(0, 'Rough-in progress', 'K-T1'), pick(1, 'Boxes installed', 'K-T2'), pick(2, 'First coat', 'K-T3')].filter(
+            Boolean
+          );
+        }
+        if (wi === 0) {
+          return [
+            groupDot,
+            {
+              kind: 'task',
+              task: '#50048 Paint Cabinet Base - Match existing cabinet base …',
+              caption: 'Initial walk — debris',
+              src: phImgFn('K-T1', 'Kitchen')
+            }
+          ];
+        }
+        return [
+          groupDot,
+          {
+            kind: 'task',
+            task: '#50048 Paint Cabinet Base - Match existing cabinet base …',
+            caption: 'Rough-in progress',
+            src: phImgFn('K-T1', 'Kitchen')
+          },
+          {
+            kind: 'task',
+            task: '#50049 Repair Cabinets (Add Detail)',
+            caption: 'Boxes installed',
+            src: phImgFn('K-T2', 'Kitchen')
+          },
+          {
+            kind: 'task',
+            task: '#50050 Replace door hardware including hinges (GC to ver…',
+            caption: 'First coat',
+            src: phImgFn('K-T3', 'Kitchen')
+          }
+        ];
+      }
+
+      function itemsForScopeGroup(group, walkIndex, walkDateLabel) {
+        if (group.name === 'Exterior General') {
+          const list = EXTERIOR_GENERAL_ITEMS_BY_WALK[walkIndex] || EXTERIOR_GENERAL_ITEMS_BY_WALK[0];
+          return list.map(entry => Object.assign({}, entry));
+        }
+        const tasks = group.tasks || [];
+        const meta = String(group.meta || '').trim();
+        const h = hashGroupName(group.name);
+        const dateTag = walkDateLabel ? ` · ${walkDateLabel}` : '';
+        const items = [
+          {
+            kind: 'group',
+            caption: meta
+              ? `Group photos · ${meta}${dateTag}`
+              : `Group photos · ${tasks.length} scope tasks${dateTag}`,
+            src: phImg(`g-${slugForPh(group.name)}`, group.name)
+          }
+        ];
+        if (!tasks.length) return items;
+
+        /* Mar 22 (initial): often sparse — many groups 0–2 task dots. Apr 10-ish (progress): more documentation — more tasks, sometimes a later slice of the list. */
+        let numTasks;
+        let startIdx = 0;
+        if (walkIndex === 0) {
+          numTasks = Math.min(tasks.length, h % 4);
+        } else {
+          const want = 2 + (h % 7);
+          numTasks = Math.min(tasks.length, Math.max(1, want));
+          const room = tasks.length - numTasks;
+          if (room > 0) startIdx = (h >> 3) % (room + 1);
+        }
+
+        for (let i = 0; i < numTasks; i++) {
+          const t = tasks[startIdx + i];
+          if (!t) break;
+          items.push({
+            kind: 'task',
+            task: taskLineFromScope(t),
+            caption: taskCaptionFromScope(t),
+            src: phImg(String(t.id || `t-${startIdx + i}`), group.name)
+          });
+        }
+        return items;
+      }
+
+      function taskIdFromItemTaskLine(taskLine) {
+        const m = String(taskLine || '').match(/#(\d+)\b/);
+        return m ? m[1] : '';
+      }
+
+      /** Contractor bucket for one task dot (scope group + rendered item). */
+      function contractorForTaskItem(scopeGroup, item) {
+        if (scopeGroup.name === 'Exterior General') return 'Exterior (general)';
+        if (!item || item.kind !== 'task') return 'Unassigned';
+        const id = taskIdFromItemTaskLine(item.task);
+        if (!id) return 'Unassigned';
+        const tasks = scopeGroup.tasks || [];
+        const t = tasks.find(x => String(x.id) === id);
+        const c = t && t.contractor != null ? String(t.contractor).trim() : '';
+        return c || 'Unassigned';
+      }
+
+      function mergeContractorOrder(orderA, orderB) {
+        const out = [];
+        const seen = new Set();
+        for (const n of orderA || []) {
+          if (n && !seen.has(n)) {
+            seen.add(n);
+            out.push(n);
+          }
+        }
+        for (const n of orderB || []) {
+          if (n && !seen.has(n)) {
+            seen.add(n);
+            out.push(n);
+          }
+        }
+        return out;
+      }
+
+      /**
+       * Build contractor → { subgroups } for one walk. Each subgroup is one scope group’s dots
+       * (group square + tasks) for tasks that belong in this contractor column.
+       */
+      function buildContractorZoneMapForWalk(gsrc, wi, dateLabel) {
+        const zoneOrder = [];
+        const map = new Map();
+
+        function ensure(contractor) {
+          if (!map.has(contractor)) {
+            map.set(contractor, { name: contractor, subgroups: [] });
+            zoneOrder.push(contractor);
+          }
+          return map.get(contractor);
+        }
+
+        function appendTaskToZone(z, groupName, groupDot, taskItem) {
+          const subs = z.subgroups;
+          const last = subs[subs.length - 1];
+          if (last && last.groupName === groupName) {
+            last.items.push(taskItem);
+          } else {
+            subs.push({ groupName, items: [groupDot, taskItem] });
+          }
+        }
+
+        for (const g of gsrc) {
+          const items = itemsForScopeGroup(g, wi, dateLabel);
+          if (!items.length) continue;
+          const groupDot = items[0];
+          const taskItems = items.slice(1);
+          if (!taskItems.length) {
+            const z = ensure('Unassigned');
+            z.subgroups.push({ groupName: g.name, items: [groupDot] });
+            continue;
+          }
+          for (const ti of taskItems) {
+            const c = contractorForTaskItem(g, ti);
+            const z = ensure(c);
+            appendTaskToZone(z, g.name, groupDot, ti);
+          }
+        }
+
+        return { order: zoneOrder, map };
+      }
+
+      /**
+       * One timeline row = one walk date.
+       * Groups mirror `scope-import-data.js` → window.importedScopeData.groups (29).
+       */
+      function buildTimelineRows(viewMode = 'group') {
+        const walkShell = [
+          {
+            dateLabel: 'Mar 22, 2026',
+            rowTitle: 'Initial Walk — Mar 22, 2026',
+            rangeDefaults: { r0: '6%', r1: '88%' }
+          },
+          {
+            dateLabel: 'Apr 10, 2026',
+            rowTitle: 'Progress Walk 2 — Apr 10, 2026',
+            rangeDefaults: { r0: '6%', r1: '92%' }
+          }
+        ];
+
+        const scope = window.importedScopeData;
+        const gsrc = scope && Array.isArray(scope.groups) && scope.groups.length ? scope.groups : null;
+        if (!gsrc) {
+          if (viewMode === 'trade') {
+            return walkShell.map((row, wi) => ({
+              ...row,
+              groups: [
+                {
+                  name: 'Exterior (general)',
+                  subgroups: [
+                    {
+                      groupName: 'Exterior General',
+                      items: (EXTERIOR_GENERAL_ITEMS_BY_WALK[wi] || EXTERIOR_GENERAL_ITEMS_BY_WALK[0]).map(e =>
+                        Object.assign({}, e)
+                      )
+                    }
+                  ]
+                },
+                {
+                  name: 'Trade — demo contractor',
+                  subgroups: [
+                    {
+                      groupName: 'Kitchen (Includes small hall)',
+                      items: fallbackKitchenDemoTimelineItems(wi, phImg)
+                    }
+                  ]
+                }
+              ]
+            }));
+          }
+          return walkShell.map((row, wi) => ({
+            ...row,
+            groups: [
+              {
+                name: 'Exterior General',
+                items: (EXTERIOR_GENERAL_ITEMS_BY_WALK[wi] || EXTERIOR_GENERAL_ITEMS_BY_WALK[0]).map(e =>
+                  Object.assign({}, e)
+                )
+              },
+              {
+                name: 'Kitchen (Includes small hall)',
+                items: fallbackKitchenDemoTimelineItems(wi, phImg)
+              }
+            ]
+          }));
+        }
+
+        if (viewMode === 'trade') {
+          const z0 = buildContractorZoneMapForWalk(gsrc, 0, walkShell[0].dateLabel);
+          const z1 = buildContractorZoneMapForWalk(gsrc, 1, walkShell[1].dateLabel);
+          let order = mergeContractorOrder(z0.order, z1.order);
+          if (!order.length) order = ['Unassigned'];
+          return walkShell.map((row, wi) => {
+            const zm = wi === 0 ? z0 : z1;
+            return {
+              ...row,
+              groups: order.map(contractorName => {
+                const z = zm.map.get(contractorName);
+                return {
+                  name: contractorName,
+                  subgroups: z && z.subgroups.length ? z.subgroups : []
+                };
+              })
+            };
+          });
+        }
+
+        return walkShell.map((row, wi) => ({
+          ...row,
+          groups: gsrc.map(g => ({
+            name: g.name,
+            items: itemsForScopeGroup(g, wi, walkShell[wi].dateLabel)
+          }))
+        }));
+      }
+
+      let TIMELINE_ROWS = buildTimelineRows('group');
+      let lastPhotoSelectionKey = null;
+      let groupLayersScrollAbort = null;
+      let timelineLayerHoverAbort = null;
+
+      function itemMatchesSelectionKey(item, groupName, key) {
+        if (!key || !key.groupName) return false;
+        if (groupName !== key.groupName) return false;
+        if (item.kind !== key.kind) return false;
+        if (key.kind === 'task') {
+          if (key.task && item.task !== key.task) return false;
+          if (key.caption && item.caption !== key.caption) return false;
+        } else if (key.caption && item.caption !== key.caption) return false;
+        return true;
+      }
+
+      function findMatchingEntryInWalk(walkIndex, key) {
+        const row = TIMELINE_ROWS[walkIndex];
+        if (!row || !key || !key.groupName) return null;
+        for (const g of row.groups) {
+          for (const item of g.items) {
+            if (itemMatchesSelectionKey(item, g.name, key)) return { groupName: g.name, item };
+          }
+        }
+        return null;
+      }
+
+      function findMatchingItemInWalk(walkIndex, key) {
+        const e = findMatchingEntryInWalk(walkIndex, key);
+        return e ? e.item : null;
+      }
+
+      /** Flatten timeline items in visual order (same as dots left → right). */
+      function flattenWalkItems(walkIndex) {
+        const row = TIMELINE_ROWS[walkIndex];
+        if (!row || !row.groups) return [];
+        const flat = [];
+        row.groups.forEach(g => {
+          if (g.subgroups && Array.isArray(g.subgroups)) {
+            g.subgroups.forEach(sub => {
+              (sub.items || []).forEach(item => {
+                flat.push({ groupName: sub.groupName, item });
+              });
+            });
+          } else {
+            (g.items || []).forEach(item => {
+              flat.push({ groupName: g.name, item });
+            });
+          }
+        });
+        return flat;
+      }
+
+      function findFlatIndexForKey(walkIndex, key) {
+        if (!key || !key.groupName) return -1;
+        const flat = flattenWalkItems(walkIndex);
+        for (let i = 0; i < flat.length; i++) {
+          if (itemMatchesSelectionKey(flat[i].item, flat[i].groupName, key)) return i;
+        }
+        return -1;
+      }
+
+      function labelForTimelineItem(item, groupName) {
+        if (!item) return '';
+        if (item.kind === 'group') return groupName || item.caption || 'Group';
+        return (item.task || '').trim() || (item.caption || '').trim() || groupName;
+      }
+
+      function setPhotoCellForEntry(cell, row, entry, colKind) {
+        if (!cell) return;
+        const showCaptionBar = cell.getAttribute('data-photo-row') === '2';
+        const frame = cell.querySelector('.photo-frame.highlight') || cell.querySelector('.photo-frame');
+        if (!frame) return;
+        if (!entry || !entry.item) {
+          const blank =
+            colKind === 'prev' || colKind === 'next'
+              ? 'No photo on this date'
+              : 'No photo for this item on this walk date.';
+          frame.innerHTML = `<div class="photo-placeholder photo-placeholder--blank">${blank}</div>`;
+          return;
+        }
+        const { groupName, item } = entry;
+        const src = item.src;
+        if (!src) {
+          frame.replaceChildren();
+          const ph = document.createElement('div');
+          ph.className = 'photo-placeholder photo-placeholder--no-asset';
+          ph.setAttribute('aria-hidden', 'true');
+          frame.appendChild(ph);
+          return;
+        }
+        const alt =
+          item.kind === 'group'
+            ? `${row.rowTitle} — ${groupName} — ${item.caption || ''}`
+            : `${row.rowTitle} — ${item.task || ''} — ${item.caption || ''}`;
+        const caption = labelForTimelineItem(item, groupName);
+        frame.innerHTML = '';
+        const wrap = document.createElement('div');
+        wrap.className = 'photo-frame-fill';
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = alt;
+        img.dataset.timelineKind = item.kind || '';
+        img.dataset.scopeGroupName = groupName || '';
+        img.dataset.walkTitle = row.rowTitle || '';
+        img.dataset.photoCaption = item.caption || '';
+        if (item.kind === 'task') {
+          const idMatch = String(item.task || '').match(/#(\d+)\b/);
+          if (idMatch) img.dataset.taskId = idMatch[1];
+        }
+        if (item.kind === 'task' || item.kind === 'group') {
+          img.classList.add('photo-opens-task-modal');
+        }
+        wrap.appendChild(img);
+        if (showCaptionBar) {
+          const capEl = document.createElement('div');
+          capEl.className = 'photo-cell-caption';
+          capEl.textContent = caption;
+          wrap.appendChild(capEl);
+        }
+        frame.appendChild(wrap);
+      }
+
+      /** First walk whose flattened timeline contains this key (walk 0 may omit tasks for some groups). */
+      function findWalkAndIndexForKey(key) {
+        if (!key || !key.groupName) return { walkIndex: 0, idx: -1, flat: [] };
+        for (let wi = 0; wi < TIMELINE_ROWS.length; wi++) {
+          const flat = flattenWalkItems(wi);
+          const idx = findFlatIndexForKey(wi, key);
+          if (idx >= 0) return { walkIndex: wi, idx, flat };
+        }
+        return { walkIndex: 0, idx: -1, flat: flattenWalkItems(0) };
+      }
+
+      /** When no timeline row lists this task, use scope group task order for prev/next labels. */
+      function scopeNeighborsForHeaders(key) {
+        const scope = window.importedScopeData;
+        if (!key || !key.groupName || !scope || !Array.isArray(scope.groups)) return { prev: '', next: '' };
+        const g = scope.groups.find(gr => gr.name === key.groupName);
+        if (!g || !Array.isArray(g.tasks) || !g.tasks.length) return { prev: '', next: '' };
+        const idMatch = String(key.task || '').match(/#(\d+)\b/);
+        const id = idMatch ? idMatch[1] : '';
+        let ti = -1;
+        if (id) ti = g.tasks.findIndex(t => String(t.id) === id);
+        if (ti < 0) return { prev: '', next: '' };
+        const prevT = ti > 0 ? g.tasks[ti - 1] : null;
+        const nextT = ti < g.tasks.length - 1 ? g.tasks[ti + 1] : null;
+        return {
+          prev: prevT ? taskLineFromScope(prevT) : '',
+          next: nextT ? taskLineFromScope(nextT) : ''
+        };
+      }
+
+      function updateColumnHeadersForSelection(key) {
+        if (!headPrev || !headCurrent || !headNext) return;
+        if (!key || !key.groupName) {
+          headPrev.textContent = 'Previous';
+          headCurrent.textContent = 'Current';
+          headNext.textContent = 'Next';
+          return;
+        }
+        const { idx, flat } = findWalkAndIndexForKey(key);
+        const prevE = idx > 0 ? flat[idx - 1] : null;
+        const nextE = idx >= 0 && idx < flat.length - 1 ? flat[idx + 1] : null;
+        headCurrent.textContent = selectionKeyToHeaderTitle(key);
+        if (idx >= 0) {
+          headPrev.textContent = prevE ? labelForTimelineItem(prevE.item, prevE.groupName) : '—';
+          headNext.textContent = nextE ? labelForTimelineItem(nextE.item, nextE.groupName) : '—';
+          return;
+        }
+        const sn = scopeNeighborsForHeaders(key);
+        headPrev.textContent = sn.prev || '—';
+        headNext.textContent = sn.next || '—';
+      }
+
+      const ZONE_CLASSES = ['zone-a', 'zone-b', 'zone-c', 'zone-d'];
+
+      /** Match each group's column width across both walks so the scrubber compares the same group. */
+      function syncTimelineGroupZoneWidths() {
+        const block = document.getElementById('timelinesBlock');
+        if (!block) return;
+        const tracks = block.querySelectorAll('.timeline-track');
+        if (tracks.length < 2) return;
+        const layers = Array.from(tracks).map(tr => tr.querySelector('.timeline-groups-layer'));
+        if (layers.some(l => !l)) return;
+        const zonesA = Array.from(layers[0].querySelectorAll(':scope > .timeline-group-zone'));
+        const zonesB = Array.from(layers[1].querySelectorAll(':scope > .timeline-group-zone'));
+        const n = Math.min(zonesA.length, zonesB.length);
+        for (let i = 0; i < n; i++) {
+          zonesA[i].style.width = '';
+          zonesB[i].style.width = '';
+        }
+        void block.offsetHeight;
+        for (let i = 0; i < n; i++) {
+          const w = Math.ceil(
+            Math.max(zonesA[i].getBoundingClientRect().width, zonesB[i].getBoundingClientRect().width)
+          );
+          const px = `${w}px`;
+          zonesA[i].style.width = px;
+          zonesB[i].style.width = px;
+        }
+        applyScrubberStackPosition();
+      }
+
+      let groupLayersScrollSync = false;
+      function bindGroupLayersScrollSync() {
+        const block = document.getElementById('timelinesBlock');
+        if (!block) return;
+        const layers = Array.from(block.querySelectorAll('.timeline-groups-layer'));
+        if (layers.length !== 2) return;
+        if (groupLayersScrollAbort) groupLayersScrollAbort.abort();
+        groupLayersScrollAbort = new AbortController();
+        const sig = groupLayersScrollAbort.signal;
+        layers.forEach((layer, idx) => {
+          layer.addEventListener(
+            'scroll',
+            () => {
+              if (groupLayersScrollSync) return;
+              groupLayersScrollSync = true;
+              const other = layers[1 - idx];
+              if (other.scrollLeft !== layer.scrollLeft) other.scrollLeft = layer.scrollLeft;
+              applyScrubberStackPosition();
+              requestAnimationFrame(() => {
+                groupLayersScrollSync = false;
+              });
+            },
+            { signal: sig, passive: true }
+          );
+        });
+      }
+
+      /** Floating label: scope group (Group view) or contractor (Trade view). */
+      function bindTimelineTrackGroupHover() {
+        const tip = timelineGroupHoverTip;
+        const block = document.getElementById('timelinesBlock');
+        if (!tip || !block) return;
+
+        function showGroupHoverTip(text, clientX, clientY) {
+          tip.textContent = text;
+          tip.setAttribute('aria-hidden', 'false');
+          tip.classList.add('visible');
+          requestAnimationFrame(() => {
+            const tw = tip.offsetWidth || 1;
+            const th = tip.offsetHeight || 1;
+            const pad = 12;
+            let left = clientX + pad;
+            let top = clientY + pad;
+            if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
+            if (top + th > window.innerHeight - 8) top = window.innerHeight - th - 8;
+            tip.style.left = `${Math.max(8, left)}px`;
+            tip.style.top = `${Math.max(8, top)}px`;
+          });
+        }
+
+        function onTimelineBlockPointerMove(e) {
+          const track = e.target.closest('.timeline-track');
+          if (!track || !block.contains(track)) {
+            hideTimelineGroupHoverTip();
+            return;
+          }
+          if (e.target.closest('.tl-dot')) {
+            hideTimelineGroupHoverTip();
+            return;
+          }
+          let name = '';
+          for (const z of track.querySelectorAll('.timeline-group-zone')) {
+            const r = z.getBoundingClientRect();
+            if (
+              e.clientX >= r.left &&
+              e.clientX <= r.right &&
+              e.clientY >= r.top &&
+              e.clientY <= r.bottom
+            ) {
+              name = z.getAttribute('data-group-name') || '';
+              break;
+            }
+          }
+          if (name) showGroupHoverTip(name, e.clientX, e.clientY);
+          else hideTimelineGroupHoverTip();
+        }
+
+        function onTimelineBlockPointerLeave(e) {
+          if (!e.relatedTarget || !block.contains(e.relatedTarget)) hideTimelineGroupHoverTip();
+        }
+
+        if (!block.dataset.timelineHoverBlockBound) {
+          block.dataset.timelineHoverBlockBound = '1';
+          block.addEventListener('pointermove', onTimelineBlockPointerMove, { passive: true });
+          block.addEventListener('pointerleave', onTimelineBlockPointerLeave);
+        }
+
+        if (timelineLayerHoverAbort) timelineLayerHoverAbort.abort();
+        timelineLayerHoverAbort = new AbortController();
+        const sig = timelineLayerHoverAbort.signal;
+        block.querySelectorAll('.timeline-groups-layer').forEach(layer => {
+          layer.addEventListener('scroll', hideTimelineGroupHoverTip, { passive: true, signal: sig });
+        });
+      }
+
+      function renderTimelines() {
+        const block = document.getElementById('timelinesBlock');
+        if (!block) return;
+        block.innerHTML = '';
+
+        TIMELINE_ROWS.forEach((row, rowIndex) => {
+          const rowEl = document.createElement('div');
+          rowEl.className = 'timeline-row';
+          rowEl.dataset.walkBand = String(rowIndex + 1);
+
+          const d = row.rangeDefaults;
+          const track = document.createElement('div');
+          track.className = 'timeline-track range-mask';
+          track.dataset.track = String(rowIndex);
+          track.style.setProperty('--r0', d.r0);
+          track.style.setProperty('--r1', d.r1);
+
+          const rangeBar = document.createElement('span');
+          rangeBar.className = 'timeline-range';
+          rangeBar.setAttribute('aria-hidden', 'true');
+
+          const groupsLayer = document.createElement('div');
+          groupsLayer.className = 'timeline-groups-layer';
+
+          row.groups.forEach((group, gi) => {
+            const zone = document.createElement('div');
+            zone.className = `timeline-group-zone ${ZONE_CLASSES[gi % ZONE_CLASSES.length]}`;
+            zone.setAttribute('data-group-name', group.name);
+            zone.setAttribute('data-zone-index', String(gi));
+            const inner = document.createElement('div');
+            inner.className = Array.isArray(group.subgroups)
+              ? 'timeline-group-dots timeline-group-dots--trade'
+              : 'timeline-group-dots';
+
+            function appendDotTo(parent, scopeGroupName, item) {
+              const dot = document.createElement('button');
+              dot.type = 'button';
+              dot.className = item.kind === 'group' ? 'tl-dot tl-dot--group' : 'tl-dot tl-dot--task';
+              dot.setAttribute('data-src', item.src || '');
+              dot.setAttribute('data-caption', item.caption || '');
+              dot.setAttribute('data-group', scopeGroupName);
+              dot.setAttribute('data-kind', item.kind);
+              if (item.task) dot.setAttribute('data-task', item.task);
+              dot.setAttribute(
+                'aria-label',
+                item.kind === 'group'
+                  ? `Group: ${scopeGroupName} — ${item.caption || ''}`
+                  : `Task: ${item.task || ''} — ${item.caption || ''}`
+              );
+              parent.appendChild(dot);
+            }
+
+            if (Array.isArray(group.subgroups)) {
+              group.subgroups.forEach(sub => {
+                const subWrap = document.createElement('div');
+                subWrap.className = 'timeline-subgroup';
+                subWrap.setAttribute('data-scope-group', sub.groupName || '');
+                const gname = sub.groupName || group.name;
+                (sub.items || []).forEach(item => appendDotTo(subWrap, gname, item));
+                inner.appendChild(subWrap);
+              });
+            } else {
+              (group.items || []).forEach(item => appendDotTo(inner, group.name, item));
+            }
+
+            zone.appendChild(inner);
+            groupsLayer.appendChild(zone);
+          });
+
+          track.appendChild(rangeBar);
+          track.appendChild(groupsLayer);
+          rowEl.appendChild(track);
+          block.appendChild(rowEl);
+
+          bindDotHoverPreview(track);
+        });
+      }
+
+      const timelinesScrubberStack = document.getElementById('timelinesScrubberStack');
+      const timelinesBlock = document.getElementById('timelinesBlock');
+      const rail = document.getElementById('scrubberRail');
+      const handle = document.getElementById('scrubberHandle');
+      const scrubberLabel = document.getElementById('scrubberLabel');
+      const grid = document.getElementById('compareGrid');
+      const headPrev = document.getElementById('headPrev');
+      const headCurrent = document.getElementById('headCurrent');
+      const headNext = document.getElementById('headNext');
+
+      /**
+       * Scrubber anchor X in stack-local *content* coordinates (same axis as timeline zones before scroll
+       * compensation). Visible X is `scrubberXStack - scrollLeft`.
+       */
+      let scrubberXStack = null;
+
+      function getTimelineGroupsScrollLeft() {
+        const layer = timelinesBlock?.querySelector('.timeline-groups-layer');
+        return layer ? layer.scrollLeft : 0;
+      }
+
+      function applyScrubberStackPosition() {
+        if (!rail || scrubberXStack == null) return;
+        const sl = getTimelineGroupsScrollLeft();
+        rail.style.left = `${scrubberXStack - sl}px`;
+        rail.style.transform = '';
+      }
+
+      function selectionKeyToHeaderTitle(key) {
+        if (!key || !key.groupName) return '';
+        if (key.kind === 'group') return key.groupName;
+        return key.task || key.groupName;
+      }
+
+      function updateCurrentHeaderForSelection(key) {
+        updateColumnHeadersForSelection(key);
+        if (scrubberLabel) scrubberLabel.textContent = key && key.groupName ? selectionKeyToHeaderTitle(key) : '';
+      }
+
+      function applySelectionKeyToMiddlePhotos(key) {
+        if (!grid) return;
+        if (!key || !key.groupName) {
+          lastPhotoSelectionKey = null;
+          TIMELINE_ROWS.forEach((row, walkIndex) => {
+            ['prev', 'current', 'next'].forEach(col => {
+              const cell = grid.querySelector(
+                `.photo-cell[data-photo-row="${walkIndex + 1}"][data-col="${col}"]`
+              );
+              if (!cell) return;
+              const frame = cell.querySelector('.photo-frame.highlight') || cell.querySelector('.photo-frame');
+              if (frame) frame.innerHTML = '<div class="photo-placeholder photo-placeholder--blank">—</div>';
+            });
+          });
+          updateCurrentHeaderForSelection(null);
+          return;
+        }
+
+        lastPhotoSelectionKey = key;
+        TIMELINE_ROWS.forEach((row, walkIndex) => {
+          const flat = flattenWalkItems(walkIndex);
+          const idx = findFlatIndexForKey(walkIndex, key);
+          const curEntry = idx >= 0 ? flat[idx] : null;
+          const prevEntry = idx > 0 ? flat[idx - 1] : null;
+          const nextEntry = idx >= 0 && idx < flat.length - 1 ? flat[idx + 1] : null;
+
+          const prevCell = grid.querySelector(
+            `.photo-cell[data-photo-row="${walkIndex + 1}"][data-col="prev"]`
+          );
+          const curCell = grid.querySelector(
+            `.photo-cell[data-photo-row="${walkIndex + 1}"][data-col="current"]`
+          );
+          const nextCell = grid.querySelector(
+            `.photo-cell[data-photo-row="${walkIndex + 1}"][data-col="next"]`
+          );
+
+          if (idx < 0) {
+            setPhotoCellForEntry(prevCell, row, null, 'prev');
+            setPhotoCellForEntry(curCell, row, null, 'current');
+            setPhotoCellForEntry(nextCell, row, null, 'next');
+            return;
+          }
+
+          setPhotoCellForEntry(prevCell, row, prevEntry, 'prev');
+          setPhotoCellForEntry(curCell, row, curEntry, 'current');
+          setPhotoCellForEntry(nextCell, row, nextEntry, 'next');
+        });
+        updateCurrentHeaderForSelection(key);
+      }
+
+      function getTimelineViewMode() {
+        const active = document.querySelector('.view-toggle button.active');
+        return active && active.dataset.mode === 'trade' ? 'trade' : 'group';
+      }
+
+      function applyTimelineViewMode() {
+        TIMELINE_ROWS = buildTimelineRows(getTimelineViewMode());
+        renderTimelines();
+        bindGroupLayersScrollSync();
+        bindTimelineTrackGroupHover();
+        requestAnimationFrame(() => {
+          syncTimelineGroupZoneWidths();
+          positionRailInitial();
+        });
+      }
+
+      function findZoneAtStackX(trackEl, stackLocalX) {
+        if (!trackEl || !timelinesScrubberStack) return null;
+        const sr = timelinesScrubberStack.getBoundingClientRect();
+        const zones = Array.from(trackEl.querySelectorAll('.timeline-group-zone'));
+        if (!zones.length) return null;
+        for (let i = 0; i < zones.length; i++) {
+          const r = zones[i].getBoundingClientRect();
+          const left = r.left - sr.left;
+          const right = r.right - sr.left;
+          const isLast = i === zones.length - 1;
+          if (stackLocalX >= left && (isLast ? stackLocalX <= right : stackLocalX < right)) return zones[i];
+        }
+        const fr = zones[0].getBoundingClientRect();
+        const lr = zones[zones.length - 1].getBoundingClientRect();
+        if (stackLocalX < fr.left - sr.left) return zones[0];
+        if (stackLocalX > lr.right - sr.left) return zones[zones.length - 1];
+        return zones[0];
+      }
+
+      /** Nearest dot within the group zone under X (zones are width-synced across both timelines). */
+      function nearestDotToStackX(trackEl, stackLocalX) {
+        if (!trackEl || !timelinesScrubberStack) return null;
+        const sr = timelinesScrubberStack.getBoundingClientRect();
+        const zone = findZoneAtStackX(trackEl, stackLocalX);
+        const dots = zone ? zone.querySelectorAll('.tl-dot') : trackEl.querySelectorAll('.tl-dot');
+        let best = null;
+        let bestDist = Infinity;
+        dots.forEach(dot => {
+          const r = dot.getBoundingClientRect();
+          const cx = r.left - sr.left + r.width / 2;
+          const d = Math.abs(cx - stackLocalX);
+          if (d < bestDist) {
+            bestDist = d;
+            best = dot;
+          }
+        });
+        return best;
+      }
+
+      /** Always use band 1 track for the scrubber column so both walks resolve the same group/task key. */
+      function syncMiddlePhotosAtStackX(stackLocalX) {
+        const canonical =
+          timelinesBlock?.querySelector('.timeline-track[data-track="0"]') ||
+          timelinesBlock?.querySelector('.timeline-track');
+        const dot = nearestDotToStackX(canonical, stackLocalX);
+        if (!dot) {
+          applySelectionKeyToMiddlePhotos(null);
+          return;
+        }
+        applySelectionKeyToMiddlePhotos(selectionKeyFromDot(dot));
+      }
+
+      /** X positions (px) of prev / current / next column centers (first photo row), relative to #timelinesScrubberStack left edge. */
+      function columnCentersPx() {
+        if (!grid || !timelinesScrubberStack) return [];
+        const stackRect = timelinesScrubberStack.getBoundingClientRect();
+        const centers = [];
+        ['prev', 'current', 'next'].forEach(col => {
+          const cell = grid.querySelector(`.photo-cell[data-photo-row="1"][data-col="${col}"]`);
+          if (!cell) return;
+          const r = cell.getBoundingClientRect();
+          centers.push(r.left - stackRect.left + r.width / 2);
+        });
+        return centers;
+      }
+
+      /** Place scrubber line at click X (clamped to track). Photo columns + headers follow timeline selection. */
+      function moveScrubberToClientX(clientX, trackEl) {
+        if (!timelinesScrubberStack || !rail || !grid) return;
+        const stackRect = timelinesScrubberStack.getBoundingClientRect();
+        const sl = getTimelineGroupsScrollLeft();
+        const track = trackEl || timelinesBlock?.querySelector('.timeline-track');
+        let xVis = clientX - stackRect.left;
+        if (track) {
+          const tr = track.getBoundingClientRect();
+          const t0 = tr.left - stackRect.left;
+          const t1 = tr.right - stackRect.left;
+          xVis = Math.min(t1, Math.max(t0, xVis));
+        } else {
+          xVis = Math.max(0, Math.min(stackRect.width, xVis));
+        }
+        scrubberXStack = xVis + sl;
+        applyScrubberStackPosition();
+        syncMiddlePhotosAtStackX(xVis);
+      }
+
+      function positionRailInitial() {
+        if (!timelinesScrubberStack) return;
+        const centers = columnCentersPx();
+        const rect = timelinesScrubberStack.getBoundingClientRect();
+        const track = timelinesBlock?.querySelector('.timeline-track');
+        if (centers[1] != null) moveScrubberToClientX(rect.left + centers[1], track);
+        else if (centers[0] != null) moveScrubberToClientX(rect.left + centers[0], track);
+      }
+
+      function isPrimaryPointer(ev) {
+        return ev.pointerType !== 'mouse' || ev.button === 0;
+      }
+
+      handle?.addEventListener('pointerdown', e => {
+        if (!isPrimaryPointer(e)) return;
+        e.preventDefault();
+        moveScrubberToClientX(e.clientX, timelinesBlock?.querySelector('.timeline-track'));
+      });
+
+      function onTimelineStackPointerDown(e) {
+        if (!isPrimaryPointer(e)) return;
+        if (e.target.closest('.tl-dot')) return;
+        const track = e.target.closest && e.target.closest('.timeline-track');
+        if (!track || !timelinesScrubberStack.contains(track)) return;
+        if (e.target.closest('.scrubber-handle')) return;
+        e.preventDefault();
+        e.stopPropagation();
+        moveScrubberToClientX(e.clientX, track);
+      }
+
+      timelinesScrubberStack?.addEventListener('pointerdown', onTimelineStackPointerDown, true);
+
+      window.addEventListener('resize', () => {
+        hideDotPreview();
+        syncTimelineGroupZoneWidths();
+        positionRailInitial();
+      });
+      window.addEventListener('load', () => {
+        syncTimelineGroupZoneWidths();
+        positionRailInitial();
+      });
+      renderTimelines();
+      bindGroupLayersScrollSync();
+      bindTimelineTrackGroupHover();
+      requestAnimationFrame(() => {
+        syncTimelineGroupZoneWidths();
+        positionRailInitial();
+      });
+
+      document.querySelectorAll('.view-toggle button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyTimelineViewMode();
+        });
+      });
+
+      const WALK_CHOICE_META = {
+        initial: { dateLine: 'Mar 22, 2026', photoDate: 'Mar 22' },
+        'progress-1': { dateLine: 'Apr 3, 2026', photoDate: 'Apr 3' },
+        'progress-2': { dateLine: 'Apr 10, 2026', photoDate: 'Apr 10' },
+        'progress-3': { dateLine: 'Apr 17, 2026', photoDate: 'Apr 17' },
+        'progress-4': { dateLine: 'Apr 24, 2026', photoDate: 'Apr 24' },
+        'progress-5': { dateLine: 'May 1, 2026', photoDate: 'May 1' },
+        closeout: { dateLine: 'May 21, 2026', photoDate: 'May 21' }
+      };
+
+      function applyWalkBandFromRadios(bandNum) {
+        if (!grid) return;
+        const radioName = bandNum === 1 ? 'walkBand1' : 'walkBand2';
+        const fallback = bandNum === 1 ? 'initial' : 'progress-2';
+        const sel = document.querySelector(`input[name="${radioName}"]:checked`);
+        const key = (sel && sel.value) || fallback;
+        const meta = WALK_CHOICE_META[key] || WALK_CHOICE_META.initial;
+        const tag = meta.photoDate;
+        const ph = grid.querySelector(
+          `.photo-cell[data-photo-row="${bandNum}"][data-col="current"] .photo-placeholder`
+        );
+        if (ph) ph.textContent = `Current · ${tag}`;
+      }
+
+      function bindWalkBandRadios() {
+        document.querySelectorAll('input[name="walkBand1"]').forEach(r =>
+          r.addEventListener('change', () => applyWalkBandFromRadios(1))
+        );
+        document.querySelectorAll('input[name="walkBand2"]').forEach(r =>
+          r.addEventListener('change', () => applyWalkBandFromRadios(2))
+        );
+      }
+
+      /* ── Detail modal (markup + CSS from scope-review-tabs): open from photo clicks ── */
+      let tlModalPhotos = [];
+      let tlModalPhotoIndex = 0;
+      let tlModalTaskIndex = null;
+      let tlModalGroupTaskIds = [];
+      let tlModalGroupName = '';
+      let tlModalWalkTitle = '';
+      let tlModalMode = 'task';
+      const timelineActivityCache = Object.create(null);
+
+      const mockPhotoPalette = ['#c9d8e8', '#d4e8d4', '#e8d4c9', '#d4cce8', '#e8e4c9', '#c9e8e2', '#e8c9d4', '#ccd8e8', '#e8d9c9', '#d4e8c9'];
+
+      function getSeededPaletteColor(seed) {
+        const idx = Math.abs(seed) % mockPhotoPalette.length;
+        return mockPhotoPalette[idx];
+      }
+
+      function createMockActivities(taskId, taskName, groupName, index) {
+        const normalizedName = String(taskName || 'Task').trim() || 'Task';
+        const normalizedGroup = String(groupName || 'Scope').trim() || 'Scope';
+        const baseSeed = Number(String(taskId).replace(/\D/g, '')) || index + 1;
+        const includeRework = baseSeed % 3 === 0;
+        const includeCompleted = baseSeed % 2 === 0;
+
+        const activities = [
+          {
+            type: 'Scope approved',
+            title: 'by homeowner',
+            author: 'You',
+            time: 'Mar 15 16:05',
+            notes: `${normalizedGroup} scope confirmed for ${normalizedName}. Work has not started yet.`,
+            details: [
+              { label: 'Status', value: 'Not started' },
+              { label: 'Approved budget', value: '$2,850.00', accent: 'green' }
+            ]
+          },
+          {
+            type: 'Progress walk',
+            title: 'submitted',
+            author: 'Eric L.',
+            time: 'Mar 17 15:15',
+            notes: `Initial site assessment for ${normalizedName.toLowerCase()} completed and prep work started.`,
+            details: [{ label: 'Status', value: 'In Progress' }],
+            photos: [
+              {
+                bg: getSeededPaletteColor(baseSeed + 2),
+                label: 'Site Overview',
+                date: 'Mar 17, 2025 3:15 PM',
+                photographer: 'Eric L.',
+                uploadedFromComputer: true
+              },
+              {
+                bg: getSeededPaletteColor(baseSeed + 3),
+                label: 'Measurements',
+                date: 'Mar 17, 2025 3:32 PM',
+                photographer: 'Eric L.'
+              },
+              {
+                bg: getSeededPaletteColor(baseSeed + 4),
+                label: 'Prep Work',
+                date: 'Mar 17, 2025 3:48 PM',
+                photographer: 'Eric L.',
+                uploadedFromComputer: true
+              },
+              {
+                bg: getSeededPaletteColor(baseSeed + 5),
+                label: 'Plan Review',
+                date: 'Mar 17, 2025 4:05 PM',
+                photographer: 'Eric L.'
+              }
+            ]
+          },
+          {
+            type: 'Progress walk',
+            title: 'submitted',
+            author: 'Shane D.',
+            time: 'Mar 18 10:20',
+            notes: `Field crew continued ${normalizedName.toLowerCase()} and documented progress photos.`,
+            details: [{ label: 'Status', value: 'In Progress' }],
+            photos: [
+              {
+                bg: getSeededPaletteColor(baseSeed + 7),
+                label: 'Work Area',
+                date: 'Mar 18, 2025 10:20 AM',
+                photographer: 'Shane D.'
+              },
+              {
+                bg: getSeededPaletteColor(baseSeed + 8),
+                label: 'Detail 1',
+                date: 'Mar 18, 2025 10:35 AM',
+                photographer: 'Shane D.',
+                uploadedFromComputer: true
+              },
+              {
+                bg: getSeededPaletteColor(baseSeed + 9),
+                label: 'Detail 2',
+                date: 'Mar 18, 2025 10:50 AM',
+                photographer: 'Shane D.'
+              },
+              {
+                bg: getSeededPaletteColor(baseSeed + 1),
+                label: 'Progress Check',
+                date: 'Mar 18, 2025 11:05 AM',
+                photographer: 'Shane D.',
+                uploadedFromComputer: true
+              }
+            ]
+          }
+        ];
+
+        if (includeRework) {
+          activities.push({
+            type: 'Change order',
+            typeClass: 'orange',
+            title: 'submitted',
+            author: 'Shane D.',
+            time: 'Mar 19 13:40',
+            notes: `Inspection found items requiring corrections on ${normalizedName.toLowerCase()}. Rework was issued.`,
+            details: [
+              { label: 'Status', value: 'Rework' },
+              { label: 'Line item cost', value: '$85.00', accent: 'green' }
+            ]
+          });
+        }
+
+        activities.push({
+          type: 'Progress walk',
+          title: 'submitted',
+          author: 'Eric L.',
+          time: 'Mar 20 11:30',
+          notes: includeRework
+            ? `Rework items were addressed and ${normalizedName.toLowerCase()} is back in progress.`
+            : `Mid-stage inspection for ${normalizedName.toLowerCase()} confirmed steady progress.`,
+          details: [{ label: 'Status', value: 'In Progress' }],
+          photos: [
+            {
+              bg: getSeededPaletteColor(baseSeed + 3),
+              label: 'Mid-Stage',
+              date: 'Mar 20, 2025 11:30 AM',
+              photographer: 'Eric L.',
+              uploadedFromComputer: true
+            },
+            {
+              bg: getSeededPaletteColor(baseSeed + 4),
+              label: 'Quality Check',
+              date: 'Mar 20, 2025 11:42 AM',
+              photographer: 'Eric L.'
+            },
+            {
+              bg: getSeededPaletteColor(baseSeed + 5),
+              label: 'Correction Review',
+              date: 'Mar 20, 2025 11:58 AM',
+              photographer: 'Eric L.',
+              uploadedFromComputer: true
+            },
+            {
+              bg: getSeededPaletteColor(baseSeed + 6),
+              label: 'Next Steps',
+              date: 'Mar 20, 2025 12:10 PM',
+              photographer: 'Eric L.'
+            }
+          ]
+        });
+
+        if (includeCompleted) {
+          activities.push({
+            type: 'Progress walk',
+            title: 'submitted',
+            author: 'Shane D.',
+            time: 'Mar 22 09:15',
+            notes: `${normalizedName} finished and ready for closeout review.`,
+            details: [{ label: 'Status', value: 'Completed' }],
+            photos: [
+              {
+                bg: getSeededPaletteColor(baseSeed + 1),
+                label: 'Final Overview',
+                date: 'Mar 22, 2025 9:15 AM',
+                photographer: 'Shane D.',
+                uploadedFromComputer: true
+              },
+              {
+                bg: getSeededPaletteColor(baseSeed + 2),
+                label: 'Final Detail',
+                date: 'Mar 22, 2025 9:20 AM',
+                photographer: 'Shane D.'
+              },
+              {
+                bg: getSeededPaletteColor(baseSeed + 3),
+                label: 'Completed Work',
+                date: 'Mar 22, 2025 9:28 AM',
+                photographer: 'Shane D.',
+                uploadedFromComputer: true
+              }
+            ]
+          });
+        }
+
+        return activities;
+      }
+
+      function getTimelineActivitiesForTask(taskId, taskName, groupName) {
+        const key = String(taskId);
+        if (!timelineActivityCache[key]) {
+          timelineActivityCache[key] = createMockActivities(key, taskName, groupName, 0);
+        }
+        return timelineActivityCache[key];
+      }
+
+      function normalizeActivityStatus(rawValue) {
+        const value = String(rawValue || '')
+          .trim()
+          .toLowerCase();
+        if (!value || value.includes('not started')) {
+          return { text: 'Not started', className: 'status-not-started' };
+        }
+        if (value.includes('rework')) {
+          return { text: 'Rework', className: 'status-rework' };
+        }
+        if (value.includes('complete') || value.includes('completed')) {
+          return { text: 'Completed', className: 'status-completed' };
+        }
+        if (value.includes('in progress') || value.includes('progress')) {
+          return { text: 'In Progress', className: 'status-in-progress' };
+        }
+        return { text: 'Not started', className: 'status-not-started' };
+      }
+
+      function normalizeActivityDetail(detail) {
+        const label = String(detail?.label || '')
+          .trim()
+          .toLowerCase();
+        if (label !== 'status') {
+          return {
+            value: detail?.value || '',
+            className: detail?.accent || ''
+          };
+        }
+        const normalized = normalizeActivityStatus(detail?.value);
+        return {
+          value: normalized.text,
+          className: normalized.className
+        };
+      }
+
+      function getActivityStatusBadge(activity) {
+        const statusDetail = (activity?.details || []).find(
+          detail => String(detail?.label || '').trim().toLowerCase() === 'status'
+        );
+        if (!statusDetail) return null;
+        const normalized = normalizeActivityStatus(statusDetail.value);
+        const badgeClassByStatus = {
+          'Not started': 'not-started',
+          'In Progress': 'in-progress',
+          Rework: 'rework',
+          Completed: 'completed'
+        };
+        return {
+          text: normalized.text,
+          badgeClass: badgeClassByStatus[normalized.text] || 'not-started'
+        };
+      }
+
+      function getActivityTimestamp(activity) {
+        const raw = String(activity?.time || '').trim();
+        const monthMap = {
+          jan: 0,
+          feb: 1,
+          mar: 2,
+          apr: 3,
+          may: 4,
+          jun: 5,
+          jul: 6,
+          aug: 7,
+          sep: 8,
+          oct: 9,
+          nov: 10,
+          dec: 11
+        };
+        const match = raw.match(/^([A-Za-z]{3})\s+(\d{1,2})\s+(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/i);
+        if (!match) return 0;
+        const month = monthMap[match[1].toLowerCase()];
+        if (month === undefined) return 0;
+        const day = parseInt(match[2], 10);
+        let hour = parseInt(match[3], 10);
+        const minute = parseInt(match[4], 10);
+        const meridiem = (match[5] || '').toUpperCase();
+        if (meridiem === 'PM' && hour < 12) hour += 12;
+        if (meridiem === 'AM' && hour === 12) hour = 0;
+        return new Date(2025, month, day, hour, minute, 0, 0).getTime();
+      }
+
+      function renderActivityCard(activity, activityIndex) {
+        return `
+      <div class="activity-card">
+        <div class="activity-card-head">
+          <div class="activity-card-title">
+            ${activity.type ? `<span class="accent${activity.typeClass ? '-' + activity.typeClass : ''}">${activity.type}</span>` : ''}
+            ${activity.title}
+          </div>
+          <div class="activity-card-time">${activity.time}</div>
+        </div>
+        <div class="activity-card-author">${activity.author}</div>
+        ${activity.notes ? `<div class="activity-card-notes">${activity.notes}</div>` : ''}
+        ${
+          activity.details
+            ? `
+          <div class="activity-card-details">
+            ${activity.details
+              .map(detail => {
+                const normalizedDetail = normalizeActivityDetail(detail);
+                return `
+                <div class="activity-card-detail-item">
+                  <span>${detail.label}</span>
+                  <span class="activity-card-detail-value${normalizedDetail.className ? ' ' + normalizedDetail.className : ''}">${normalizedDetail.value}</span>
+                </div>
+              `;
+              })
+              .join('')}
+          </div>
+        `
+            : ''
+        }
+        ${
+          activity.photos
+            ? `
+          <div class="activity-card-photos">
+            ${activity.photos
+              .map(
+                (photo, idx) => `
+              <div class="activity-card-photo-thumb"
+                   onclick="selectModalPhotoByActivity(${activityIndex}, ${idx})"
+                   data-activity="${activityIndex}"
+                   data-photo="${idx}"
+                   style="background-color: ${photo.bg || '#e0e0e0'};"></div>
+            `
+              )
+              .join('')}
+          </div>
+        `
+            : ''
+        }
+      </div>
+    `;
+      }
+
+      function escapeHtmlModal(s) {
+        return String(s || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function formatMoneyTimeline(n) {
+        const x = Number(n);
+        if (!Number.isFinite(x)) return '—';
+        return `$${x.toFixed(2)}`;
+      }
+
+      function coerceDetailNumber(value) {
+        if (value == null || value === '') return NaN;
+        if (typeof value === 'number') return value;
+        const cleaned = String(value).replace(/,/g, '').trim();
+        const x = Number(cleaned);
+        return Number.isFinite(x) ? x : NaN;
+      }
+
+      /** Currency string for editable unit price (empty when unknown). */
+      function formatMoneyTimelineInput(n) {
+        const x = coerceDetailNumber(n);
+        if (!Number.isFinite(x)) return '';
+        return `$${x.toFixed(2)}`;
+      }
+
+      function ensureDetailContractorOption(contractorName) {
+        const sel = document.getElementById('detailContractor');
+        if (!sel || !contractorName) return;
+        const v = String(contractorName).trim();
+        if (!v) return;
+        const exists = Array.from(sel.options).some(o => o.value === v);
+        if (exists) return;
+        const o = document.createElement('option');
+        o.value = v;
+        o.textContent = v;
+        sel.appendChild(o);
+      }
+
+      function populateContractorSelectFromScope() {
+        const sel = document.getElementById('detailContractor');
+        if (!sel) return;
+        const scope = window.importedScopeData;
+        const contractors = new Set();
+        (scope?.groups || []).forEach(g => {
+          (g.tasks || []).forEach(t => {
+            const c = String(t.contractor || '').trim();
+            if (c) contractors.add(c);
+          });
+        });
+        sel.textContent = '';
+        const opt0 = document.createElement('option');
+        opt0.value = '';
+        opt0.textContent = 'Unassigned';
+        sel.appendChild(opt0);
+        Array.from(contractors)
+          .sort()
+          .forEach(name => {
+            const o = document.createElement('option');
+            o.value = name;
+            o.textContent = name;
+            sel.appendChild(o);
+          });
+      }
+
+      function setModifierSelectionsTimeline(value) {
+        const parts = String(value || '')
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean);
+        const sel = new Set(parts);
+        document.querySelectorAll('#detailModal .detail-modifier-checkbox').forEach(cb => {
+          cb.checked = sel.has(cb.value);
+        });
+      }
+
+      function tlApplyModalHero(photo) {
+        const p = photo || {};
+        const photoDiv = document.getElementById('modalPhoto');
+        const photoLabel = document.getElementById('modalPhotoLabel');
+        const photoDate = document.getElementById('modalPhotoDate');
+        const photoPhotographer = document.getElementById('modalPhotoPhotographer');
+        const photoUploadSource = document.getElementById('modalPhotoUploadSource');
+        const badge = document.getElementById('modalPhotoStatusBadge');
+        if (!photoDiv) return;
+        if (badge) {
+          if (p.statusBadge && p.statusBadge.text) {
+            badge.textContent = p.statusBadge.text;
+            badge.className = `modal-photo-status-badge ${p.statusBadge.badgeClass || 'not-started'}`;
+          } else {
+            badge.textContent = '';
+            badge.className = 'modal-photo-status-badge hidden';
+          }
+        }
+        const src = p.src ? String(p.src).trim() : '';
+        if (src) {
+          photoDiv.style.backgroundImage = `url(${JSON.stringify(src)})`;
+          photoDiv.style.backgroundSize = 'cover';
+          photoDiv.style.backgroundPosition = 'center';
+          photoDiv.style.setProperty('--modal-photo-bg', 'transparent');
+        } else {
+          photoDiv.style.backgroundImage = '';
+          photoDiv.style.removeProperty('background-size');
+          photoDiv.style.removeProperty('background-position');
+          photoDiv.style.setProperty('--modal-photo-bg', p.bg || '#e0e0e0');
+        }
+        if (photoLabel) {
+          photoLabel.textContent = p.label || 'Photo';
+          photoLabel.style.display = p.label ? '' : 'none';
+        }
+        if (photoDate) photoDate.textContent = p.date || '';
+        if (photoPhotographer) photoPhotographer.textContent = p.photographer || '';
+        if (photoUploadSource) {
+          if (p.uploadSource) {
+            photoUploadSource.textContent = p.uploadSource;
+            photoUploadSource.style.display = '';
+          } else {
+            photoUploadSource.textContent = '';
+            photoUploadSource.style.display = 'none';
+          }
+        }
+      }
+
+      function setActiveTimelineModalGalleryThumbs(activityIdx, photoIdx) {
+        document.querySelectorAll('#modalPhotoGallery .modal-photo-gallery-thumb').forEach(thumb => {
+          const a = Number(thumb.dataset.activity);
+          const p = Number(thumb.dataset.photo);
+          const active =
+            activityIdx != null &&
+            photoIdx != null &&
+            !Number.isNaN(a) &&
+            !Number.isNaN(p) &&
+            a === activityIdx &&
+            p === photoIdx;
+          thumb.classList.toggle('active', active);
+        });
+        document.querySelectorAll('#detailModal .activity-card-photo-thumb').forEach(thumb => {
+          const a = Number(thumb.dataset.activity);
+          const p = Number(thumb.dataset.photo);
+          const active =
+            activityIdx != null &&
+            photoIdx != null &&
+            !Number.isNaN(a) &&
+            !Number.isNaN(p) &&
+            a === activityIdx &&
+            p === photoIdx;
+          thumb.classList.toggle('active', active);
+        });
+      }
+
+      function populateTimelineModalFromActivities(orderedActivities, fallbackSlide) {
+        const galleryDiv = document.getElementById('modalPhotoGallery');
+        const activitiesDiv = document.getElementById('detailActivities');
+        if (!galleryDiv || !activitiesDiv) return;
+
+        tlModalPhotos = [];
+        galleryDiv.innerHTML = '';
+
+        let earliestActivityWithPhotosIdx = -1;
+        let earliestActivityWithPhotosTime = Number.POSITIVE_INFINITY;
+        orderedActivities.forEach((activity, idx) => {
+          if (!activity?.photos || !activity.photos.length) return;
+          const ts = getActivityTimestamp(activity);
+          if (ts < earliestActivityWithPhotosTime) {
+            earliestActivityWithPhotosTime = ts;
+            earliestActivityWithPhotosIdx = idx;
+          }
+        });
+
+        if (earliestActivityWithPhotosIdx >= 0) {
+          const earliestActivity = orderedActivities[earliestActivityWithPhotosIdx] || {};
+          const existingDetails = Array.isArray(earliestActivity.details) ? earliestActivity.details : [];
+          const nonStatusDetails = existingDetails.filter(
+            detail => String(detail?.label || '').trim().toLowerCase() !== 'status'
+          );
+          orderedActivities[earliestActivityWithPhotosIdx] = {
+            ...earliestActivity,
+            type: 'Initial walk',
+            title: 'submitted',
+            details: [{ label: 'Status', value: 'Not started' }, ...nonStatusDetails]
+          };
+        }
+
+        let photoIndex = 0;
+        orderedActivities.forEach((activity, activityIdx) => {
+          const statusBadge = getActivityStatusBadge(activity);
+          if (activity.photos && activity.photos.length > 0) {
+            activity.photos.forEach((photo, photoIdx) => {
+              const effectiveStatusBadge =
+                activityIdx === earliestActivityWithPhotosIdx
+                  ? { text: 'Not started', badgeClass: 'not-started' }
+                  : statusBadge;
+
+              tlModalPhotos.push({
+                activityIdx,
+                photoIdx,
+                src: photo.src ? String(photo.src).trim() : '',
+                bg: photo.bg || '#e0e0e0',
+                label: photo.label || 'Photo',
+                date: photo.date || '',
+                photographer: photo.photographer || '',
+                uploadSource:
+                  photo.uploadSource || (photo.uploadedFromComputer ? 'Uploaded from computer' : '') || '',
+                statusBadge: effectiveStatusBadge
+              });
+              const flatPhotoIndex = tlModalPhotos.length - 1;
+
+              const thumb = document.createElement('div');
+              thumb.className = `modal-photo-gallery-thumb${photoIndex === 0 ? ' active' : ''}`;
+              const thumbSrc = photo.src ? String(photo.src).trim() : '';
+              thumb.style.backgroundColor = photo.bg || '#e0e0e0';
+              if (thumbSrc) {
+                thumb.style.backgroundImage = `url(${JSON.stringify(thumbSrc)})`;
+                thumb.style.backgroundSize = 'cover';
+                thumb.style.backgroundPosition = 'center';
+              } else {
+                thumb.style.backgroundImage = '';
+                thumb.style.removeProperty('background-size');
+                thumb.style.removeProperty('background-position');
+              }
+              thumb.dataset.activity = String(activityIdx);
+              thumb.dataset.photo = String(photoIdx);
+
+              const dateDiv = document.createElement('div');
+              dateDiv.className = 'modal-photo-thumb-date';
+              dateDiv.textContent = (photo.date || '').split(',')[0];
+              thumb.appendChild(dateDiv);
+
+              thumb.addEventListener('click', () => {
+                showTimelineModalPhotoAt(flatPhotoIndex, true);
+              });
+
+              galleryDiv.appendChild(thumb);
+              photoIndex++;
+            });
+          }
+        });
+
+        if (!tlModalPhotos.length && fallbackSlide) {
+          tlModalPhotos.push({
+            activityIdx: null,
+            photoIdx: null,
+            src: fallbackSlide.src ? String(fallbackSlide.src).trim() : '',
+            bg: fallbackSlide.bg || '#e0e0e0',
+            label: fallbackSlide.label || 'Photo',
+            date: fallbackSlide.date || '',
+            photographer: fallbackSlide.photographer || '',
+            uploadSource: fallbackSlide.uploadSource || '',
+            statusBadge: fallbackSlide.statusBadge || null
+          });
+        }
+
+        if (orderedActivities.length > 0) {
+          activitiesDiv.innerHTML = orderedActivities.map((activity, idx) => renderActivityCard(activity, idx)).join('');
+        } else {
+          activitiesDiv.innerHTML =
+            '<div style="font-size: 13px; color: var(--gray-text); font-style: italic;">No activities yet</div>';
+        }
+
+        if (tlModalPhotos.length > 0) {
+          showTimelineModalPhotoAt(0, false);
+        } else {
+          tlApplyModalHero({
+            bg: '#e0e0e0',
+            src: '',
+            label: 'No photo',
+            date: '',
+            photographer: '',
+            uploadSource: '',
+            statusBadge: null
+          });
+          updateTimelineModalPhotoNavButtons();
+        }
+      }
+
+      function updateTimelineModalPhotoNavButtons() {
+        const prevBtn = document.getElementById('modalPhotoPrevBtn');
+        const nextBtn = document.getElementById('modalPhotoNextBtn');
+        if (!prevBtn || !nextBtn) return;
+        const n = tlModalPhotos.length;
+        prevBtn.disabled = n <= 1 || tlModalPhotoIndex <= 0;
+        nextBtn.disabled = n <= 1 || tlModalPhotoIndex >= n - 1;
+      }
+
+      function showTimelineModalPhotoAt(i, shouldScrollActivity = false) {
+        if (!tlModalPhotos.length) return;
+        tlModalPhotoIndex = Math.max(0, Math.min(i, tlModalPhotos.length - 1));
+        const ph = tlModalPhotos[tlModalPhotoIndex];
+        tlApplyModalHero(ph);
+        setActiveTimelineModalGalleryThumbs(ph.activityIdx, ph.photoIdx);
+        updateTimelineModalPhotoNavButtons();
+        if (shouldScrollActivity && ph.activityIdx != null && ph.activityIdx >= 0) {
+          const activityCards = document.querySelectorAll('#detailModal .activity-card');
+          if (activityCards[ph.activityIdx]) {
+            activityCards[ph.activityIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }
+
+      function navigateTimelineModalPhoto(dir) {
+        if (!tlModalPhotos.length) return;
+        showTimelineModalPhotoAt(tlModalPhotoIndex + dir, true);
+      }
+
+      function updateTimelineModalNavigation() {
+        const prevBtn = document.getElementById('modalPrevBtn');
+        const nextBtn = document.getElementById('modalNextBtn');
+        if (!prevBtn || !nextBtn) return;
+        if (tlModalMode !== 'task' || tlModalGroupTaskIds.length <= 1) {
+          prevBtn.disabled = true;
+          nextBtn.disabled = true;
+          return;
+        }
+        prevBtn.disabled = false;
+        nextBtn.disabled = false;
+      }
+
+      function navigateTimelineModalTask(dir) {
+        if (tlModalMode !== 'task' || !tlModalGroupTaskIds.length) return;
+        let i = tlModalTaskIndex != null ? tlModalTaskIndex : 0;
+        i = (i + dir + tlModalGroupTaskIds.length) % tlModalGroupTaskIds.length;
+        const id = tlModalGroupTaskIds[i];
+        openTimelineTaskDetailModal(tlModalGroupName, id, '', tlModalWalkTitle, '');
+      }
+
+      function closeTimelineDetailModal() {
+        const overlay = document.getElementById('detailModal');
+        if (overlay) overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        tlModalPhotos = [];
+        tlModalPhotoIndex = 0;
+        tlModalTaskIndex = null;
+        tlModalGroupTaskIds = [];
+        tlModalGroupName = '';
+        tlModalWalkTitle = '';
+        tlModalMode = 'task';
+        const navRow = document.querySelector('#detailModal .modal-nav-row');
+        if (navRow) navRow.style.visibility = '';
+      }
+
+      function openTimelineGroupDetailModal(groupName, photoSrc, walkTitle, photoCaption) {
+        const modal = document.getElementById('detailModal');
+        if (!modal) return;
+        tlModalMode = 'group';
+        tlModalGroupName = groupName;
+        tlModalWalkTitle = walkTitle;
+        tlModalTaskIndex = null;
+        tlModalGroupTaskIds = [];
+        populateContractorSelectFromScope();
+        const navRow = document.querySelector('#detailModal .modal-nav-row');
+        if (navRow) navRow.style.visibility = 'hidden';
+        document.getElementById('modalTitle').textContent = groupName;
+        document.getElementById('modalSubtitle').textContent = photoCaption || 'Group photo';
+        ['approveTaskBtn', 'requestEditTaskBtn', 'deleteTaskBtn'].forEach(id => {
+          const b = document.getElementById(id);
+          if (b) b.disabled = true;
+        });
+        document.getElementById('detailTotal').textContent = '—';
+        document.getElementById('detailQty').value = '';
+        document.getElementById('detailQtyUnit').textContent = 'ea';
+        setModifierSelectionsTimeline('');
+        document.getElementById('detailUnitPrice').value = '';
+        document.getElementById('detailId').textContent = '—';
+        document.getElementById('detailContractor').value = '';
+        const groupActivities = [
+          {
+            type: 'Progress walk',
+            title: 'submitted',
+            author: 'You',
+            time: 'Mar 22 09:10',
+            notes: photoCaption
+              ? `Group documentation: ${photoCaption}`
+              : `Documentation reference for ${groupName}.`,
+            details: [{ label: 'Status', value: 'Not started' }],
+            photos: photoSrc
+              ? [
+                  {
+                    bg: '#dde5f0',
+                    src: photoSrc,
+                    label: photoCaption || groupName,
+                    date: walkTitle || 'Mar 22, 2026',
+                    photographer: '',
+                    uploadedFromComputer: true
+                  }
+                ]
+              : []
+          }
+        ];
+        populateTimelineModalFromActivities(JSON.parse(JSON.stringify(groupActivities)), null);
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function openTimelineTaskDetailModal(groupName, taskId, photoSrc, walkTitle, photoCaption) {
+        const scope = window.importedScopeData;
+        const group = scope?.groups?.find(g => g.name === groupName);
+        const task = group?.tasks?.find(t => String(t.id) === String(taskId));
+        if (!group || !task) return;
+        const modal = document.getElementById('detailModal');
+        if (!modal) return;
+        tlModalMode = 'task';
+        tlModalGroupName = groupName;
+        tlModalWalkTitle = walkTitle;
+        tlModalGroupTaskIds = (group.tasks || []).map(t => String(t.id));
+        tlModalTaskIndex = tlModalGroupTaskIds.indexOf(String(taskId));
+        populateContractorSelectFromScope();
+        const contractor = String(task.contractor || '').trim();
+        ensureDetailContractorOption(contractor);
+        const selContractor = document.getElementById('detailContractor');
+        if (selContractor) selContractor.value = contractor ? contractor : '';
+
+        const lineTotal = coerceDetailNumber(task.amount ?? task.total);
+        document.getElementById('detailTotal').textContent = Number.isFinite(lineTotal)
+          ? formatMoneyTimeline(lineTotal)
+          : '—';
+
+        const qtyRaw = task.qty ?? task.quantity;
+        const qtyNum = coerceDetailNumber(qtyRaw);
+        document.getElementById('detailQty').value =
+          qtyRaw != null && String(qtyRaw).trim() !== '' && Number.isFinite(qtyNum)
+            ? String(qtyNum)
+            : '';
+
+        document.getElementById('detailQtyUnit').textContent = String(task.unit || task.uom || '').trim() || 'ea';
+        setModifierSelectionsTimeline('');
+
+        const unitPriceVal = task.unitPrice ?? task.unit_price;
+        document.getElementById('detailUnitPrice').value = formatMoneyTimelineInput(unitPriceVal);
+
+        const resolvedTaskId = String(task.id ?? task.taskId ?? '').trim();
+        document.getElementById('detailId').textContent = resolvedTaskId || '—';
+        const navRow = document.querySelector('#detailModal .modal-nav-row');
+        if (navRow) navRow.style.visibility = '';
+        const pos =
+          tlModalTaskIndex >= 0 && tlModalGroupTaskIds.length
+            ? `Task ${tlModalTaskIndex + 1} of ${tlModalGroupTaskIds.length}`
+            : 'Task details';
+        document.getElementById('modalTitle').textContent = task.task || 'Task';
+        document.getElementById('modalSubtitle').innerHTML = `<span class="modal-subtitle-group">${escapeHtmlModal(
+          groupName
+        )} group</span>: ${escapeHtmlModal(pos)}`;
+        ['approveTaskBtn', 'requestEditTaskBtn', 'deleteTaskBtn'].forEach(id => {
+          const b = document.getElementById(id);
+          if (b) b.disabled = true;
+        });
+        const activitiesSeed = getTimelineActivitiesForTask(String(task.id), task.task || 'Task', groupName);
+        const orderedActivities = JSON.parse(JSON.stringify(activitiesSeed)).sort(
+          (a, b) => getActivityTimestamp(b) - getActivityTimestamp(a)
+        );
+        const firstWithPhotos = orderedActivities.find(act => act.photos && act.photos.length);
+        const firstPhoto = firstWithPhotos?.photos?.[0];
+        const initialDate = firstPhoto?.date || walkTitle || '';
+        const initialPhotographer = firstPhoto?.photographer || '';
+        const initialUploadSource = firstPhoto
+          ? firstPhoto.uploadSource || (firstPhoto.uploadedFromComputer ? 'Uploaded from computer' : '') || ''
+          : '';
+        const anyActivityPhotos = orderedActivities.some(a => a.photos && a.photos.length);
+        let fallback = null;
+        if (!anyActivityPhotos && photoSrc) {
+          fallback = {
+            src: photoSrc,
+            label: photoCaption || task.task || 'Photo',
+            date: initialDate || walkTitle || '',
+            photographer: initialPhotographer,
+            uploadSource: initialUploadSource
+          };
+        }
+        populateTimelineModalFromActivities(orderedActivities, fallback);
+        updateTimelineModalNavigation();
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function initTimelineDetailModalUi() {
+        const overlay = document.getElementById('detailModal');
+        if (!overlay || overlay.dataset.timelineModalBound) return;
+        overlay.dataset.timelineModalBound = '1';
+        overlay.addEventListener('click', e => {
+          if (e.target.id === 'detailModal') closeTimelineDetailModal();
+        });
+        document.addEventListener('keydown', e => {
+          if (e.key !== 'Escape') return;
+          if (overlay.classList.contains('active')) closeTimelineDetailModal();
+        });
+        if (grid) {
+          grid.addEventListener('click', e => {
+            const img = e.target.closest('.photo-frame-fill img.photo-opens-task-modal');
+            if (!img || !grid.contains(img)) return;
+            const gn = img.dataset.scopeGroupName || '';
+            const kind = img.dataset.timelineKind || '';
+            const walk = img.dataset.walkTitle || '';
+            const cap = img.dataset.photoCaption || '';
+            const src = img.getAttribute('src') || '';
+            if (kind === 'task' && img.dataset.taskId) {
+              openTimelineTaskDetailModal(gn, img.dataset.taskId, src, walk, cap);
+            } else if (kind === 'group' && gn) {
+              openTimelineGroupDetailModal(gn, src, walk, cap);
+            }
+          });
+        }
+      }
+
+      initTimelineDetailModalUi();
+
+      window.closeModal = closeTimelineDetailModal;
+      window.navigateModalPhoto = dir => navigateTimelineModalPhoto(dir);
+      window.navigateTask = dir => navigateTimelineModalTask(dir);
+      window.approveCurrentTask = () => {};
+      window.requestEditCurrentTask = () => {};
+      window.promptDeleteCurrentTask = () => {};
+      window.selectModalPhotoByActivity = (activityIdx, photoIdx) => {
+        const flatIndex = tlModalPhotos.findIndex(
+          photo => photo.activityIdx === activityIdx && photo.photoIdx === photoIdx
+        );
+        if (flatIndex >= 0) {
+          showTimelineModalPhotoAt(flatIndex, true);
+        }
+      };
+
+      bindWalkBandRadios();
+      applyWalkBandFromRadios(1);
+      applyWalkBandFromRadios(2);
+    })();
+  </script>
+</body>
+</html>
