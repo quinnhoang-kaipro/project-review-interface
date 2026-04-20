@@ -134,8 +134,8 @@
       font-size: 12px;
       font-weight: 600;
       border-radius: 8px;
-      border: none;
-      background: #0f172a;
+      border: 1px solid #30803d;
+      background: #30803d;
       color: #fff;
       cursor: pointer;
     }
@@ -3688,8 +3688,13 @@
       function openTimelineTaskDetailModal(groupName, taskId, photoSrc, walkTitle, photoCaption) {
         const scope = window.importedScopeData;
         const group = scope?.groups?.find(g => g.name === groupName);
-        const task = group?.tasks?.find(t => String(t.id) === String(taskId));
-        if (!group || !task) return;
+        if (!group) return;
+        let task = group.tasks?.find(t => String(t.id) === String(taskId));
+        // If a clicked photo doesn't carry a valid task id, still show a fully populated task modal.
+        if (!task) {
+          task = (group.tasks || [])[0] || null;
+          if (!task) return;
+        }
         const modal = document.getElementById('detailModal');
         if (!modal) return;
         tlModalMode = 'task';
@@ -3703,7 +3708,10 @@
         const selContractor = document.getElementById('detailContractor');
         if (selContractor) selContractor.value = contractor ? contractor : '';
 
-        const lineTotal = coerceDetailNumber(task.amount ?? task.total);
+        const lineTotal =
+          coerceDetailNumber(task.amount ?? task.total) ||
+          (coerceDetailNumber(task.qty ?? task.quantity) || 0) *
+            (coerceDetailNumber(task.unitPrice ?? task.unit_price) || 0);
         document.getElementById('detailTotal').textContent = Number.isFinite(lineTotal)
           ? formatMoneyTimeline(lineTotal)
           : '—';
@@ -3788,7 +3796,13 @@
             if (kind === 'task' && img.dataset.taskId) {
               openTimelineTaskDetailModal(gn, img.dataset.taskId, src, walk, cap);
             } else if (kind === 'group' && gn) {
-              openTimelineGroupDetailModal(gn, src, walk, cap);
+              const group = window.importedScopeData?.groups?.find(g => g.name === gn);
+              const firstTaskId = group?.tasks?.[0]?.id;
+              if (firstTaskId != null && firstTaskId !== '') {
+                openTimelineTaskDetailModal(gn, String(firstTaskId), src, walk, cap);
+              } else {
+                openTimelineGroupDetailModal(gn, src, walk, cap);
+              }
             }
           });
         }
