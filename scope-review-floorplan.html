@@ -1321,16 +1321,17 @@
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 0;
+      top: 0;
+      bottom: auto;
       z-index: 30;
-      background: linear-gradient(to top, rgba(17, 24, 39, 0.92), rgba(17, 24, 39, 0.74));
+      background: linear-gradient(to bottom, rgba(17, 24, 39, 0.92), rgba(17, 24, 39, 0.74));
       color: #fff;
       border-radius: 0;
       padding: 10px 12px;
       font-size: 13px;
       font-weight: 700;
       line-height: 1.3;
-      box-shadow: 0 -4px 14px rgba(2, 6, 23, 0.25);
+      box-shadow: 0 4px 14px rgba(2, 6, 23, 0.25);
       display: none;
     }
     .floorplan-task-label.visible {
@@ -2256,7 +2257,7 @@
 
     .task-summary-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) auto auto;
       align-items: center;
       gap: 10px;
       padding: 12px 12px 10px;
@@ -2324,6 +2325,22 @@
       transition: transform 0.18s ease, background 0.15s ease;
     }
     .task-summary-toggle:hover { background: #f3f4f6; }
+    .task-summary-view-btn {
+      border: 1px solid #d7dce4;
+      background: #fff;
+      color: #374151;
+      border-radius: 8px;
+      height: 26px;
+      padding: 0 10px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .task-summary-view-btn:hover {
+      background: #f3f5f8;
+    }
     .task-details-card.expanded .task-summary-toggle { transform: rotate(180deg); }
     .task-details-card.expanded .task-summary-row { border-bottom-color: var(--gray-border); }
     .task-details-card .task-details-head { display: none; }
@@ -4153,6 +4170,34 @@
         }
       }
 
+      function setRightHeroFromTaskId(taskId, taskNameHint = '') {
+        const id = String(taskId || '').trim();
+        if (!id) return;
+        const rightDateCol = document.querySelector('.date-col[data-date-col="2"]');
+        if (!rightDateCol) return;
+
+        const directCard = rightDateCol.querySelector(`.photos-section .photo-card[data-task-id="${id}"]`);
+        if (directCard) {
+          setDateColumnHeroFromPhotoCard(directCard);
+          return;
+        }
+
+        const fallbackCard = document.querySelector(`.photos-section .photo-card[data-task-id="${id}"]`);
+        const fallbackImg = fallbackCard?.querySelector('.photo-thumb img');
+        const floorplanImage = rightDateCol.querySelector('.floorplan-image');
+        if (fallbackImg && floorplanImage) {
+          floorplanImage.src = fallbackImg.src;
+          floorplanImage.alt = fallbackImg.alt || 'Selected task photo';
+        }
+        const floorplan = rightDateCol.querySelector('.floorplan');
+        if (floorplan) {
+          floorplan.dataset.photoMode = 'task';
+          floorplan.classList.add('task-photo-mode');
+          updateMarkerHoverLabelsForFloorplan(floorplan, 'task');
+        }
+        applySideBySideHeroLabel(rightDateCol, taskNameHint);
+      }
+
       function closeDetailModal() {
         detailModal.classList.remove('active');
         if (!modal.classList.contains('open') && !groupPhotoModal.classList.contains('active')) {
@@ -5179,9 +5224,24 @@
         card.addEventListener('click', e => {
           const taskId = card.dataset.taskId;
           if (!taskId) return;
+          const clickedViewDetails = e.target.closest('.task-summary-view-btn');
           const clickedSummary = e.target.closest('.task-summary-row');
           const clickedToggle = e.target.closest('.task-summary-toggle');
           const clickedModifierControl = e.target.closest('.modifier-control, .modifier-add-dropdown, .modifier-pill-remove, .modifier-add-checkbox');
+
+          if (clickedViewDetails) {
+            const rightDateCol = document.querySelector('.date-col[data-date-col="2"]');
+            const preferred =
+              rightDateCol?.querySelector(`.photos-section .photo-card[data-task-id="${taskId}"]`) ||
+              document.querySelector(`.photos-section .photo-card[data-task-id="${taskId}"]`);
+            if (preferred) {
+              clearSelection();
+              activateTask(taskId, { scrollAllPhotoRows: false });
+              setDateColumnHeroFromPhotoCard(preferred);
+              openDetailModalFromPhotoCard(preferred);
+            }
+            return;
+          }
 
           if (clickedSummary || clickedToggle) {
             const expand = card.classList.contains('collapsed');
@@ -5195,15 +5255,7 @@
             clearSelection();
             card.classList.add('task-active');
             activateTask(taskId, { scrollAllPhotoRows: false });
-
-            // In side-by-side mode, sidebar task click should drive the right hero photo.
-            const rightDateCol = document.querySelector('.date-col[data-date-col="2"]');
-            const matchingCard = rightDateCol?.querySelector(`.photos-section .photo-card[data-task-id="${taskId}"]`);
-            if (matchingCard) {
-              setDateColumnHeroFromPhotoCard(matchingCard);
-            } else {
-              applySideBySideHeroLabel(rightDateCol, card.querySelector('.task-name')?.textContent?.trim() || '');
-            }
+            setRightHeroFromTaskId(taskId, card.querySelector('.task-name')?.textContent?.trim() || '');
           }
         });
       }
@@ -5308,6 +5360,7 @@
               <span class="task-summary-modifier" hidden></span>
             </div>
           </div>
+          <button class="task-summary-view-btn" type="button">View Details</button>
           <button class="task-summary-toggle" type="button" aria-label="Toggle task details" aria-expanded="false">⌄</button>
         `;
         card.insertBefore(summary, card.firstChild);
