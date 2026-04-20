@@ -88,6 +88,47 @@
       border-bottom-color: #0f172a;
     }
 
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .view-mode-switch {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px;
+      background: #f8fafc;
+    }
+
+    .view-mode-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #64748b;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .view-mode-link:hover {
+      color: #1f2937;
+      background: #eef2f7;
+    }
+
+    .view-mode-link.active {
+      background: #0f172a;
+      color: #fff;
+    }
+
     .topbar-right .btn {
       padding: 8px 16px;
       font-size: 12px;
@@ -99,6 +140,197 @@
       cursor: pointer;
     }
 
+    .context-bar {
+      height: 41px;
+      border-bottom: 1px solid #edf0f3;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      column-gap: 12px;
+      padding: 0 14px;
+      color: #8b9099;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .context-left,
+    .context-right {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .context-left {
+      position: relative;
+    }
+
+    .context-dropdown {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .context-right {
+      justify-self: end;
+      gap: 6px;
+    }
+
+    .context-pill {
+      height: 25px;
+      border-radius: 999px;
+      border: 1px solid #e6e9ed;
+      background: #f7f8fa;
+      color: #606671;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1;
+      padding: 0 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .context-sep {
+      color: #d1d5db;
+      font-weight: 400;
+      user-select: none;
+    }
+
+    .context-icon-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: #8a9098;
+      font-size: 12px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .context-icon-btn:hover {
+      background: #f1f3f6;
+      color: #606671;
+    }
+
+    .compare-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .compare-toggle input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .compare-toggle-slider {
+      position: relative;
+      width: 32px;
+      height: 18px;
+      border-radius: 999px;
+      background: #d1d5db;
+      transition: background 0.2s ease;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    .compare-toggle-slider::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.24);
+      transition: transform 0.2s ease;
+    }
+
+    .compare-toggle input:checked + .compare-toggle-slider {
+      background: #3b82f6;
+    }
+
+    .compare-toggle input:checked + .compare-toggle-slider::after {
+      transform: translateX(14px);
+    }
+
+    .context-add-btn {
+      height: 26px;
+      padding: 0 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 999px;
+      background: #fff;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .context-add-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .context-group-menu,
+    .context-trade-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 1400;
+      min-width: 240px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 6px;
+      border: 1px solid #d8dde5;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
+      display: none;
+    }
+
+    .context-group-menu.open,
+    .context-trade-menu.open {
+      display: block;
+    }
+
+    .context-menu-item {
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      text-align: left;
+      padding: 8px 10px;
+      color: #374151;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .context-menu-item:hover {
+      background: #f3f4f6;
+    }
+
     .page {
       flex: 1;
       padding: 16px 8px 24px;
@@ -108,10 +340,9 @@
     }
 
     .page-head {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      justify-content: space-between;
       gap: 12px 16px;
       margin-bottom: 20px;
     }
@@ -122,11 +353,15 @@
       margin: 0;
       letter-spacing: -0.02em;
       line-height: 1.2;
+      grid-column: 1;
+      justify-self: start;
     }
 
     .page-head .view-toggle {
       margin: 0;
       flex-shrink: 0;
+      grid-column: 2;
+      justify-self: center;
     }
 
     .layout {
@@ -174,6 +409,11 @@
       grid-template-columns: min(168px, 22vw) repeat(3, minmax(0, 1fr));
       grid-template-rows: auto minmax(200px, 1fr) auto auto minmax(200px, 1fr);
       min-height: 520px;
+    }
+
+    .compare-unified.single-date {
+      grid-template-rows: auto minmax(200px, 1fr) auto;
+      min-height: 380px;
     }
 
     .uni-walk-head {
@@ -438,6 +678,20 @@
       line-height: 0;
     }
 
+    .compare-unified.single-date .timelines-scrubber-stack {
+      grid-row: 3 / 4;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .compare-unified.single-date .uni-walk--2,
+    .compare-unified.single-date .photo-cell[data-photo-row="2"] {
+      display: none !important;
+    }
+
+    .compare-unified.single-date .timeline-row[data-walk-band="2"] {
+      display: none;
+    }
+
     .timelines-scrubber-stack .timelines {
       flex: 0 0 auto;
       width: 100%;
@@ -524,11 +778,11 @@
     /* GROUP / TRADE */
     .view-toggle {
       display: inline-flex;
-      margin: 16px 0 12px;
       border-radius: 10px;
       border: 1px solid var(--border);
-      overflow: hidden;
+      overflow: visible;
       background: #f1f5f9;
+      position: relative;
     }
 
     .view-toggle button {
@@ -541,6 +795,63 @@
       color: var(--muted);
       cursor: pointer;
       font-family: inherit;
+    }
+
+    .view-toggle-item {
+      position: relative;
+    }
+
+    .view-toggle-item + .view-toggle-item {
+      border-left: 1px solid var(--border);
+    }
+
+    .view-toggle-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .view-toggle-caret {
+      font-size: 10px;
+      opacity: 0.8;
+      transform: translateY(-1px);
+    }
+
+    .view-toggle-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 220px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
+      padding: 6px;
+      display: none;
+      z-index: 40;
+    }
+
+    .view-toggle-item.open .view-toggle-menu {
+      display: block;
+    }
+
+    .view-toggle-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      cursor: default;
+      letter-spacing: 0;
+    }
+
+    .view-toggle-menu button:hover {
+      background: #f1f5f9;
     }
 
     .view-toggle button.active {
@@ -853,19 +1164,43 @@
         <li><a href="#">Artifacts</a></li>
       </ul>
       <div class="topbar-right">
+        <div class="view-mode-switch" aria-label="Switch scope review view">
+          <a class="view-mode-link" href="scope-review-floorplan.html">Side-by-side</a>
+          <a class="view-mode-link active" href="scope-2-timelines.html">Timelines</a>
+        </div>
         <button type="button" class="btn">Complete Review</button>
       </div>
     </header>
 
-    <main class="page">
-      <header class="page-head">
-        <h1 class="page-title">Compare Dates</h1>
-        <div class="view-toggle" role="group" aria-label="Photo grouping">
-          <button type="button" class="active" data-mode="group">Group</button>
-          <button type="button" data-mode="trade">Trade — Contractor</button>
+    <div class="context-bar" aria-label="Scope context controls">
+      <div class="context-left">
+        <button class="context-pill" type="button">Home <span aria-hidden="true">▾</span></button>
+        <span class="context-sep" aria-hidden="true">|</span>
+        <div class="context-dropdown">
+          <button class="context-pill" type="button" id="contextGroupButton" aria-haspopup="listbox" aria-expanded="false">Go to group <span aria-hidden="true">▾</span></button>
+          <div class="context-group-menu" id="contextGroupMenu" role="listbox" aria-label="Select group"></div>
         </div>
-      </header>
+        <span class="context-sep" aria-hidden="true">|</span>
+        <div class="context-dropdown">
+          <button class="context-pill" type="button" id="contextTradeButton" aria-haspopup="listbox" aria-expanded="false">Go to trade <span aria-hidden="true">▾</span></button>
+          <div class="context-trade-menu" id="contextTradeMenu" role="listbox" aria-label="Select trade"></div>
+        </div>
+      </div>
+      <div></div>
+      <div class="context-right">
+        <button class="context-icon-btn" type="button" aria-label="Search">⌕</button>
+        <button class="context-icon-btn" type="button" aria-label="Download">↓</button>
+        <button class="context-icon-btn" type="button" aria-label="Share">⤴</button>
+        <label class="compare-toggle" for="compareDatesToggle">
+          <input id="compareDatesToggle" type="checkbox" checked />
+          <span class="compare-toggle-slider" aria-hidden="true"></span>
+          <span>Compare 2 dates</span>
+        </label>
+        <button class="context-add-btn" type="button">Create new task</button>
+      </div>
+    </div>
 
+    <main class="page">
       <div class="layout">
         <div class="compare-wrap" id="compareWrap">
           <div class="compare-unified" id="compareGrid">
@@ -906,13 +1241,13 @@
             </aside>
 
             <div class="photo-cell" data-photo-row="1" data-col="prev">
-              <div class="photo-frame"><div class="photo-placeholder">Prev · Mar 22</div></div>
+            <div class="photo-frame"><div class="photo-placeholder"></div></div>
             </div>
             <div class="photo-cell current-col" data-photo-row="1" data-col="current">
-              <div class="photo-frame highlight"><div class="photo-placeholder">Current · Mar 22</div></div>
+              <div class="photo-frame highlight"><div class="photo-placeholder"></div></div>
             </div>
             <div class="photo-cell" data-photo-row="1" data-col="next">
-              <div class="photo-frame"><div class="photo-placeholder">Next · Mar 22</div></div>
+              <div class="photo-frame"><div class="photo-placeholder"></div></div>
             </div>
 
             <div class="timelines-scrubber-stack" id="timelinesScrubberStack"><div class="timelines" id="timelinesBlock"></div><div class="compare-scrubber" id="scrubberRail">
@@ -953,13 +1288,13 @@
             </aside>
 
             <div class="photo-cell" data-photo-row="2" data-col="prev">
-              <div class="photo-frame"><div class="photo-placeholder">Prev · Apr 10</div></div>
+              <div class="photo-frame"><div class="photo-placeholder"></div></div>
             </div>
             <div class="photo-cell current-col" data-photo-row="2" data-col="current">
-              <div class="photo-frame highlight"><div class="photo-placeholder">Current · Apr 10</div></div>
+              <div class="photo-frame highlight"><div class="photo-placeholder"></div></div>
             </div>
             <div class="photo-cell" data-photo-row="2" data-col="next">
-              <div class="photo-frame"><div class="photo-placeholder">Next · Apr 10</div></div>
+              <div class="photo-frame"><div class="photo-placeholder"></div></div>
             </div>
           </div>
         </div>
@@ -1294,14 +1629,10 @@
       const dotPreviewImage = document.getElementById('dotPreviewImage');
       const timelineGroupHoverTip = document.getElementById('timelineGroupHoverTip');
 
-      function phImg(seed, label) {
-        const t = encodeURIComponent(label || 'Photo');
+      function phImg() {
         return `data:image/svg+xml,${encodeURIComponent(
           `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="280" viewBox="0 0 400 280">
-            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e2e8f0"/><stop offset="100%" stop-color="#cbd5e1"/></linearGradient></defs>
-            <rect width="400" height="280" fill="url(#g)"/>
-            <text x="200" y="145" text-anchor="middle" fill="#64748b" font-size="14" font-family="system-ui">${t}</text>
-            <text x="200" y="168" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="system-ui">${seed}</text>
+            <rect width="400" height="280" fill="#e8edf6"/>
           </svg>`
         )}`;
       }
@@ -1765,9 +2096,16 @@
         if (groupName !== key.groupName) return false;
         if (item.kind !== key.kind) return false;
         if (key.kind === 'task') {
+          const keyTaskId = taskIdFromItemTaskLine(key.task);
+          const itemTaskId = taskIdFromItemTaskLine(item.task);
+          // Prefer stable task-id matching across walks (captions/task lines can vary by date).
+          if (keyTaskId && itemTaskId) return keyTaskId === itemTaskId;
           if (key.task && item.task !== key.task) return false;
           if (key.caption && item.caption !== key.caption) return false;
-        } else if (key.caption && item.caption !== key.caption) return false;
+        } else if (key.caption && item.caption !== key.caption) {
+          // Group photos are walk-specific; allow same-group fallback instead of blanking cells.
+          return true;
+        }
         return true;
       }
 
@@ -1820,18 +2158,20 @@
       function labelForTimelineItem(item, groupName) {
         if (!item) return '';
         if (item.kind === 'group') return groupName || item.caption || 'Group';
-        return (item.task || '').trim() || (item.caption || '').trim() || groupName;
+        const taskName = String(item.task || '')
+          .replace(/^#\d+\s*/, '')
+          .trim();
+        return taskName ? `${groupName || 'Group'} - ${taskName}` : ((item.caption || '').trim() || groupName);
       }
 
       function setPhotoCellForEntry(cell, row, entry, colKind) {
         if (!cell) return;
-        const showCaptionBar = cell.getAttribute('data-photo-row') === '2';
         const frame = cell.querySelector('.photo-frame.highlight') || cell.querySelector('.photo-frame');
         if (!frame) return;
         if (!entry || !entry.item) {
           const blank =
             colKind === 'prev' || colKind === 'next'
-              ? 'No photo on this date'
+              ? 'No photo for this item on this walk date.'
               : 'No photo for this item on this walk date.';
           frame.innerHTML = `<div class="photo-placeholder photo-placeholder--blank">${blank}</div>`;
           return;
@@ -1850,7 +2190,6 @@
           item.kind === 'group'
             ? `${row.rowTitle} — ${groupName} — ${item.caption || ''}`
             : `${row.rowTitle} — ${item.task || ''} — ${item.caption || ''}`;
-        const caption = labelForTimelineItem(item, groupName);
         frame.innerHTML = '';
         const wrap = document.createElement('div');
         wrap.className = 'photo-frame-fill';
@@ -1869,12 +2208,6 @@
           img.classList.add('photo-opens-task-modal');
         }
         wrap.appendChild(img);
-        if (showCaptionBar) {
-          const capEl = document.createElement('div');
-          capEl.className = 'photo-cell-caption';
-          capEl.textContent = caption;
-          wrap.appendChild(capEl);
-        }
         frame.appendChild(wrap);
       }
 
@@ -1903,8 +2236,8 @@
         const prevT = ti > 0 ? g.tasks[ti - 1] : null;
         const nextT = ti < g.tasks.length - 1 ? g.tasks[ti + 1] : null;
         return {
-          prev: prevT ? taskLineFromScope(prevT) : '',
-          next: nextT ? taskLineFromScope(nextT) : ''
+          prev: prevT ? `${g.name} - ${String(prevT.task || '').trim()}` : '',
+          next: nextT ? `${g.name} - ${String(nextT.task || '').trim()}` : ''
         };
       }
 
@@ -2138,9 +2471,74 @@
       const handle = document.getElementById('scrubberHandle');
       const scrubberLabel = document.getElementById('scrubberLabel');
       const grid = document.getElementById('compareGrid');
+      const compareDatesToggle = document.getElementById('compareDatesToggle');
+      const contextGroupButton = document.getElementById('contextGroupButton');
+      const contextGroupMenu = document.getElementById('contextGroupMenu');
+      const contextTradeButton = document.getElementById('contextTradeButton');
+      const contextTradeMenu = document.getElementById('contextTradeMenu');
       const headPrev = document.getElementById('headPrev');
       const headCurrent = document.getElementById('headCurrent');
       const headNext = document.getElementById('headNext');
+
+      function closeContextGroupMenu() {
+        if (!contextGroupMenu) return;
+        contextGroupMenu.classList.remove('open');
+        contextGroupButton?.setAttribute('aria-expanded', 'false');
+      }
+
+      function closeContextTradeMenu() {
+        if (!contextTradeMenu) return;
+        contextTradeMenu.classList.remove('open');
+        contextTradeButton?.setAttribute('aria-expanded', 'false');
+      }
+
+      function renderContextGroupMenu() {
+        if (!contextGroupMenu) return;
+        const groups = (window.importedScopeData?.groups || [])
+          .map(g => String(g?.name || '').trim())
+          .filter(Boolean);
+        const options = groups.length
+          ? groups
+          : ['Exterior General', 'Roof', 'Exterior Paint', 'Kitchen (Includes small hall)'];
+        contextGroupMenu.innerHTML = '';
+        options.forEach(name => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'context-menu-item';
+          btn.textContent = name;
+          btn.addEventListener('click', () => closeContextGroupMenu());
+          contextGroupMenu.appendChild(btn);
+        });
+      }
+
+      function renderContextTradeMenu() {
+        if (!contextTradeMenu) return;
+        const trades = new Set();
+        (window.importedScopeData?.groups || []).forEach(g => {
+          (g.tasks || []).forEach(t => {
+            const c = String(t.contractor || '').trim();
+            if (c) trades.add(c);
+          });
+        });
+        const options = Array.from(trades).sort((a, b) => a.localeCompare(b));
+        if (!options.length) {
+          options.push(
+            'Sustainable Construction Services LLC',
+            'Colorful Changes LLC',
+            'Atlantic Flooring Solutions LLC',
+            'Unassigned'
+          );
+        }
+        contextTradeMenu.innerHTML = '';
+        options.forEach(name => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'context-menu-item';
+          btn.textContent = name;
+          btn.addEventListener('click', () => closeContextTradeMenu());
+          contextTradeMenu.appendChild(btn);
+        });
+      }
 
       /**
        * Scrubber anchor X in stack-local *content* coordinates (same axis as timeline zones before scroll
@@ -2163,7 +2561,10 @@
       function selectionKeyToHeaderTitle(key) {
         if (!key || !key.groupName) return '';
         if (key.kind === 'group') return key.groupName;
-        return key.task || key.groupName;
+        const taskName = String(key.task || '')
+          .replace(/^#\d+\s*/, '')
+          .trim();
+        return taskName ? `${key.groupName} - ${taskName}` : key.groupName;
       }
 
       function updateCurrentHeaderForSelection(key) {
@@ -2233,6 +2634,7 @@
         bindTimelineTrackGroupHover();
         requestAnimationFrame(() => {
           syncTimelineGroupZoneWidths();
+          centerTimelineOnFirstGroup();
           positionRailInitial();
         });
       }
@@ -2332,6 +2734,26 @@
         else if (centers[0] != null) moveScrubberToClientX(rect.left + centers[0], track);
       }
 
+      /**
+       * Start timeline with first zone beginning at center line (left half empty/grey).
+       * Keeps both walk layers horizontally aligned.
+       */
+      function centerTimelineOnFirstGroup() {
+        if (!timelinesBlock) return;
+        const layers = Array.from(timelinesBlock.querySelectorAll('.timeline-groups-layer'));
+        if (!layers.length) return;
+        const firstLayer = layers[0];
+        const centerOffset = Math.max(0, Math.round(firstLayer.clientWidth / 2));
+
+        groupLayersScrollSync = true;
+        layers.forEach(layer => {
+          layer.style.paddingLeft = `${centerOffset}px`;
+          layer.scrollLeft = 0;
+        });
+        groupLayersScrollSync = false;
+        applyScrubberStackPosition();
+      }
+
       function isPrimaryPointer(ev) {
         return ev.pointerType !== 'mouse' || ev.button === 0;
       }
@@ -2358,10 +2780,12 @@
       window.addEventListener('resize', () => {
         hideDotPreview();
         syncTimelineGroupZoneWidths();
+        centerTimelineOnFirstGroup();
         positionRailInitial();
       });
       window.addEventListener('load', () => {
         syncTimelineGroupZoneWidths();
+        centerTimelineOnFirstGroup();
         positionRailInitial();
       });
       renderTimelines();
@@ -2369,15 +2793,53 @@
       bindTimelineTrackGroupHover();
       requestAnimationFrame(() => {
         syncTimelineGroupZoneWidths();
+        centerTimelineOnFirstGroup();
         positionRailInitial();
       });
 
-      document.querySelectorAll('.view-toggle button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          applyTimelineViewMode();
-        });
+      function applyCompareDatesMode() {
+        if (!grid) return;
+        const enabled = !compareDatesToggle || !!compareDatesToggle.checked;
+        grid.classList.toggle('single-date', !enabled);
+      }
+
+      compareDatesToggle?.addEventListener('change', () => {
+        applyCompareDatesMode();
+      });
+      applyCompareDatesMode();
+
+      renderContextGroupMenu();
+      renderContextTradeMenu();
+
+      contextGroupButton?.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeContextTradeMenu();
+        if (!contextGroupMenu) return;
+        const open = contextGroupMenu.classList.toggle('open');
+        contextGroupButton.setAttribute('aria-expanded', String(open));
+      });
+
+      contextTradeButton?.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeContextGroupMenu();
+        if (!contextTradeMenu) return;
+        const open = contextTradeMenu.classList.toggle('open');
+        contextTradeButton.setAttribute('aria-expanded', String(open));
+      });
+
+      document.addEventListener('click', e => {
+        if (
+          e.target.closest('#contextGroupMenu') ||
+          e.target.closest('#contextGroupButton') ||
+          e.target.closest('#contextTradeMenu') ||
+          e.target.closest('#contextTradeButton')
+        ) {
+          return;
+        }
+        closeContextGroupMenu();
+        closeContextTradeMenu();
       });
 
       const WALK_CHOICE_META = {
@@ -2613,11 +3075,73 @@
         return activities;
       }
 
+      /**
+       * Same flat index order as `buildScopeDataMaps` in scope-review-tabs (all groups, all tasks).
+       * Used only for the `index` argument to `createMockActivities` when task ids are non-numeric.
+       */
+      function getScopeFlatTaskIndex(taskId) {
+        const want = String(taskId || '').trim();
+        if (!want) return 0;
+        let i = 0;
+        for (const g of window.importedScopeData?.groups || []) {
+          for (const t of g.tasks || []) {
+            if (String(t.id || '').trim() === want) return i;
+            i++;
+          }
+        }
+        return 0;
+      }
+
+      /**
+       * JPEG paths from scope-review-tabs `syncExteriorGeneralPhotosIfAvailable` task cards (group-0 row).
+       * Applied in walk order to activity photos so the modal matches the tabs prototype.
+       */
+      const EXTERIOR_GENERAL_TASK_MODAL_JPEG_PATHS = {
+        '50001': [
+          'Powerwash/1ca5b563-1c8d-4c7a-bf9c-11fb5f238b3f.jpeg',
+          'Powerwash/2b29916f-7088-4e9a-a26f-94287d30a1d0.jpeg',
+          'Powerwash/7936185f-8fa6-4519-a699-8f76e92afb3f.jpeg',
+          'Powerwash/8390e660-580c-4624-9c6a-897a648399d1.jpeg',
+          'Powerwash/9c6fa03b-5b46-4dae-b949-90aa7ba8250a.jpeg',
+          'Powerwash/c9bde997-ffe4-4d20-81bf-9b9b2624cbe1.jpeg'
+        ],
+        '50002': ['Mailbox_Paint_Repair/1cb2cefe-04c1-4566-b7d5-9f11eaf7ba06.jpeg'],
+        '50003': ['Non-Standard_Task__Storage/0884703c-a2dd-49aa-9597-810d58d3479e.jpeg'],
+        '50004': ['Exhaust_Vent__Exterior_Plastic_Louvered_/5d923f1f-3239-452d-82d5-02f1af1ac571.jpeg']
+      };
+
+      function applyExteriorGeneralTabsPhotoSources(activities, taskId) {
+        const relPaths = EXTERIOR_GENERAL_TASK_MODAL_JPEG_PATHS[String(taskId)];
+        if (!Array.isArray(relPaths) || !relPaths.length || !Array.isArray(activities)) return;
+        const base = 'images/Exterior_General/';
+        let pi = 0;
+        for (let ai = 0; ai < activities.length; ai++) {
+          const act = activities[ai];
+          if (!act?.photos?.length) continue;
+          for (let ph = 0; ph < act.photos.length; ph++) {
+            if (pi >= relPaths.length) return;
+            const prev = act.photos[ph];
+            act.photos[ph] = {
+              ...prev,
+              src: `${base}${relPaths[pi]}`
+            };
+            pi++;
+          }
+        }
+      }
+
       function getTimelineActivitiesForTask(taskId, taskName, groupName) {
         const key = String(taskId);
-        if (!timelineActivityCache[key]) {
-          timelineActivityCache[key] = createMockActivities(key, taskName, groupName, 0);
+        if (timelineActivityCache[key]) {
+          return timelineActivityCache[key];
         }
+        const groupLabel = String(groupName || '').trim();
+        const flatIndex = getScopeFlatTaskIndex(key);
+        const acts = createMockActivities(key, taskName, groupLabel, flatIndex);
+        if (groupLabel === 'Exterior General' && EXTERIOR_GENERAL_TASK_MODAL_JPEG_PATHS[key]) {
+          applyExteriorGeneralTabsPhotoSources(acts, key);
+        }
+        timelineActivityCache[key] = acts;
         return timelineActivityCache[key];
       }
 
@@ -2741,13 +3265,20 @@
           <div class="activity-card-photos">
             ${activity.photos
               .map(
-                (photo, idx) => `
+                (photo, idx) => {
+                  const src = photo.src ? String(photo.src).trim() : '';
+                  const bg = photo.bg || '#e0e0e0';
+                  const thumbStyle = src
+                    ? `background-color:${bg};background-image:url(${JSON.stringify(src)});background-size:cover;background-position:center;`
+                    : `background-color:${bg};`;
+                  return `
               <div class="activity-card-photo-thumb"
                    onclick="selectModalPhotoByActivity(${activityIndex}, ${idx})"
                    data-activity="${activityIndex}"
                    data-photo="${idx}"
-                   style="background-color: ${photo.bg || '#e0e0e0'};"></div>
-            `
+                   style="${thumbStyle}"></div>
+            `;
+                }
               )
               .join('')}
           </div>

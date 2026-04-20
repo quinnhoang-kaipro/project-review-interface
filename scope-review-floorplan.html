@@ -132,6 +132,42 @@
       gap: 6px;
     }
 
+    .view-mode-switch {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #d8dde5;
+      border-radius: 999px;
+      padding: 2px;
+      background: #f7f9fc;
+      margin-right: 6px;
+    }
+
+    .view-mode-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 22px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #6b7280;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .view-mode-link:hover {
+      background: #edf2f8;
+      color: #374151;
+    }
+
+    .view-mode-link.active {
+      background: #1f2937;
+      color: #fff;
+    }
+
     .top-icon-btn {
       width: 24px;
       height: 24px;
@@ -344,18 +380,20 @@
     }
 
     .context-add-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
+      height: 26px;
+      padding: 0 12px;
+      border-radius: 999px;
       border: 1px solid #d9dde3;
       background: #fff;
       color: #717783;
-      font-size: 15px;
+      font-size: 12px;
+      font-weight: 700;
       line-height: 1;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .context-add-btn:hover {
@@ -816,33 +854,43 @@
       z-index: 28;
       display: block;
     }
-    .timeline-date-tabs {
-      grid-column: 1 / -1;
-      margin: 0 12px 4px;
+    .timeline-phase-overlay {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      top: 32px;
+      bottom: 6px;
+      z-index: 1;
       display: flex;
-      gap: 8px;
-      align-items: center;
-      overflow-x: auto;
-      padding-bottom: 2px;
+      gap: 0;
+      pointer-events: none;
     }
-    .timeline-date-tab {
-      border: 1px solid #d9e0ea;
-      background: #fff;
-      color: #5d6b7f;
-      border-radius: 999px;
-      height: 28px;
-      padding: 0 12px;
-      display: flex;
-      align-items: center;
-      font-size: 12px;
-      font-weight: 600;
+    .timeline-phase-band {
+      position: relative;
+      flex: 0 0 auto;
+      height: 100%;
+      border-right: 1px solid rgba(148, 163, 184, 0.34);
+    }
+    .timeline-phase-band:last-child {
+      border-right: none;
+    }
+    .timeline-phase-band.initial { width: 22%; background: rgba(191, 219, 254, 0.28); }
+    .timeline-phase-band.progress-a { width: 36.5%; background: rgba(167, 243, 208, 0.24); }
+    .timeline-phase-band.change-order { width: 2%; background: rgba(253, 230, 138, 0.3); }
+    .timeline-phase-band.progress-b { width: 36.5%; background: rgba(167, 243, 208, 0.24); }
+    .timeline-phase-band.final { width: 3%; background: rgba(221, 214, 254, 0.26); }
+    .timeline-phase-label {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 700;
+      color: #4b5563;
       white-space: nowrap;
-      cursor: pointer;
-    }
-    .timeline-date-tab.active {
-      border-color: #c5d6f6;
-      background: #edf4ff;
-      color: #1f4e8c;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      opacity: 0.9;
     }
     .date-mini-timeline-track-wrap {
       position: relative;
@@ -3032,9 +3080,10 @@
       </ul>
 
       <div class="top-right-controls">
-        <button class="top-icon-btn" type="button" aria-label="Search">⌕</button>
-        <button class="top-icon-btn" type="button" aria-label="Download">↓</button>
-        <button class="top-icon-btn" type="button" aria-label="Share">⤴</button>
+        <div class="view-mode-switch" aria-label="Switch scope review view">
+          <a class="view-mode-link active" href="scope-review-floorplan.html">Side-by-side</a>
+          <a class="view-mode-link" href="scope-2-timelines.html">Timelines</a>
+        </div>
         <button class="btn dark" type="button">Complete Review</button>
       </div>
     </header>
@@ -3052,9 +3101,7 @@
           <div class="context-trade-menu" id="contextTradeMenu" role="listbox" aria-label="Select trade"></div>
         </div>
       </div>
-      <div class="context-center">
-        <button class="context-pill" type="button"><span class="context-dot" aria-hidden="true"></span> Initial walk <span aria-hidden="true">▾</span></button>
-      </div>
+      <div class="context-center"></div>
       <div class="context-right">
         <button class="context-icon-btn" type="button" aria-label="Capture">
           <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3" width="11" height="10" rx="1.8"></rect></svg>
@@ -3090,7 +3137,7 @@
           <span class="compare-toggle-slider" aria-hidden="true"></span>
           <span>Compare 2 dates</span>
         </label>
-        <button class="context-add-btn" type="button" aria-label="Add">+</button>
+        <button class="context-add-btn" type="button">Create new task</button>
       </div>
     </div>
     <div class="mini-floorplan-strip">
@@ -3108,16 +3155,16 @@
 
     <section class="content">
       <div class="canvas-area">
-        <div class="timeline-date-tabs" aria-label="Timeline date tabs">
-          <button class="timeline-date-tab active" type="button">All Time</button>
-          <button class="timeline-date-tab" type="button">Initial Walk - Apr 1</button>
-          <button class="timeline-date-tab" type="button">Progress Walk - Apr 13</button>
-          <button class="timeline-date-tab" type="button">Progress Walk - Apr 13</button>
-          <button class="timeline-date-tab" type="button">Final Walk - May 7</button>
-        </div>
         <div class="date-mini-timeline shared no-trim-zoom" id="sharedDateMiniTimeline" aria-hidden="true">
           <div class="date-mini-timeline-track-wrap">
             <div class="date-mini-timeline-zoom-bg" id="timelineZoomBg" aria-hidden="true"></div>
+            <div class="timeline-phase-overlay" aria-hidden="true">
+              <div class="timeline-phase-band initial"><span class="timeline-phase-label">Initial walks</span></div>
+              <div class="timeline-phase-band progress-a"><span class="timeline-phase-label">Progress walks</span></div>
+              <div class="timeline-phase-band change-order"><span class="timeline-phase-label">Change order</span></div>
+              <div class="timeline-phase-band progress-b"><span class="timeline-phase-label">Progress walks</span></div>
+              <div class="timeline-phase-band final"><span class="timeline-phase-label">Final walks</span></div>
+            </div>
             <div class="date-mini-timeline-ruler">
               <span>03/15</span><span>04/01</span><span>04/15</span><span>05/01</span><span>05/15</span><span>06/01</span><span>06/15</span><span>07/01</span><span>07/17</span>
             </div>
@@ -4095,15 +4142,9 @@
         const statusEl = card.querySelector('.photo-tag');
         const statusClass = STATUS_CLASSES.find(cls => statusEl?.classList.contains(cls)) || '';
         const statusText = statusEl?.textContent?.trim() || '';
-        if (taskLabel) {
-          const groupName = getSelectedGroupName();
-          const resolvedTaskName = taskName || card.querySelector('.photo-label')?.textContent?.trim() || img.alt || 'Task photo';
-          const statusMarkup = statusText
-            ? `<span class="floorplan-task-status ${statusClass}">${statusText}</span>`
-            : '';
-          taskLabel.innerHTML = `${statusMarkup}<span class="floorplan-task-label-group">${groupName} &gt;</span><span class="floorplan-task-label-name">${resolvedTaskName}</span>`;
-          taskLabel.classList.add('visible');
-        }
+        const resolvedTaskName =
+          taskName || card.querySelector('.photo-label')?.textContent?.trim() || img.alt || 'Task photo';
+        applySideBySideHeroLabel(dateCol, resolvedTaskName);
         const floorplan = dateCol.querySelector('.floorplan');
         if (floorplan) {
           floorplan.dataset.photoMode = 'task';
@@ -4134,6 +4175,52 @@
         return String(groupTitleSelect?.value || '').trim() || GROUP_NAMES[0] || 'Scope Group';
       }
 
+      function getTaskNameForDateCol(dateCol, explicitTaskName = '') {
+        const provided = String(explicitTaskName || '').trim();
+        if (provided) return provided;
+        if (!dateCol) return 'Task';
+
+        const floorplanSrc = String(dateCol.querySelector('.floorplan-image')?.getAttribute('src') || '').trim();
+        let taskId = '';
+
+        if (floorplanSrc) {
+          const matchingCard = Array.from(dateCol.querySelectorAll('.photos-section .photo-card[data-task-id]')).find(card => {
+            const src = String(card.querySelector('.photo-thumb img')?.getAttribute('src') || '').trim();
+            return src && src === floorplanSrc;
+          });
+          if (matchingCard) taskId = String(matchingCard.dataset.taskId || '').trim();
+        }
+
+        if (!taskId) {
+          const selectedCard = dateCol.querySelector('.photos-section .photo-card.hero-selected[data-task-id]');
+          taskId = String(selectedCard?.dataset.taskId || '').trim();
+        }
+
+        if (!taskId) {
+          const firstTaskCard = dateCol.querySelector('.photos-section .photo-card[data-task-id]');
+          taskId = String(firstTaskCard?.dataset.taskId || '').trim();
+        }
+
+        if (!taskId) return 'Task';
+        const nameFromDetails = document.querySelector(`.task-details-card[data-task-id="${taskId}"] .task-name`)?.textContent?.trim();
+        return nameFromDetails || `Task ${taskId}`;
+      }
+
+      function applySideBySideHeroLabel(dateCol, taskNameHint = '') {
+        if (!dateCol) return;
+        const label = dateCol.querySelector('.floorplan-task-label');
+        if (!label) return;
+        const colNum = String(dateCol.dataset.dateCol || '').trim();
+        if (colNum === '1') {
+          label.textContent = `${getSelectedGroupName()} Group Photos`;
+          label.classList.add('visible');
+          return;
+        }
+        const taskName = getTaskNameForDateCol(dateCol, taskNameHint);
+        label.textContent = `${taskName} Task Photos`;
+        label.classList.add('visible');
+      }
+
       function updateGroupCounter() {
         // Counter is now shown inside option labels.
       }
@@ -4158,6 +4245,7 @@
         const index = Math.max(0, GROUP_NAMES.indexOf(selectedName));
         contextGroupButton.title = `${selectedName} (${index + 1}/${GROUP_NAMES.length})`;
         contextGroupButton.innerHTML = `Go to group <span aria-hidden="true">▾</span>`;
+        document.querySelectorAll('.date-col[data-date-col="1"]').forEach(col => applySideBySideHeroLabel(col));
       }
 
       function renderContextGroupMenu() {
@@ -4250,10 +4338,7 @@
         floorplanImage.src = img.src;
         floorplanImage.alt = img.alt || 'Selected group photo';
         const taskLabel = dateCol.querySelector('.floorplan-task-label');
-        if (taskLabel) {
-          taskLabel.textContent = getSelectedGroupName();
-          taskLabel.classList.add('visible');
-        }
+        if (taskLabel) applySideBySideHeroLabel(dateCol);
         const floorplan = dateCol.querySelector('.floorplan');
         if (floorplan) {
           floorplan.dataset.photoMode = 'group';
@@ -4291,6 +4376,70 @@
         if (!floorplan) return;
         floorplan.querySelectorAll('button.marker').forEach(marker => {
           updateMarkerHoverLabelForMarker(marker, mode);
+        });
+      }
+
+      const FLOORPLAN_MARKER_LAYOUTS = [
+        {
+          '50001': { top: 18, left: 24 },
+          '50002': { top: 27, left: 60 },
+          '50003': { top: 56, left: 21 },
+          '50004': { top: 68, left: 72 }
+        },
+        {
+          '50001': { top: 22, left: 19 },
+          '50002': { top: 33, left: 58 },
+          '50004': { top: 63, left: 67 }
+        },
+        {
+          '50001': { top: 16, left: 29 },
+          '50002': { top: 26, left: 64 },
+          '50003': { top: 51, left: 17 }
+        },
+        {
+          '50001': { top: 24, left: 30 },
+          '50003': { top: 58, left: 26 },
+          '50004': { top: 61, left: 74 }
+        },
+        {
+          '50002': { top: 29, left: 56 },
+          '50003': { top: 49, left: 23 },
+          '50004': { top: 67, left: 69 }
+        }
+      ];
+
+      function hashMarkerSeed(seed) {
+        const s = String(seed || '');
+        let h = 0;
+        for (let i = 0; i < s.length; i += 1) {
+          h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+        }
+        return Math.abs(h);
+      }
+
+      /** Vary marker count/placement by current photo so layouts are not identical. */
+      function applyMarkerLayoutForDateCol(dateCol, seedValue) {
+        const floorplan = dateCol?.querySelector?.('.floorplan');
+        if (!floorplan) return;
+        const markers = Array.from(floorplan.querySelectorAll('button.marker[data-task-id]:not(.manual)'));
+        if (!markers.length) return;
+        const seed =
+          seedValue ||
+          floorplan.querySelector('.floorplan-image')?.getAttribute('src') ||
+          dateCol.querySelector('.date-walk-select')?.value ||
+          '';
+        const layout = FLOORPLAN_MARKER_LAYOUTS[hashMarkerSeed(seed) % FLOORPLAN_MARKER_LAYOUTS.length];
+        markers.forEach(marker => {
+          const taskId = String(marker.dataset.taskId || '').trim();
+          const pt = layout[taskId];
+          if (!pt) {
+            marker.style.display = 'none';
+            marker.classList.remove('active');
+            return;
+          }
+          marker.style.display = '';
+          marker.style.top = `${pt.top}%`;
+          marker.style.left = `${pt.left}%`;
         });
       }
 
@@ -4570,11 +4719,7 @@
           if (!floorplanImage) return;
           floorplanImage.src = preview.src;
           floorplanImage.alt = preview.caption || 'Timeline selected photo';
-          const taskLabel = dateCol.querySelector('.floorplan-task-label');
-          if (taskLabel) {
-            taskLabel.textContent = preview.caption || (preview.kind === 'group' ? getSelectedGroupName() : 'Task photo');
-            taskLabel.classList.add('visible');
-          }
+          applySideBySideHeroLabel(dateCol, preview.caption || '');
           const floorplan = dateCol.querySelector('.floorplan');
           if (floorplan) {
             if (preview.kind === 'group') {
@@ -4587,6 +4732,10 @@
               updateMarkerHoverLabelsForFloorplan(floorplan, 'task');
             }
           }
+          applyMarkerLayoutForDateCol(
+            dateCol,
+            `${preview.src || ''}|${preview.caption || ''}|${dateCol.querySelector('.date-walk-select')?.value || ''}`
+          );
         }
 
         const timeline = document.getElementById('sharedDateMiniTimeline');
@@ -5046,6 +5195,15 @@
             clearSelection();
             card.classList.add('task-active');
             activateTask(taskId, { scrollAllPhotoRows: false });
+
+            // In side-by-side mode, sidebar task click should drive the right hero photo.
+            const rightDateCol = document.querySelector('.date-col[data-date-col="2"]');
+            const matchingCard = rightDateCol?.querySelector(`.photos-section .photo-card[data-task-id="${taskId}"]`);
+            if (matchingCard) {
+              setDateColumnHeroFromPhotoCard(matchingCard);
+            } else {
+              applySideBySideHeroLabel(rightDateCol, card.querySelector('.task-name')?.textContent?.trim() || '');
+            }
           }
         });
       }
@@ -5094,12 +5252,31 @@
           card.classList.toggle('expanded', expand);
           toggleBtn.setAttribute('aria-expanded', String(expand));
         };
+
+        function syncLeftHeroFromGroupSelection() {
+          const groupName = card.querySelector('.group-feed-title')?.textContent?.trim() || '';
+          if (groupName && groupTitleSelect && Array.from(groupTitleSelect.options).some(o => o.value === groupName)) {
+            groupTitleSelect.value = groupName;
+            syncContextGroupLabel();
+            renderContextGroupMenu();
+          }
+          const leftDateCol = document.querySelector('.date-col[data-date-col="1"]');
+          const firstThumb = leftDateCol?.querySelector('.group-photos-section .unassigned-photo');
+          if (firstThumb) {
+            setDateColumnHeroFromGroupThumb(firstThumb);
+          } else {
+            applySideBySideHeroLabel(leftDateCol);
+          }
+        }
+
         header.addEventListener('click', e => {
           if (e.target.closest('.group-feed-toggle-btn')) return;
+          syncLeftHeroFromGroupSelection();
           toggle();
         });
         toggleBtn.addEventListener('click', e => {
           e.stopPropagation();
+          syncLeftHeroFromGroupSelection();
           toggle();
         });
       }
@@ -5531,6 +5708,8 @@
       document.querySelectorAll('.floorplan').forEach(floorplan => {
         floorplan.dataset.photoMode = 'group';
         updateMarkerHoverLabelsForFloorplan(floorplan, 'group');
+        applyMarkerLayoutForDateCol(floorplan.closest('.date-col'));
+        applySideBySideHeroLabel(floorplan.closest('.date-col'));
         floorplan.addEventListener('click', e => {
           if (e.target.closest('button.marker')) return;
           const rect = floorplan.getBoundingClientRect();
