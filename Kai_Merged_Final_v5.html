@@ -1516,6 +1516,27 @@ table.dt tr:hover td { background:var(--bg-2); }
   line-height:1.2; flex:1; min-width:0;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
+.gf-sqft {
+  font-size:11px; font-weight:500; color:var(--t3);
+  font-family:var(--mono); letter-spacing:.02em;
+  margin-left:2px;
+}
+.gf-group-note {
+  font-size:11.5px; line-height:1.4; color:var(--t2);
+  background:var(--bg-2);
+  padding:7px 12px;
+  border-bottom:1px solid var(--border);
+}
+.gf-group-note-label {
+  font-weight:600; color:var(--t1); margin-right:4px;
+}
+.gf-task-category {
+  font-size:10px; font-weight:600; color:var(--t2);
+  text-transform:none; letter-spacing:.01em;
+  line-height:1.25; margin-bottom:2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.gf-task.done .gf-task-category { color:var(--t3); }
 .gf-count {
   font-size:11px; color:var(--t3); font-weight:500;
   white-space:nowrap; flex-shrink:0;
@@ -1753,7 +1774,7 @@ table.dt tr:hover td { background:var(--bg-2); }
    into any of Kai's other views. Uses only Kai's design tokens. */
 .tl-root { display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; font-family:var(--font); color:var(--t1); background:var(--bg-card); }
 
-.tl-root .tl-head { display:grid; grid-template-columns:180px 1fr 1fr 1fr; column-gap:10px; padding:14px 18px 10px; border-bottom:1px solid var(--border); flex-shrink:0; align-items:stretch; }
+.tl-root .tl-head { display:grid; grid-template-columns:88px 1fr 1fr 1fr; column-gap:10px; padding:14px 18px 10px; border-bottom:1px solid var(--border); flex-shrink:0; align-items:stretch; }
 .tl-root .tl-head-label { font-size:10.5px; font-family:var(--mono); color:var(--t3); text-transform:uppercase; letter-spacing:.08em; display:flex; align-items:flex-end; padding-bottom:6px; }
 .tl-root .tl-col-head { font-size:12px; font-weight:500; color:var(--t2); padding:4px 8px; text-align:left; display:flex; align-items:center; gap:8px; min-width:0; border:1px solid var(--border); border-radius:var(--rm); background:var(--bg-card); min-height:40px; }
 .tl-root .tl-col-head .tl-col-badge { font-family:var(--mono); font-size:9.5px; color:var(--t3); border:1px solid var(--border); padding:1px 6px; border-radius:999px; letter-spacing:.04em; text-transform:uppercase; flex-shrink:0; }
@@ -1779,7 +1800,15 @@ table.dt tr:hover td { background:var(--bg-2); }
 .tl-root .tl-nav-slider-title { font-family:var(--mono); font-size:10px; color:var(--t3); text-transform:uppercase; letter-spacing:.08em; }
 .tl-root .tl-nav-current-label { font-size:11.5px; color:var(--t1); font-weight:500; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:right; flex:1; }
 .tl-root .tl-nav-current-label .tl-nav-idx { font-family:var(--mono); font-size:10px; color:var(--t3); font-weight:400; margin-left:8px; }
-.tl-root .tl-nav-range-wrap { position:relative; padding:6px 0 4px; }
+/* v5++: fully custom div-based scrubber. The native <input type="range">
+   has been removed because its built-in pointer pipeline fought our
+   custom drag state across browsers. rangeWrap is the pointer target;
+   tl-nav-track is the visible rail; tl-nav-thumb is the grab handle. */
+.tl-root .tl-nav-range-wrap { position:relative; padding:10px 0 8px; cursor:pointer; touch-action:none; user-select:none; -webkit-user-select:none; }
+.tl-root .tl-nav-track { position:relative; height:6px; border-radius:999px; background:var(--bg-2); border:1px solid var(--border); overflow:visible; }
+.tl-root .tl-nav-track-fill { position:absolute; left:0; top:0; bottom:0; width:var(--tl-nav-fill, 0%); background:var(--border-mid); border-radius:999px 0 0 999px; }
+.tl-root .tl-nav-thumb { position:absolute; top:50%; left:var(--tl-nav-fill, 0%); width:16px; height:16px; border-radius:50%; background:var(--charcoal); border:2px solid var(--bg-card); box-shadow:0 0 0 1px var(--charcoal), 0 1px 3px rgba(0,0,0,.25); transform:translate(-50%, -50%); pointer-events:none; }
+.tl-root .tl-nav-slider.is-scrubbing .tl-nav-thumb { transform:translate(-50%, -50%) scale(1.08); }
 /* v5: floating tooltip that rides above the slider thumb while scrubbing.
    Replaces the right-corner "tl-nav-current-label" for the duration of a
    drag, so the active group/task name tracks the mouse instead. */
@@ -1811,7 +1840,7 @@ table.dt tr:hover td { background:var(--bg-2); }
 }
 .tl-root .tl-nav-slider.is-scrubbing .tl-nav-slider-title,
 .tl-root .tl-nav-slider.is-scrubbing .tl-nav-current-label { visibility:hidden; }
-.tl-root .tl-nav-range { width:100%; appearance:none; -webkit-appearance:none; height:6px; border-radius:999px; background:linear-gradient(to right, var(--border-mid) 0%, var(--border-mid) var(--tl-nav-fill, 0%), var(--bg-2) var(--tl-nav-fill, 0%), var(--bg-2) 100%); border:1px solid var(--border); outline:none; cursor:pointer; margin:0; display:block; }
+.tl-root .tl-nav-range { width:100%; appearance:none; -webkit-appearance:none; height:6px; border-radius:999px; background:linear-gradient(to right, var(--border-mid) 0%, var(--border-mid) var(--tl-nav-fill, 0%), var(--bg-2) var(--tl-nav-fill, 0%), var(--bg-2) 100%); border:1px solid var(--border); outline:none; cursor:pointer; margin:0; display:block; pointer-events:none; }
 .tl-root .tl-nav-range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%; background:var(--charcoal); border:2px solid var(--bg-card); box-shadow:0 0 0 1px var(--charcoal), 0 1px 3px rgba(0,0,0,.25); cursor:grab; margin-top:0; }
 .tl-root .tl-nav-range::-webkit-slider-thumb:active { cursor:grabbing; transform:scale(1.08); }
 .tl-root .tl-nav-range::-moz-range-thumb { width:16px; height:16px; border-radius:50%; background:var(--charcoal); border:2px solid var(--bg-card); box-shadow:0 0 0 1px var(--charcoal); cursor:grab; }
@@ -2489,7 +2518,7 @@ table.dt tr:hover td { background:var(--bg-2); }
         <button class="vt-btn" id="vt-compare" onclick="toggleCompare()" title="Compare walks">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="5" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="2" width="5" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
         </button>
-        <button class="vt-btn" id="vt-sr" onclick="toggleScopeReview()" title="Compare walks (2)">
+        <button class="vt-btn" id="vt-sr" onclick="toggleScopeReview()" title="Compare walks (2)" style="display:none">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="5.5" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="7.5" y="2" width="5.5" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><circle cx="3.75" cy="7" r="1.1" stroke="currentColor" stroke-width="1.3"/><circle cx="10.25" cy="7" r="1.1" stroke="currentColor" stroke-width="1.3"/></svg>
         </button>
       </div>
@@ -4790,18 +4819,44 @@ const WALKS = [
 
 const WALK_PHOTOS = {
   kitchen: {
-    '50001': { initial_scope:['https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=70','https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=600&q=70','https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=600&q=70'], progress_1:['https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=600&q=70'], change_order:[], progress_2:['https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=600&q=70','https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=600&q=70'], close_out:['https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=600&q=70','https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=70'] },
-    '50002': { initial_scope:['https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=70','https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=600&q=70'], progress_1:['https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=600&q=70'], change_order:['https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=600&q=70'], progress_2:[], close_out:[] },
-    '50003': { initial_scope:['https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=600&q=70','https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=70'], progress_1:[], change_order:['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=70','https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600&q=70'], progress_2:['https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=600&q=70','https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=600&q=70'], close_out:[] },
-    '50004': { initial_scope:[], progress_1:[], change_order:['https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&q=70'], progress_2:[], close_out:[] },
+    // Cabinet Refresh/Repair/Repaint/Demo — distinct photos per task
+    '63150ACC':   { initial_scope:['Kitchen__Includes_small_hall_/Cabinet_Refresh_Repair_Repaint_Demo/37000aa3-3dc5-4616-a35c-77cb39c90eb6.jpeg','Kitchen__Includes_small_hall_/06d83fff-127f-46e0-aaca-ce8be3ea90cb.jpeg'], progress_1:['Kitchen__Includes_small_hall_/11c28d25-3fa8-4537-8bd2-7a4c701d7b88.jpeg'], change_order:[], progress_2:['Kitchen__Includes_small_hall_/157397f5-de73-44d9-918b-d27b2a041c24.jpeg'], close_out:['Kitchen__Includes_small_hall_/Cabinet_Refresh_Repair_Repaint_Demo/37000aa3-3dc5-4616-a35c-77cb39c90eb6.jpeg'] },
+    '63150ACC-2': { initial_scope:['Kitchen__Includes_small_hall_/223356be-29fa-4d38-a4c7-3f3d3d182c1f.jpeg'], progress_1:['Kitchen__Includes_small_hall_/51124fd1-d07a-412d-a074-7d908caec478.jpeg'], change_order:[], progress_2:['Kitchen__Includes_small_hall_/55147167-deda-4ba7-bbf5-95f87754f9dd.jpeg'], close_out:['Kitchen__Includes_small_hall_/55147167-deda-4ba7-bbf5-95f87754f9dd.jpeg'] },
+    // Door Hardware Interior — no dedicated folder, uses general kitchen photos
+    'E97DEB6F':   { initial_scope:['Kitchen__Includes_small_hall_/5ddda469-b239-4b69-90bf-124f83088596.jpeg'], progress_1:[], change_order:['Kitchen__Includes_small_hall_/6c86223c-8025-44f4-b154-a6f4daaacd8e.jpeg'], progress_2:['Kitchen__Includes_small_hall_/76a6d009-a851-4992-b07f-1c46da50f508.jpeg'], close_out:['Kitchen__Includes_small_hall_/893b13de-cea3-4a4b-962d-017b261135fa.jpeg'] },
+    // GFCI Outlets
+    '3560F38B':   { initial_scope:['Kitchen__Includes_small_hall_/GFCI_Outlets/5b7862a5-28ca-49b3-917b-713b2e1dc0d8.jpeg'], progress_1:[], change_order:[], progress_2:['Kitchen__Includes_small_hall_/abe9d86a-c4ce-4587-b740-a9da19ebc0a2.jpeg'], close_out:['Kitchen__Includes_small_hall_/GFCI_Outlets/5b7862a5-28ca-49b3-917b-713b2e1dc0d8.jpeg'] },
+    // Outlets
+    'FBF856B6':   { initial_scope:['Kitchen__Includes_small_hall_/Outlets/3cf1eec4-e5a6-4e86-9517-7abcd0109b4a.jpeg'], progress_1:['Kitchen__Includes_small_hall_/ad2289be-585b-472d-9113-952fe4fb2cef.jpeg'], change_order:[], progress_2:[], close_out:['Kitchen__Includes_small_hall_/Outlets/3cf1eec4-e5a6-4e86-9517-7abcd0109b4a.jpeg'] },
+    // Switches
+    '8F5D1BA2':   { initial_scope:['Kitchen__Includes_small_hall_/Switches/8a4406be-644e-404e-9746-40c21f4989a3.jpeg'], progress_1:[], change_order:['Kitchen__Includes_small_hall_/b1885227-af50-490a-8aaf-39787d702bf7.jpeg'], progress_2:[], close_out:['Kitchen__Includes_small_hall_/Switches/8a4406be-644e-404e-9746-40c21f4989a3.jpeg'] },
+    // Flooring/Hardwood Refinish — folder has 3 photos
+    '9A346B01':   { initial_scope:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/3b06fd50-7711-450e-8787-00ac4be26215.jpeg'], progress_1:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/76e88a67-bda9-486c-9624-01ecf9ee6e73.jpeg'], change_order:[], progress_2:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/db10a16d-ed32-45b4-b45c-480b7aa50f3e.jpeg'], close_out:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/76e88a67-bda9-486c-9624-01ecf9ee6e73.jpeg','Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/db10a16d-ed32-45b4-b45c-480b7aa50f3e.jpeg'] },
+    // Supply and Return Register Replacement — no dedicated folder
+    '24CCD0D5':   { initial_scope:['Kitchen__Includes_small_hall_/b79d532f-45b3-4589-a0cf-727654293f7d.jpeg'], progress_1:[], change_order:[], progress_2:['Kitchen__Includes_small_hall_/be144bf1-005c-47cb-8903-4d104dbf035f.jpeg'], close_out:['Kitchen__Includes_small_hall_/f6ea5ff3-e8fc-426c-86c1-80d21229bb67.jpeg'] },
+    // Non-Standard Task: Vent hood
+    '13EDD939':   { initial_scope:['Kitchen__Includes_small_hall_/Non-Standard_Task__Vent_hood/2fa2936a-e0e6-488e-9f11-7569b9448a37.jpeg'], progress_1:[], change_order:[], progress_2:['Kitchen__Includes_small_hall_/76e88a67-bda9-486c-9624-01ecf9ee6e73.jpeg'], close_out:['Kitchen__Includes_small_hall_/Non-Standard_Task__Vent_hood/2fa2936a-e0e6-488e-9f11-7569b9448a37.jpeg'] },
+    // Caulk - Includes removal of existing
+    'A94362E4':   { initial_scope:['Kitchen__Includes_small_hall_/Caulk_-__Includes_removal_of_existing/a784f7ce-e231-4e1c-9d48-63f5f6a83e27.jpeg'], progress_1:[], change_order:[], progress_2:['Kitchen__Includes_small_hall_/3b06fd50-7711-450e-8787-00ac4be26215.jpeg'], close_out:['Kitchen__Includes_small_hall_/Caulk_-__Includes_removal_of_existing/a784f7ce-e231-4e1c-9d48-63f5f6a83e27.jpeg'] },
+    // Plumbing - Clear Drains
+    '4BDDF66C':   { initial_scope:['Kitchen__Includes_small_hall_/Plumbing_-_Clear_Drains/0f8c6916-b931-431f-afbc-61cf13934b9f.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:['Kitchen__Includes_small_hall_/Plumbing_-_Clear_Drains/0f8c6916-b931-431f-afbc-61cf13934b9f.jpeg'] },
   },
   living: {
-    '50005': { initial_scope:['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70','https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=70'], progress_1:['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=70'], change_order:[], progress_2:['https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&q=70','https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70'], close_out:['https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=70','https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&q=70'] },
-    '50006': { initial_scope:['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=70','https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70'], progress_1:['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70'], change_order:['https://images.unsplash.com/photo-1617806118233-18e1de247200?w=600&q=70','https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=600&q=70'], progress_2:['https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=70'], close_out:['https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&q=70'] },
-    '50007': { initial_scope:['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70'], progress_1:[], change_order:['https://images.unsplash.com/photo-1604709177225-055f99402ea3?w=600&q=70'], progress_2:['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=70','https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=70'], close_out:['https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=70'] },
-    '50008': { initial_scope:['https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&q=70','https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=70'], progress_1:['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70'], change_order:['https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=70'], progress_2:[], close_out:[] },
-    '50009': { initial_scope:['https://images.unsplash.com/photo-1540518614846-7eded433c457?w=600&q=70'], progress_1:[], change_order:['https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600&q=70','https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=600&q=70'], progress_2:['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=70'], close_out:['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70'] },
-    '50010': { initial_scope:['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=70'], progress_1:[], change_order:['https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=600&q=70'], progress_2:[], close_out:[] },
+    'E4C9D26A':   { initial_scope:['Living_Room/Cabinet_Hardware/f19fb0cf-f725-4995-a1c6-e31118f7a2cf.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '1E71EE03':   { initial_scope:['Living_Room/Switches___Outlets/574cd5e2-e079-4432-8f7c-80390eb0fe68.jpeg','Living_Room/Switches___Outlets/6875232d-af0e-4385-a24a-4294f39e0a74.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '1E71EE03-2': { initial_scope:['Living_Room/Switches___Outlets/eb9e893a-c210-45d6-9dc6-161940b49aeb.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '7113B4A1':   { initial_scope:['Living_Room/Switches___Outlets/574cd5e2-e079-4432-8f7c-80390eb0fe68.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '7113B4A1-2': { initial_scope:['Living_Room/Switches___Outlets/6875232d-af0e-4385-a24a-4294f39e0a74.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '62A68E90':   { initial_scope:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '62A68E90-2': { initial_scope:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '62A68E90-3': { initial_scope:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '62A68E90-4': { initial_scope:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '8ECF1126':   { initial_scope:['Living_Room/HVAC_Vent/1bd536db-a0ac-4bf0-b1f6-f6c15c746414.jpeg','Living_Room/HVAC_Vent/2579863b-dfc5-4efe-ae94-7ebb3e93c4d5.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '3EEE9A70':   { initial_scope:['Living_Room/Light_Fixtures___Fans/4ac7cde1-230a-4378-b6be-00bbe712b0f7.jpeg','Living_Room/Light_Fixtures___Fans/e858b94d-a9fc-4334-91a2-f7bed7f9d7df.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '3EEE9A70-2': { initial_scope:['Living_Room/Light_Fixtures___Fans/f2d5db5d-51fb-4a71-bebc-248b483dedf7.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '83F0ED23':   { initial_scope:['Living_Room/Non-Standard_Task__WET_BAR/1f04a9b9-179b-4e6b-8bb5-1dbafd764e6a.jpeg','Living_Room/Non-Standard_Task__WET_BAR/f7e70d6d-276b-4fb5-b795-528ebe1f24d7.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '7B8D02A6':   { initial_scope:['Living_Room/Cabinet_-_Paint_Interior_or_Exterior/148c4553-a2e4-42c0-91a2-58dca741b90c.jpeg','Living_Room/Cabinet_-_Paint_Interior_or_Exterior/a791d062-3b5f-427e-8f24-34fc0302b0ea.jpeg','Living_Room/Cabinet_-_Paint_Interior_or_Exterior/b0dd8610-55ba-41bb-86cf-6d914e3730a2.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    'D3D62760':   { initial_scope:['Living_Room/Blinds/072fea3b-793d-47b6-a12f-75194cf9c51d.jpeg','Living_Room/Blinds/3558f540-b975-49b8-8979-ad69a3b2fd18.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
   },
   dining: {
     '50011': { initial_scope:['https://images.unsplash.com/photo-1617806118233-18e1de247200?w=600&q=70','https://images.unsplash.com/photo-1549187774-b4e9b0445b41?w=600&q=70'], progress_1:[], change_order:['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=600&q=70'], progress_2:['https://images.unsplash.com/photo-1549187774-b4e9b0445b41?w=600&q=70'], close_out:['https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=600&q=70'] },
@@ -4850,18 +4905,20 @@ const DEFAULT_ATTR = { source:'field_user', assignedBy:'Sarah M.', assignedAt:'J
 // A few entries are marked office_user to demonstrate the signal in the UI.
 const PHOTO_ATTR = {
   kitchen: {
-    '50001': { initial_scope: { source:'field_user',  assignedBy:'Marcus W.',  assignedAt:'Jan 8, 2026'  } },
-    '50002': { progress_1:    { source:'office_user', assignedBy:'James K.',   assignedAt:'Feb 4, 2026'  },
-               initial_scope: { source:'field_user',  assignedBy:'Marcus W.',  assignedAt:'Jan 8, 2026'  } },
-    '50003': { close_out:     { source:'ai',          assignedBy:null,         assignedAt:'Mar 15, 2026' },
-               progress_2:    { source:'office_user', assignedBy:'James K.',   assignedAt:'Feb 25, 2026' } },
-    '50004': { initial_scope: { source:'ai',          assignedBy:null,         assignedAt:'Jan 8, 2026'  } },
+    '63150ACC':   { initial_scope: { source:'field_user',  assignedBy:'Marcus W.',  assignedAt:'Jan 8, 2026'  },
+                    close_out:     { source:'field_user',  assignedBy:'Sarah M.',   assignedAt:'Mar 15, 2026' } },
+    '63150ACC-2': { initial_scope: { source:'field_user',  assignedBy:'Marcus W.',  assignedAt:'Jan 8, 2026'  } },
+    'E97DEB6F':   { initial_scope: { source:'office_user', assignedBy:'James K.',   assignedAt:'Jan 9, 2026'  },
+                    close_out:     { source:'ai',          assignedBy:null,         assignedAt:'Mar 15, 2026' } },
+    '9A346B01':   { initial_scope: { source:'field_user',  assignedBy:'Marcus W.',  assignedAt:'Jan 8, 2026'  },
+                    progress_1:    { source:'office_user', assignedBy:'James K.',   assignedAt:'Feb 4, 2026'  },
+                    close_out:     { source:'field_user',  assignedBy:'Sarah M.',   assignedAt:'Mar 15, 2026' } },
+    '13EDD939':   { close_out:     { source:'ai',          assignedBy:null,         assignedAt:'Mar 15, 2026' } },
   },
   living: {
-    '50005': { initial_scope: { source:'field_user',  assignedBy:'Marcus W.',  assignedAt:'Jan 8, 2026'  },
-               progress_1:    { source:'field_user',  assignedBy:'Marcus W.',  assignedAt:'Feb 3, 2026'  } },
-    '50007': { progress_2:    { source:'ai',          assignedBy:null,         assignedAt:'Feb 24, 2026' } },
-    '50008': { initial_scope: { source:'office_user', assignedBy:'James K.',   assignedAt:'Jan 9, 2026'  } },
+    'E4C9D26A': { initial_scope: { source:'field_user',  assignedBy:'Marcus M.',  assignedAt:'Apr 10, 2026' } },
+    '3EEE9A70': { initial_scope: { source:'office_user', assignedBy:'James K.',   assignedAt:'Apr 11, 2026' } },
+    '83F0ED23': { initial_scope: { source:'ai',          assignedBy:null,         assignedAt:'Apr 11, 2026' } },
   },
   dining: {
     '50009': { initial_scope: { source:'field_user',  assignedBy:'Sarah M.',   assignedAt:'Jan 8, 2026'  } },
@@ -4919,16 +4976,16 @@ function getWalkPhotos(roomId, taskId, walkId) {
 // Keyed by roomId → walkId → [urls]
 const GROUP_PHOTOS = {
   kitchen: {
-    initial: ['https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=75'],
-    p1:      ['https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=900&q=75'],
-    p2:      ['https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=900&q=75'],
-    final:   ['https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=900&q=75'],
+    initial: ['Kitchen__Includes_small_hall_/06d83fff-127f-46e0-aaca-ce8be3ea90cb.jpeg'],
+    p1:      ['Kitchen__Includes_small_hall_/11c28d25-3fa8-4537-8bd2-7a4c701d7b88.jpeg'],
+    p2:      ['Kitchen__Includes_small_hall_/157397f5-de73-44d9-918b-d27b2a041c24.jpeg'],
+    final:   ['Kitchen__Includes_small_hall_/223356be-29fa-4d38-a4c7-3f3d3d182c1f.jpeg'],
   },
   living: {
-    initial: ['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=75'],
-    p1:      ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=900&q=75'],
-    p2:      ['https://images.unsplash.com/photo-1567016432779-094069958ea5?w=900&q=75'],
-    final:   ['https://images.unsplash.com/photo-1540518614846-7eded433c457?w=900&q=75'],
+    initial: ['Living_Room/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'],
+    p1:      [],
+    p2:      [],
+    final:   [],
   },
   dining: {
     initial: ['https://images.unsplash.com/photo-1617806118233-18e1de247200?w=900&q=75'],
@@ -5090,19 +5147,35 @@ const PH = {
 };
 
 const ROOMS = {
-  kitchen:{ name:'Kitchen', budget:28000, spent:11200, tasks:4, issues:1, progress:40, phase:'Rough-in', taskList:[
-    {id:'50001',name:'Demolish old cabinets',done:true,assign:'Apex General',cost:1200,modifier:null,photos:[0,1],notes:'Careful around east wall — plumbing behind.',issue:null},
-    {id:'50002',name:'Install new cabinetry',done:false,assign:'Apex General',cost:8400,modifier:null,photos:[0,2],notes:null,issue:'Water damage found behind sink cabinet — may need subfloor repair'},
-    {id:'50003',name:'Countertop installation',done:false,assign:'Tilecraft Studio',cost:4200,modifier:null,photos:[0,3],notes:'Customer selected Carrara quartz.',issue:null},
-    {id:'50004',name:'Tile backsplash',done:false,assign:'Unassigned',cost:1800,modifier:'Deferred',photos:[1,2],notes:null,issue:null},
+  kitchen:{ name:'Kitchen (Includes small hall)', sqft:180, groupNote:'Test all appliances verify they work properly', budget:724.41, spent:724.41, tasks:11, issues:0, progress:100, phase:'Closed out', taskList:[
+    {id:'63150ACC',   category:'Cabinet Refresh/Repair/Repaint/Demo', name:'Paint Cabinet Base - Match existing cabinet base color - (Add Detail)', done:true, assign:'Sustainable Construction Services LLC', qty:1,   unit:'each', unitPrice:50,    cost:50,    modifier:null, photos:[0,1], notes:'Replace cabinet bottom under sink', issue:null},
+    {id:'63150ACC-2', category:'Cabinet Refresh/Repair/Repaint/Demo', name:'Repair Cabinets (Add Detail)',                                            done:true, assign:'Sustainable Construction Services LLC', qty:1,   unit:'each', unitPrice:75,    cost:75,    modifier:null, photos:[0], notes:'Replace cabinet bottom under sink', issue:null},
+    {id:'E97DEB6F',   category:'Door Hardware Interior', name:'Replace door hardware including hinges (GC to verify privacy, passage or dummy)',    done:true, assign:'Sustainable Construction Services LLC', qty:1,   unit:'each', unitPrice:27.41, cost:27.41, modifier:null, photos:[0],   notes:'/ Match existing door knobs to house', issue:null, product:'Hartford Satin Nickel Bed/Bath Door Knob', sku:'323700684', brand:'Defiant'},
+    {id:'3560F38B',   category:'GFCI Outlets',            name:'GFCI Outlet Replacement',                  done:true, assign:'Sustainable Construction Services LLC', qty:2,   unit:'each', unitPrice:25,    cost:50,    modifier:null, photos:[0],   notes:null, issue:null},
+    {id:'FBF856B6',   category:'Outlets',                 name:'Replace Outlet and Plate',                 done:true, assign:'Sustainable Construction Services LLC', qty:7,   unit:'each', unitPrice:7.5,   cost:52.5,  modifier:null, photos:[0],   notes:null, issue:null},
+    {id:'8F5D1BA2',   category:'Switches',                name:'Electrical Switch Replacement',            done:true, assign:'Sustainable Construction Services LLC', qty:4,   unit:'each', unitPrice:6.5,   cost:26,    modifier:null, photos:[0],   notes:null, issue:null},
+    {id:'9A346B01',   category:'Flooring/Hardwood Refinish', name:'Screen/Buff and Recoat Hardwood Per SqFt', done:true, assign:'Atlantic Flooring Solutions LLC',    qty:180, unit:'sqft', unitPrice:2,     cost:360,   modifier:null, photos:[0,1,2], notes:null, issue:null},
+    {id:'24CCD0D5',   category:'Supply and Return Register Replacement', name:'Replace Ceiling Register',   done:true, assign:'Sustainable Construction Services LLC', qty:1,   unit:'each', unitPrice:18.5,  cost:18.5,  modifier:null, photos:[0],   notes:null, issue:null},
+    {id:'13EDD939',   category:'Non-Standard Task: Vent hood', name:'Replace vent hood filter',             done:true, assign:'Sustainable Construction Services LLC', qty:1,   unit:'each', unitPrice:25,    cost:25,    modifier:null, photos:[0],   notes:null, issue:null},
+    {id:'A94362E4',   category:'Caulk - Includes removal of existing', name:'Caulk All Needed per Room, Match Colors', done:true, assign:'Sustainable Construction Services LLC', qty:1, unit:'each', unitPrice:20, cost:20, modifier:null, photos:[0], notes:null, issue:null},
+    {id:'4BDDF66C',   category:'Plumbing - Clear Drains', name:'Snake drain to clear any and all obstructions. Price per drain - (toilet, tub, shower, sink - includes cleaning P-trap) - 1 Story home minimum dept of 15ft. 2 Story home minimum dept of 30ft.', done:true, assign:'Sustainable Construction Services LLC', qty:1, unit:'each', unitPrice:20, cost:20, modifier:null, photos:[0], notes:null, issue:null},
   ]},
-  living:{ name:'Living Room', budget:45000, spent:32000, tasks:6, issues:2, progress:71, phase:'Finishes', taskList:[
-    {id:'50005',name:'Hardwood floor installation',done:true,assign:'Hartwood Flooring',cost:12000,modifier:null,photos:[0,1],notes:'White oak, site-finished.',issue:null},
-    {id:'50006',name:'Crown molding',done:true,assign:'Hartwood Flooring',cost:2200,modifier:null,photos:[1,2],notes:null,issue:null},
-    {id:'50007',name:'Paint walls & ceiling',done:false,assign:'Brushstroke Co.',cost:3400,modifier:null,photos:[0],notes:'Benjamin Moore OC-17 White Dove.',issue:null},
-    {id:'50008',name:'Fireplace surround',done:false,assign:'ClearFlow Plumbing',cost:8500,modifier:null,photos:[2,3],notes:null,issue:'Beam load-bearing status unclear — structural review needed'},
-    {id:'50009',name:'Built-in shelving',done:false,assign:'Apex General',cost:6000,modifier:null,photos:[0],notes:null,issue:null},
-    {id:'50010',name:'Lighting install',done:false,assign:'Unassigned',cost:3200,modifier:'Tenant responsible',photos:[1],notes:null,issue:'Electrical panel capacity may be insufficient'},
+  living:{ name:'Living Room', sqft:0, budget:1737.48, spent:0, tasks:15, issues:0, progress:0, phase:'Not started', taskList:[
+    {id:'E4C9D26A',   category:'Cabinet Hardware', name:'Replace Cabinet Hardware', done:false, assign:'Unassigned', qty:5, unit:'each', unitPrice:4.45, cost:22.25, modifier:null, photos:[0], notes:null, issue:null, product:'Ethan 3 in. (76 mm) Classic Satin Nickel Cabinet Drawer Pull', sku:'204151774', brand:'Liberty'},
+    {id:'1E71EE03',   category:'Switches & Outlets', name:'Install Switch, Outlet and Cover Plate', done:false, assign:'Unassigned', qty:6, unit:'each', unitPrice:8.50, cost:51.00, modifier:null, photos:[0], notes:null, issue:null, product:'15 Amp 125 V Tamper Resistant Duplex Outlet/Receptacle, White (1-Pack) T5320-W', sku:'100662608', brand:'Leviton'},
+    {id:'1E71EE03-2', category:'Switches & Outlets', name:'Install Switch, Outlet and Cover Plate', done:false, assign:'Unassigned', qty:5, unit:'each', unitPrice:7.93, cost:39.65, modifier:null, photos:[0], notes:null, issue:null, product:'15 Amp Single-Pole Toggle Light Switch, White 1451-2W', sku:'100026991', brand:'Leviton'},
+    {id:'7113B4A1',   category:'Switch/outlet plates', name:'Replace Damaged Switch/Outlet Cover', done:false, assign:'Unassigned', qty:5, unit:'each', unitPrice:1.78, cost:8.90, modifier:null, photos:[0], notes:null, issue:null, product:'1-Gang White Toggle Nylon Midway/Midsize Wall Plate (1-Pack) PJ1-W', sku:'202059761', brand:'Leviton'},
+    {id:'7113B4A1-2', category:'Switch/outlet plates', name:'Replace Damaged Switch/Outlet Cover', done:false, assign:'Unassigned', qty:6, unit:'each', unitPrice:1.78, cost:10.68, modifier:null, photos:[0], notes:null, issue:null, product:'1-Gang White Duplex Outlet/Receptacle Nylon Midway/Midsize Wall Plate (1-Pack) PJ8-W', sku:'100356815', brand:'Leviton'},
+    {id:'62A68E90',   category:'Fireplace', name:'Clean and Remove line', done:false, assign:'Unassigned', qty:1, unit:'each', unitPrice:45, cost:45, modifier:null, photos:[0], notes:null, issue:null},
+    {id:'62A68E90-2', category:'Fireplace', name:'Firebox paint', done:false, assign:'Unassigned', qty:1, unit:'each', unitPrice:35, cost:35, modifier:null, photos:[0], notes:null, issue:null},
+    {id:'62A68E90-3', category:'Fireplace', name:'Add Freestanding Fireplace Screen - Size to Opening', done:false, assign:'Unassigned', qty:1, unit:'each', unitPrice:50, cost:50, modifier:null, photos:[0], notes:null, issue:null},
+    {id:'62A68E90-4', category:'Fireplace', name:'Cap Gas Line', done:false, assign:'Unassigned', qty:1, unit:'each', unitPrice:15, cost:15, modifier:null, photos:[0], notes:null, issue:null},
+    {id:'8ECF1126',   category:'HVAC Vent', name:'Replace Supply Register', done:false, assign:'Unassigned', qty:2, unit:'each', unitPrice:25, cost:50, modifier:null, photos:[0], notes:null, issue:null},
+    {id:'3EEE9A70',   category:'Light Fixtures / Fans', name:'Replace Light Fixture', done:false, assign:'Unassigned', qty:1, unit:'each', unitPrice:75, cost:75, modifier:null, photos:[0], notes:null, issue:null, product:'5-Light Brushed Nickel Chandelier Light Fixture with Frosted Glass Shades', sku:'336549593', brand:'Unbranded'},
+    {id:'3EEE9A70-2', category:'Light Fixtures / Fans', name:'Replace Light Fixture', done:false, assign:'Unassigned', qty:5, unit:'each', unitPrice:49, cost:245, modifier:null, photos:[0], notes:null, issue:null, product:'Traverse Mirage 6 in. 3000K Integrated LED Recessed Trim', sku:'309565801', brand:'Generation Lighting'},
+    {id:'83F0ED23',   category:'Non-Standard Task: WET BAR', name:'Cancel wet bar, remove mirror and glass shelf. Repair drywall', done:false, assign:'Unassigned', qty:1, unit:'each', unitPrice:150, cost:150, modifier:null, photos:[0], notes:'Cancel wet bar, remove mirror and glass shelf. Repair drywall', issue:null},
+    {id:'7B8D02A6',   category:'Cabinet - Paint Interior or Exterior', name:'Paint Cabinet - Exterior and Interior', done:false, assign:'Unassigned', qty:20, unit:'each', unitPrice:30, cost:600, modifier:null, photos:[0], notes:null, issue:null},
+    {id:'D3D62760',   category:'Blinds', name:'Special Order Blinds', done:false, assign:'Unassigned', qty:4, unit:'each', unitPrice:85, cost:340, modifier:null, photos:[0], notes:null, issue:null},
   ]},
   dining:{ name:'Dining Room', budget:12000, spent:0, tasks:2, issues:0, progress:0, phase:'Not started', taskList:[
     {id:'50011',name:'Wainscoting panels',done:false,assign:'Apex General',cost:4800,modifier:null,photos:[0,1],notes:null,issue:null},
@@ -5524,51 +5597,62 @@ function renderOverlay() {
 
   if(taskStrip){
     taskStrip.innerHTML = '';
-    const TASK_COLORS = ['#8B7355','#6B7A5E','#7A6B8B','#4A7A7A','#6B7580','#8B7C6B'];
-    const currentTaskName = task ? task.name : '';
-    room.taskList.forEach((t, ti) => {
-      if(activeContractor && t.assign !== activeContractor) return;
-      const taskPhotos = getWalkPhotos(roomId, t.id, walkId);
-      const firstPhoto = taskPhotos[0] || null;
-      const placeholderColor = TASK_COLORS[ti % TASK_COLORS.length];
-      const statusText = t.issue ? 'Change order' : t.done ? 'Completed' : 'In progress';
-      const statusColor = t.issue ? '#E03E3E' : t.done ? '#3DA86A' : 'rgba(255,255,255,.65)';
-      const statusBg = t.issue ? 'rgba(224,62,62,.25)' : t.done ? 'rgba(61,168,106,.25)' : 'rgba(0,0,0,.4)';
-      const isActive = !isGroupMode && t.id === taskId;
-
-      const card = document.createElement('div');
-      card.style.cssText = `flex-shrink:0;width:140px;border-radius:6px;overflow:hidden;cursor:pointer;position:relative;border:${isActive?'2px solid #fff':'2px solid rgba(255,255,255,.12)'}`;
-
-      const photoArea = document.createElement('div');
-      photoArea.style.cssText = `width:100%;aspect-ratio:4/3;background:${placeholderColor}${firstPhoto?' url('+firstPhoto+') center/cover':''};position:relative`;
-
-      const statusBadge = document.createElement('div');
-      statusBadge.style.cssText = `position:absolute;top:6px;left:6px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;color:${statusColor};background:${statusBg};backdrop-filter:blur(6px);border:1px solid ${statusColor}55`;
-      statusBadge.textContent = statusText;
-      photoArea.appendChild(statusBadge);
-
-      if(taskPhotos.length > 1){
-        const cnt = document.createElement('div');
-        cnt.style.cssText = 'position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px';
-        cnt.textContent = taskPhotos.length;
-        photoArea.appendChild(cnt);
-      }
-
-      card.appendChild(photoArea);
-
-      // Task name label — always the current open task name
-      const nameLabel = document.createElement('div');
-      nameLabel.style.cssText = 'padding:5px 8px;background:rgba(0,0,0,.65);font-size:11px;font-weight:500;color:rgba(255,255,255,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-      nameLabel.textContent = currentTaskName;
-      card.appendChild(nameLabel);
-
-      card.onclick = e => {
-        e.stopPropagation();
-        overlayState.navMode = 'task';
-        if(taskPhotos.length){ openPhotoDetail(roomId, t.id, walkId, 0); }
-      };
-      taskStrip.appendChild(card);
+    const TASK_COLOR = '#3a342e';
+    // Build the THIS-TASK photo list across all walks (one tile per photo).
+    // Clicking a tile makes that photo the main image — same task, different photo.
+    const taskAllPhotos = [];
+    WALKS.forEach(w => {
+      const ps = getWalkPhotos(roomId, taskId, w.id);
+      ps.forEach((url, idx) => {
+        taskAllPhotos.push({ url, walkId:w.id, walk:w, idx });
+      });
     });
+
+    if(taskAllPhotos.length === 0){
+      const empty = document.createElement('span');
+      empty.style.cssText = 'font-size:11px;color:rgba(255,255,255,.3);font-style:italic;padding:6px 4px';
+      empty.textContent = 'No photos for this task';
+      taskStrip.appendChild(empty);
+    } else {
+      taskAllPhotos.forEach((p, pi) => {
+        const isActive = !isGroupMode && p.walkId === walkId && p.idx === photoIdx;
+
+        const card = document.createElement('div');
+        card.style.cssText = `flex-shrink:0;width:140px;border-radius:6px;overflow:hidden;cursor:pointer;position:relative;border:${isActive?'2px solid #fff':'2px solid rgba(255,255,255,.12)'};transition:border-color .12s, opacity .12s;opacity:${isActive?1:.85}`;
+
+        const photoArea = document.createElement('div');
+        photoArea.style.cssText = `width:100%;aspect-ratio:4/3;background:${TASK_COLOR} url("${p.url}") center/cover no-repeat;position:relative`;
+
+        // Walk label (badge — top-left)
+        const walkBadge = document.createElement('div');
+        walkBadge.style.cssText = `position:absolute;top:6px;left:6px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;color:#fff;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)`;
+        walkBadge.textContent = p.walk.short;
+        photoArea.appendChild(walkBadge);
+
+        // Active indicator (top-right) — shows which tile maps to the current main photo
+        if(isActive){
+          const dot = document.createElement('div');
+          dot.style.cssText = 'position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.45)';
+          photoArea.appendChild(dot);
+        }
+
+        card.appendChild(photoArea);
+
+        // Index label (e.g., "Photo 1 of 5") — shows position within this task's photo list
+        const nameLabel = document.createElement('div');
+        nameLabel.style.cssText = 'padding:5px 8px;background:rgba(0,0,0,.65);font-size:11px;font-weight:500;color:rgba(255,255,255,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px';
+        nameLabel.innerHTML = `<span style="color:rgba(255,255,255,.55)">Photo</span><span>${pi+1} of ${taskAllPhotos.length}</span>`;
+        card.appendChild(nameLabel);
+
+        card.onclick = e => {
+          e.stopPropagation();
+          overlayState.navMode = 'task';
+          // Same task — just switch which photo (and which walk) is currently displayed
+          openPhotoDetail(roomId, taskId, p.walkId, p.idx);
+        };
+        taskStrip.appendChild(card);
+      });
+    }
   }
 
   // Stage label — plain text, no pill
@@ -6941,9 +7025,30 @@ function render(){
         : RC[id];
       // For synthetic contractor sections we can't use the hard-coded per-room
       // counts, so derive reasonable approximations from the bucket's tasks.
+      // For rooms, prefer the REAL photo count when GROUP_PHOTOS / WALK_PHOTOS
+      // contain entries for this room (kitchen + living are populated; others
+      // fall back to the legacy hard-coded count).
+      const realRoomPhotos = [];
+      if(!byContractor && id){
+        const gpData = (typeof GROUP_PHOTOS !== 'undefined' && GROUP_PHOTOS[id]) || null;
+        if(gpData){
+          ['initial','p1','p2','final'].forEach(k => {
+            (gpData[k] || []).forEach(url => realRoomPhotos.push(url));
+          });
+        }
+        const r = ROOMS[id];
+        if(r && r.taskList){
+          r.taskList.forEach(t => {
+            WALKS.forEach(w => {
+              getWalkPhotos(id, t.id, w.id).forEach(url => realRoomPhotos.push(url));
+            });
+          });
+        }
+      }
+      const useRealRoomPhotos = realRoomPhotos.length > 0;
       const totalPhotos = byContractor
         ? Math.max(6, room.taskList.length * 3)
-        : (GROUP_PHOTO_COUNTS[id] || 20);
+        : (useRealRoomPhotos ? realRoomPhotos.length : (GROUP_PHOTO_COUNTS[id] || 20));
       const totalNotes  = byContractor
         ? room.taskList.filter(t => t.notes).length
         : (GROUP_NOTE_COUNTS[id] || 8);
@@ -7029,11 +7134,16 @@ function render(){
 
       // ── Photo section header (SEE ALL style) + expandable grid ──
       let photoExpanded = false;
-      const PREVIEW_COUNT = 6;
-      const EXTRA_COLORS = [
-        tileColors[0],tileColors[1],tileColors[2],tileColors[3],tileColors[4],tileColors[5],
-        tileColors[0],tileColors[2],tileColors[4],tileColors[1],tileColors[3],tileColors[5],
-      ]; // 12 extra tiles for expanded view
+      const PREVIEW_COUNT = Math.min(6, totalPhotos);
+      // Extra tiles fill out the expanded grid. With real photos, cap to the
+      // actual photo count; with placeholders, keep the legacy 12-tile expansion.
+      const EXTRA_COUNT = useRealRoomPhotos
+        ? Math.max(0, totalPhotos - PREVIEW_COUNT)
+        : 12;
+      const EXTRA_COLORS = [];
+      for(let i=0;i<EXTRA_COUNT;i++){
+        EXTRA_COLORS.push(tileColors[i % tileColors.length]);
+      }
 
       const photoHdr = mk('div','');
       photoHdr.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;user-select:none';
@@ -7087,8 +7197,18 @@ function render(){
           : DEFAULT_ATTR;
         const meta = TILE_META[i % TILE_META.length];
 
+        // Photo index across the preview + extra grids: preview tiles run
+        // 0..PREVIEW_COUNT-1, extra tiles continue from PREVIEW_COUNT.
+        const photoIdxInRoom = isExtra ? (PREVIEW_COUNT + i) : i;
+        const realUrl = (useRealRoomPhotos && photoIdxInRoom < realRoomPhotos.length)
+          ? realRoomPhotos[photoIdxInRoom]
+          : null;
+
         const tile = mk('div','');
-        tile.style.cssText = `aspect-ratio:4/3;background:${bgColor};border-radius:var(--r);cursor:pointer;transition:filter .15s;position:relative;overflow:hidden`;
+        const bgDecl = realUrl
+          ? `${bgColor} url("${realUrl}") center/cover no-repeat`
+          : bgColor;
+        tile.style.cssText = `aspect-ratio:4/3;background:${bgDecl};border-radius:var(--r);cursor:pointer;transition:filter .15s;position:relative;overflow:hidden`;
         tile.onmouseenter = () => tile.style.filter='brightness(.88)';
         tile.onmouseleave = () => tile.style.filter='';
         tile.onclick = e => {
@@ -7423,10 +7543,29 @@ function render(){
     const TASK_COUNTS = [14, 31, 22, 47, 9, 38, 16, 28]; // realistic photo counts per task
 
     // ── GROUP PHOTOS section — single row, expandable ──
+    // Build real photo list from GROUP_PHOTOS when available; fall back to placeholder colors otherwise.
+    const GP_WALK_ORDER = [
+      { key:'initial', short:'Initial walk' },
+      { key:'p1',      short:'Progress 1'   },
+      { key:'p2',      short:'Progress 2'   },
+      { key:'final',   short:'Final walk'   },
+    ];
+    const realGroupPhotos = [];
+    const gpRoomData = (typeof GROUP_PHOTOS !== 'undefined' && GROUP_PHOTOS[selRoomId]) || null;
+    if(gpRoomData){
+      GP_WALK_ORDER.forEach(w => {
+        (gpRoomData[w.key] || []).forEach(url => {
+          realGroupPhotos.push({ url, walkShort:w.short, walkKey:w.key });
+        });
+      });
+    }
+    const useRealGroupPhotos = realGroupPhotos.length > 0;
+
     let gpExpanded = false;
-    const GP_TOTAL = GP_COLORS.length;
-    // How many fit in one row at ~88px tile width — we'll show a fixed count of 6
-    const GP_PREVIEW = 6;
+    // When we have real photos, use that count; otherwise fall back to placeholder palette length
+    const GP_TOTAL = useRealGroupPhotos ? realGroupPhotos.length : GP_COLORS.length;
+    // How many fit in one row at ~88px tile width — we'll show a fixed count of 6 (or all if fewer)
+    const GP_PREVIEW = Math.min(6, GP_TOTAL);
 
     const gpSection = mk('div','');
     gpSection.style.cssText = 'margin-bottom:18px';
@@ -7435,8 +7574,11 @@ function render(){
     gpHdr.style.cssText = 'cursor:pointer;user-select:none';
     const gpToggle = mk('span','');
     gpToggle.style.cssText = 'font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-left:auto;display:flex;align-items:center;gap:4px;flex-shrink:0';
-    gpToggle.innerHTML = `See all ${GP_TOTAL} <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    gpHdr.innerHTML = `<span class="s-title">Group photos</span><span class="s-count">${GP_PREVIEW} of ${GP_TOTAL}</span><span class="s-line"></span>`;
+    const canToggle = GP_TOTAL > GP_PREVIEW;
+    gpToggle.innerHTML = canToggle
+      ? `See all ${GP_TOTAL} <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      : '';
+    gpHdr.innerHTML = `<span class="s-title">Group photos</span><span class="s-count">${canToggle ? `${GP_PREVIEW} of ${GP_TOTAL}` : `${GP_TOTAL}`}</span><span class="s-line"></span>`;
     gpHdr.appendChild(gpToggle);
 
     // Single-row strip (overflow hidden)
@@ -7448,32 +7590,50 @@ function render(){
     gpGrid.style.cssText = 'display:none;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:4px;margin-top:4px';
 
     function buildGpTiles(container, isGrid){
-      GP_COLORS.forEach((col, i) => {
+      const total = GP_TOTAL;
+      for(let i=0;i<total;i++){
         const tile = mk('div','');
-        const baseStyle = `aspect-ratio:4/3;background:${col};border-radius:var(--r);cursor:pointer;position:relative;transition:filter .15s;flex-shrink:0;`;
+        const fallbackCol = GP_COLORS[i % GP_COLORS.length];
+        const baseStyle = `aspect-ratio:4/3;background:${fallbackCol};background-size:cover;background-position:center;background-repeat:no-repeat;border-radius:var(--r);cursor:pointer;position:relative;transition:filter .15s;flex-shrink:0;`;
         tile.style.cssText = isGrid ? baseStyle : baseStyle + 'width:88px;';
+        // Real photo URL when available
+        if(useRealGroupPhotos && i < realGroupPhotos.length){
+          tile.style.backgroundImage = `url("${realGroupPhotos[i].url}")`;
+        }
         tile.onmouseenter = () => tile.style.filter='brightness(.88)';
         tile.onmouseleave = () => tile.style.filter='';
-        if(i % 4 === 0){
+        // Walk label badge
+        let walkLabel = null;
+        if(useRealGroupPhotos && i < realGroupPhotos.length){
+          walkLabel = realGroupPhotos[i].walkShort;
+        } else if(!useRealGroupPhotos && i % 4 === 0){
           const w = WALKS[Math.floor(i/4) % WALKS.length];
-          tile.innerHTML = `<span style="position:absolute;bottom:4px;left:4px;font-size:8px;font-weight:700;letter-spacing:.04em;padding:1px 5px;border-radius:3px;background:rgba(0,0,0,.32);color:#fff">${w.short}</span>`;
+          walkLabel = w.short;
+        }
+        if(walkLabel){
+          tile.innerHTML = `<span style="position:absolute;bottom:4px;left:4px;font-size:8px;font-weight:700;letter-spacing:.04em;padding:1px 5px;border-radius:3px;background:rgba(0,0,0,.32);color:#fff">${walkLabel}</span>`;
         }
         container.appendChild(tile);
-      });
+      }
     }
     buildGpTiles(gpStrip, false);
     buildGpTiles(gpGrid, true);
 
-    gpHdr.onclick = () => {
-      gpExpanded = !gpExpanded;
-      gpStrip.style.display = gpExpanded ? 'none' : 'flex';
-      gpGrid.style.display = gpExpanded ? 'grid' : 'none';
-      const countEl = gpHdr.querySelector('.s-count');
-      if(countEl) countEl.textContent = gpExpanded ? GP_TOTAL : `${GP_PREVIEW} of ${GP_TOTAL}`;
-      gpToggle.innerHTML = gpExpanded
-        ? `Collapse <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 7.5L6 4.5L9 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-        : `See all ${GP_TOTAL} <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    };
+    if(canToggle){
+      gpHdr.onclick = () => {
+        gpExpanded = !gpExpanded;
+        gpStrip.style.display = gpExpanded ? 'none' : 'flex';
+        gpGrid.style.display = gpExpanded ? 'grid' : 'none';
+        const countEl = gpHdr.querySelector('.s-count');
+        if(countEl) countEl.textContent = gpExpanded ? GP_TOTAL : `${GP_PREVIEW} of ${GP_TOTAL}`;
+        gpToggle.innerHTML = gpExpanded
+          ? `Collapse <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 7.5L6 4.5L9 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+          : `See all ${GP_TOTAL} <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      };
+    } else {
+      // Few enough photos to fit in one row — no toggling needed; remove pointer affordance
+      gpHdr.style.cursor = 'default';
+    }
 
     gpSection.appendChild(gpHdr);
     gpSection.appendChild(gpStrip);
@@ -7498,7 +7658,15 @@ function render(){
       // Contractor filter — hide tasks not assigned to active contractor
       if(!taskMatchesCtor(task)) return;
 
-      const photoCount = TASK_COUNTS[ti % TASK_COUNTS.length];
+      // Collect REAL photos for this task across all walks (preserves walk origin)
+      const realPhotos = [];
+      WALKS.forEach(w => {
+        const ps = getWalkPhotos(selRoomId, task.id, w.id);
+        ps.forEach((url, idx) => realPhotos.push({ url, walkId:w.id, walk:w, idx }));
+      });
+      const useRealPhotos = realPhotos.length > 0;
+
+      const photoCount = useRealPhotos ? realPhotos.length : TASK_COUNTS[ti % TASK_COUNTS.length];
       const palette = TASK_PALETTES[ti % TASK_PALETTES.length];
       // Show up to 8 tiles; last tile shows overflow count if more
       const tilesToShow = Math.min(photoCount, 8);
@@ -7519,11 +7687,15 @@ function render(){
       const taskAttr = firstWalkWithAttr ? getAttr(selRoomId, task.id, firstWalkWithAttr.id) : DEFAULT_ATTR;
       for(let i=0;i<tilesToShow;i++){
         const tile = mk('div','');
-        tile.style.cssText = `aspect-ratio:4/3;background:${palette[i % palette.length]};position:relative;cursor:pointer;transition:filter .15s`;
+        const tileBg = palette[i % palette.length];
+        tile.style.cssText = `aspect-ratio:4/3;background:${tileBg};position:relative;cursor:pointer;transition:filter .15s;background-size:cover;background-position:center;background-repeat:no-repeat`;
+        // Use real photo if available for this slot
+        if(useRealPhotos && i < realPhotos.length){
+          tile.style.backgroundImage = `url("${realPhotos[i].url}")`;
+        }
         tile.onmouseenter = () => tile.style.filter='brightness(.88)';
         tile.onmouseleave = () => tile.style.filter='';
         if(i===tilesToShow-1 && photoCount > tilesToShow){
-          tile.style.background = palette[i % palette.length];
           tile.innerHTML = `<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff">+${photoCount - tilesToShow + 1}</div>`;
         } else if(i === 0) {
           // Show icon-only attr badge on first tile only
@@ -7532,6 +7704,12 @@ function render(){
         // Open photo overlay — stop propagation so card.onclick doesn't fire
         tile.onclick = e => {
           e.stopPropagation();
+          // Prefer the walk this specific tile came from when real photos are present
+          if(useRealPhotos && i < realPhotos.length){
+            const rp = realPhotos[i];
+            openPhotoDetail(selRoomId, task.id, rp.walkId, rp.idx);
+            return;
+          }
           for(const w of WALKS){
             const ps = getWalkPhotos(selRoomId, task.id, w.id);
             if(ps.length){ openPhotoDetail(selRoomId, task.id, w.id, 0); return; }
@@ -8387,11 +8565,12 @@ function setBpView(view, btn){
 // Qty, Unit Price, Modifier (as pills), optional Product info, plus notes or
 // issues when the task has them. Returns an HTML string.
 function __gfTaskDetailsHtml(task, roomName){
-  // Unit Price defaults to the full task cost since the data model doesn't
-  // carry a separate unit price yet. Qty defaults to 1 each.
-  const qty = 1;
-  const unit = (typeof task.cost === 'number') ? task.cost : 0;
-  const total = unit * qty;
+  // Prefer real fields when present; fall back to the old defaults so older
+  // task records keep rendering the same way.
+  const qty      = (typeof task.qty === 'number')       ? task.qty       : 1;
+  const unitName = task.unit || 'each';
+  const unit     = (typeof task.unitPrice === 'number') ? task.unitPrice : ((typeof task.cost === 'number') ? task.cost : 0);
+  const total    = (typeof task.cost === 'number')      ? task.cost      : (unit * qty);
   const contractor = task.assign || 'Unassigned';
   const contractorClass = (contractor === 'Unassigned') ? 'gf-td-value muted' : 'gf-td-value';
   // Derive a modifier pill class from the name, so different modifiers read
@@ -8411,9 +8590,9 @@ function __gfTaskDetailsHtml(task, roomName){
   html += '<div class="gf-td-item full-row"><span class="gf-td-label">Contractor</span>'+
             '<div class="'+contractorClass+'">'+ contractor +'</div></div>';
   html += '<div class="gf-td-item"><span class="gf-td-label">Qty</span>'+
-            '<div class="gf-td-value">'+ qty +' each</div></div>';
-  html += '<div class="gf-td-item"><span class="gf-td-label">Unit Price</span>'+
-            '<div class="gf-td-value mono">'+ moneyFn(unit) +'</div></div>';
+            '<div class="gf-td-value">'+ qty +' '+ unitName +'</div></div>';
+  html += '<div class="gf-td-item"><span class="gf-td-label">Rate</span>'+
+            '<div class="gf-td-value mono">'+ moneyFn(unit) +' '+ unitName +'</div></div>';
   html += '<div class="gf-td-item full-row"><span class="gf-td-label">Modifier</span>'+
             '<div class="gf-td-modifier-row">'+
               (modHtml || '<span class="gf-td-value muted">None</span>')+
@@ -8423,16 +8602,26 @@ function __gfTaskDetailsHtml(task, roomName){
             '<div class="gf-td-value mono">'+ (task.id || '—') +'</div></div>';
   html += '<div class="gf-td-item"><span class="gf-td-label">Total</span>'+
             '<div class="gf-td-value mono">'+ moneyFn(total) +'</div></div>';
-  // Product block — only shown when the task has a notes-like product hint.
-  // We use the first photo index as a stand-in "SKU" so each card reads
-  // concretely, matching the reference file's look.
-  const photoRef = Array.isArray(task.photos) && task.photos.length ? task.photos[0] : null;
-  if(photoRef !== null){
-    const fakeSku = (1000 + parseInt(String(task.id).slice(-3) || '0', 10)) % 999999;
+  // Product block — if the task carries real product metadata, use it
+  // verbatim. Otherwise fall back to the old "task name + stand-in SKU"
+  // placeholder so older records keep rendering a product card.
+  if(task.product){
+    const metaBits = [];
+    if(task.sku)   metaBits.push('sku: ' + task.sku);
+    if(task.brand) metaBits.push('brand: ' + task.brand);
     html += '<div class="gf-td-product">'+
-              '<div class="gf-td-product-title">'+ (roomName ? roomName+' · ' : '') + task.name +'</div>'+
-              '<div class="gf-td-product-meta">SKU: '+ fakeSku +'</div>'+
+              '<div class="gf-td-product-title">'+ task.product +'</div>'+
+              (metaBits.length ? '<div class="gf-td-product-meta">'+ metaBits.join(' · ') +'</div>' : '')+
             '</div>';
+  } else {
+    const photoRef = Array.isArray(task.photos) && task.photos.length ? task.photos[0] : null;
+    if(photoRef !== null){
+      const fakeSku = (1000 + parseInt(String(task.id).slice(-3) || '0', 10)) % 999999;
+      html += '<div class="gf-td-product">'+
+                '<div class="gf-td-product-title">'+ (roomName ? roomName+' · ' : '') + task.name +'</div>'+
+                '<div class="gf-td-product-meta">SKU: '+ fakeSku +'</div>'+
+              '</div>';
+    }
   }
   if(task.notes){
     html += '<div class="gf-td-notes">'+ task.notes +'</div>';
@@ -8449,13 +8638,14 @@ function __gfTaskDetailsHtml(task, roomName){
 function renderBpGroupFeed(){
   const host = document.getElementById('bp-groups-inner');
   if(!host) return;
-  // Preserve which group cards were expanded so a layer toggle doesn't collapse
-  // the view the user was actively reading.
-  const prevExpanded = new Set();
-  host.querySelectorAll('.gf-card.expanded[data-room-id]').forEach(c => {
-    prevExpanded.add(c.dataset.roomId);
-  });
-  const hadAnyExpanded = prevExpanded.size > 0 || host.querySelector('.gf-card.expanded') != null;
+  // Track expanded group IDs in a JS Set so user toggles survive re-renders.
+  // First render seeds with the first group expanded (original behaviour);
+  // after that, the set is the source of truth — collapsing the last expanded
+  // card no longer triggers an auto-expand on rebuild.
+  if(window.__bpGroupsExpanded == null){
+    const firstRoomId = Object.keys(ROOMS)[0];
+    window.__bpGroupsExpanded = new Set(firstRoomId ? [firstRoomId] : []);
+  }
   host.innerHTML = '';
 
   // Formatter for currency — matches how the table view renders numbers
@@ -8493,29 +8683,47 @@ function renderBpGroupFeed(){
     const color = RC[rid] || 'var(--charcoal)';
     const total = room.taskList.reduce((s,t) => s + (t.cost || 0), 0);
 
-    // Keep whichever cards were expanded before; on first render default to
-    // the first group expanded (original behaviour).
-    const expand = hadAnyExpanded ? prevExpanded.has(rid) : (idx === 0);
+    // Expansion state lives in window.__bpGroupsExpanded so user toggles
+    // survive re-renders triggered by layer changes / room selection.
+    const expand = window.__bpGroupsExpanded.has(rid);
     const card = document.createElement('article');
     card.className = 'gf-card' + (expand ? ' expanded' : '') + (selRoomId === rid ? ' selected' : '');
     card.dataset.roomId = rid;
 
-    // Header row — task count always, total cost gated by LAYERS.budget
+    // Header row — task count always, total cost gated by LAYERS.budget.
+    // Sqft gets appended to the title when the room has it; the group note
+    // renders as its own sub-row under the header.
     const head = document.createElement('header');
     head.className = 'gf-head';
+    const sqftSuffix = room.sqft ? ' <span class="gf-sqft">· '+ room.sqft +' sqft</span>' : '';
     head.innerHTML =
       '<span class="gf-dot" style="background:'+color+'"></span>' +
-      '<span class="gf-title">'+ room.name +'</span>' +
+      '<span class="gf-title">'+ room.name + sqftSuffix +'</span>' +
       '<span class="gf-count">'+ room.taskList.length +' '+ (room.taskList.length===1?'task':'tasks') +'</span>' +
       (L.budget ? '<span class="gf-total">'+ money(total) +'</span>' : '') +
       '<span class="gf-chev" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
     // Clicking the group header selects the room (filters the Compare timeline
     // to just that group) AND toggles expand so the task rows are visible.
     head.addEventListener('click', () => {
-      card.classList.toggle('expanded');
+      // Persist the toggle in the JS set so the next re-render respects it.
+      if(window.__bpGroupsExpanded.has(rid)){
+        window.__bpGroupsExpanded.delete(rid);
+        card.classList.remove('expanded');
+      } else {
+        window.__bpGroupsExpanded.add(rid);
+        card.classList.add('expanded');
+      }
       if(typeof selRoom === 'function') selRoom(rid);
     });
     card.appendChild(head);
+    // Optional group-level note sits just under the header (gated by Notes
+    // layer so it follows the same show/hide logic as task notes).
+    if(L.notes && room.groupNote){
+      const noteEl = document.createElement('div');
+      noteEl.className = 'gf-group-note';
+      noteEl.innerHTML = '<span class="gf-group-note-label">Group Note:</span> ' + room.groupNote;
+      card.appendChild(noteEl);
+    }
 
     // Body — task rows
     const body = document.createElement('div');
@@ -8534,8 +8742,14 @@ function renderBpGroupFeed(){
       if(L.activity)   metaBits.push('<span class="gf-task-mod">Activity</span>');
       if(L.onhold && task.outOfStock) metaBits.push('<span class="gf-task-mod" style="color:var(--red)">Out of stock</span>');
       // Summary (clickable to select) + chevron toggle (clickable to expand)
-      // + details panel that mirrors scope-review-floorplan.html.
+      // + details panel that mirrors scope-review-floorplan.html. A category
+      // kicker sits above the name when the task carries one (e.g. "Cabinet
+      // Refresh/Repair/Repaint/Demo" above "Paint Cabinet Base").
+      const categoryLine = task.category
+        ? '<div class="gf-task-category">'+ task.category +'</div>'
+        : '';
       const summaryInner =
+        categoryLine +
         '<div class="gf-task-name">'+ task.name +'</div>' +
         (metaBits.length ? '<div class="gf-task-meta">'+ metaBits.join('') +'</div>' : '');
       row.innerHTML =
@@ -10001,16 +10215,65 @@ function renderCompare(){
   // and unknown ids are ignored so the compare view stays usable.
   const filterRoomId = (selRoomId && selRoomId !== 'unassigned' && ROOMS[selRoomId]) ? selRoomId : null;
 
-  // ── Build flat slot list: [group, ...tasks] for each room, in order ──
-  const roomIds = filterRoomId ? [filterRoomId] : Object.keys(ROOMS);
+  // ── Build flat slot list ──
+  // Default mode: bucket by room — [group, ...tasks] for each room.
+  // Contractors mode: bucket by contractor — each bucket becomes a "group"
+  // slot (acting like a section header) followed by that contractor's tasks.
+  // Unassigned bucket sorts to the top so tasks that still need a contractor
+  // are the first thing the user sees; every other contractor follows
+  // alphabetically beneath it.
+  const byContractor = (typeof bpView !== 'undefined' && bpView === 'contractors');
   const slots = [];
-  roomIds.forEach(rid => {
-    const room = ROOMS[rid];
-    slots.push({ type:'group', roomId:rid, roomName:room.name });
-    room.taskList.forEach(t => {
-      slots.push({ type:'task', roomId:rid, roomName:room.name, taskId:t.id, task:t });
+  if(byContractor){
+    // Build contractor buckets from every task across every room. The
+    // floorplan's per-room filter doesn't apply in contractor mode — the
+    // sidebar's active-contractor filter does the equivalent job here.
+    const bucketMap = new Map();
+    Object.keys(ROOMS).forEach(rid => {
+      const room = ROOMS[rid];
+      (room.taskList || []).forEach(t => {
+        const key = (t.assign && t.assign !== 'Unassigned') ? t.assign : '__unassigned__';
+        if(!bucketMap.has(key)){
+          bucketMap.set(key, {
+            key,
+            name: (key === '__unassigned__') ? 'Unassigned' : key,
+            isUnassigned: (key === '__unassigned__'),
+            tasks: [],
+          });
+        }
+        bucketMap.get(key).tasks.push({ roomId:rid, roomName:room.name, task:t });
+      });
     });
-  });
+    const buckets = [...bucketMap.values()].sort((a,b) => {
+      if(a.isUnassigned !== b.isUnassigned) return a.isUnassigned ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+    buckets.forEach(b => {
+      if(!b.tasks.length) return;
+      const first = b.tasks[0];
+      slots.push({
+        type:'group',
+        isContractor:true,
+        contractor:b.name,
+        roomId:first.roomId,             // used by hlRoom + photo fallback
+        roomName:b.name,                  // displayed as the section title
+        firstTaskId:first.task.id,        // routes photo lookup to a real task
+        bucketTasks:b.tasks,              // routes badge aggregation
+      });
+      b.tasks.forEach(({roomId, roomName, task}) => {
+        slots.push({ type:'task', roomId, roomName, taskId:task.id, task });
+      });
+    });
+  } else {
+    const roomIds = filterRoomId ? [filterRoomId] : Object.keys(ROOMS);
+    roomIds.forEach(rid => {
+      const room = ROOMS[rid];
+      slots.push({ type:'group', roomId:rid, roomName:room.name });
+      room.taskList.forEach(t => {
+        slots.push({ type:'task', roomId:rid, roomName:room.name, taskId:t.id, task:t });
+      });
+    });
+  }
   const taskSlotIdxs = slots.map((s,i)=>s.type==='task'?i:-1).filter(i=>i>=0);
 
   // ── State (closure-local; reset on every render) ──
@@ -10042,9 +10305,16 @@ function renderCompare(){
   root.appendChild(head);
 
   // Label helper — "Group name" for a group slot, "Task · Group" for a task.
+  // Contractor groups use a slightly different meta label so the header is
+  // unambiguous in Contractors mode.
   function slotLabel(slot){
     if(!slot) return { title:'', meta:'' };
-    if(slot.type === 'group') return { title:slot.roomName, meta:'Group overview' };
+    if(slot.type === 'group'){
+      return {
+        title: slot.roomName,
+        meta: slot.isContractor ? 'Contractor overview' : 'Group overview',
+      };
+    }
     return { title:slot.task.name, meta:slot.roomName };
   }
 
@@ -10237,15 +10507,35 @@ function renderCompare(){
   sliderWrap.appendChild(sliderHdr);
 
   const rangeWrap = mk('div','tl-nav-range-wrap');
-  const range = document.createElement('input');
-  range.type = 'range';
-  range.className = 'tl-nav-range';
-  range.min = '0';
-  range.max = String(Math.max(0, slots.length - 1));
-  range.step = '1';
-  range.value = String(state.currentIdx);
-  range.setAttribute('aria-label','Navigate through groups and tasks');
-  rangeWrap.appendChild(range);
+  rangeWrap.setAttribute('role','slider');
+  rangeWrap.setAttribute('tabindex','0');
+  rangeWrap.setAttribute('aria-label','Navigate through groups and tasks');
+  rangeWrap.setAttribute('aria-valuemin','0');
+  rangeWrap.setAttribute('aria-valuemax', String(Math.max(0, slots.length - 1)));
+  rangeWrap.setAttribute('aria-valuenow', String(state.currentIdx));
+  const track = mk('div','tl-nav-track');
+  const trackFill = mk('div','tl-nav-track-fill');
+  const thumb = mk('div','tl-nav-thumb');
+  track.appendChild(trackFill);
+  track.appendChild(thumb);
+  rangeWrap.appendChild(track);
+  // Back-compat shim for legacy code that reads/writes `range.value` or
+  // `range.getBoundingClientRect()`. The shim delegates those to the track
+  // div and the shared state so older callers keep working without change.
+  const range = {
+    get value(){ return String(state.currentIdx); },
+    set value(v){
+      const n = parseInt(v, 10);
+      if(!isNaN(n)){
+        state.currentIdx = Math.max(0, Math.min(slots.length - 1, n));
+        rangeWrap.setAttribute('aria-valuenow', String(state.currentIdx));
+      }
+    },
+    getBoundingClientRect(){ return track.getBoundingClientRect(); },
+    style:{ setProperty(name, val){ track.style.setProperty(name, val); } },
+    focus(){ try { rangeWrap.focus({ preventScroll:true }); } catch(e){ try{ rangeWrap.focus(); }catch(_){} } },
+    addEventListener(){ /* no-op: native 'input' events no longer exist */ },
+  };
   // v5: floating label that tracks the thumb while the user is scrubbing.
   const floatLbl = mk('div','tl-nav-float-label','');
   rangeWrap.appendChild(floatLbl);
@@ -10300,7 +10590,7 @@ function renderCompare(){
     const cur = slots[state.currentIdx];
     if(cur){
       const lab = cur.type === 'group'
-        ? cur.roomName + ' (group)'
+        ? cur.roomName + (cur.isContractor ? ' (contractor)' : ' (group)')
         : cur.task.name + ' · ' + cur.roomName;
       const labHtml =
         lab.replace(/</g,'&lt;') +
@@ -10352,6 +10642,13 @@ function renderCompare(){
   }
 
   range.addEventListener('input', () => {
+    // While our custom pointer drag owns the scrub, ignore any native
+    // <input type="range"> 'input' events. The native track-click handler
+    // would otherwise fire with a step-by-1 value and override the position
+    // we just set, which users see as the thumb "snapping back" on release.
+    // Keyboard arrow-key input still works because __scrubDragging is false
+    // when the range has keyboard focus but no active pointer drag.
+    if(typeof __scrubDragging !== 'undefined' && __scrubDragging) return;
     const v = parseInt(range.value, 10);
     if(isNaN(v) || v === state.currentIdx) return;
     state.currentIdx = v;
@@ -10360,21 +10657,56 @@ function renderCompare(){
     renderSlider();
   });
 
-  // v5: toggle the scrubbing state so the header text hides and the floating
-  // label appears above the thumb for the duration of the drag. Covers mouse,
-  // pen, and touch via pointer events, and cleans up on window-level blur/up
-  // so a drag that ends outside the slider still restores the normal header.
-  function startScrub(){ sliderWrap.classList.add('is-scrubbing'); }
-  function endScrub(){ sliderWrap.classList.remove('is-scrubbing'); }
-  range.addEventListener('pointerdown', startScrub);
-  range.addEventListener('pointerup', endScrub);
-  range.addEventListener('pointercancel', endScrub);
-  range.addEventListener('blur', endScrub);
-  window.addEventListener('pointerup', endScrub);
-  // Touch-only fallback for browsers that don't fire pointer events reliably.
-  range.addEventListener('touchstart', startScrub, { passive:true });
-  range.addEventListener('touchend', endScrub);
-  range.addEventListener('touchcancel', endScrub);
+  // v5++: pointer scrubbing is owned by rangeWrap, not the <input> itself.
+  // Putting `pointer-events: none` on the range kills the browser's built-in
+  // track-click step and thumb-drag, so nothing can race with our state
+  // updates. rangeWrap catches all pointer events, we compute the slot
+  // index from the wrapper's bounding rect, and pointer capture keeps the
+  // drag alive even if the cursor leaves the slider area. Keyboard nav
+  // still works: on pointerdown we focus the range, and the 'input'
+  // listener above continues to handle arrow-key value changes.
+  function __idxFromClientX(clientX){
+    const rect = range.getBoundingClientRect();
+    if(rect.width <= 0) return state.currentIdx;
+    const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return Math.round(frac * Math.max(0, slots.length - 1));
+  }
+  function __applyIdx(v){
+    v = Math.max(0, Math.min(slots.length - 1, v));
+    if(v === state.currentIdx) return;
+    state.currentIdx = v;
+    range.value = String(v);
+    renderHead();
+    updatePhotos();
+    renderSlider();
+  }
+  let __scrubDragging = false;
+  function __startScrub(ev){
+    if(ev.button != null && ev.button !== 0) return; // left button / touch only
+    ev.preventDefault();
+    __scrubDragging = true;
+    try { rangeWrap.setPointerCapture(ev.pointerId); } catch(e){}
+    sliderWrap.classList.add('is-scrubbing');
+    __applyIdx(__idxFromClientX(ev.clientX));
+    // Keep keyboard accessibility: give the range focus so arrow keys scrub.
+    try { range.focus({ preventScroll: true }); } catch(e){ try { range.focus(); } catch(_){} }
+  }
+  function __moveScrub(ev){
+    if(!__scrubDragging) return;
+    ev.preventDefault();
+    __applyIdx(__idxFromClientX(ev.clientX));
+  }
+  function __endScrub(){
+    if(!__scrubDragging) return;
+    __scrubDragging = false;
+    sliderWrap.classList.remove('is-scrubbing');
+  }
+  rangeWrap.addEventListener('pointerdown',  __startScrub);
+  rangeWrap.addEventListener('pointermove',  __moveScrub);
+  rangeWrap.addEventListener('pointerup',    __endScrub);
+  rangeWrap.addEventListener('pointercancel',__endScrub);
+  rangeWrap.addEventListener('lostpointercapture', __endScrub);
+  window.addEventListener('pointerup',       __endScrub);
 
   root.appendChild(sliderWrap);
 
@@ -10388,7 +10720,13 @@ function renderCompare(){
       const photos = getWalkPhotos(slot.roomId, slot.taskId, walkId);
       return photos[0] || '';
     }
-    // group — proxy to first task's photo for this walk
+    // group — proxy to a task's photo for this walk. Contractor groups carry
+    // their own firstTaskId (which belongs to this contractor); room groups
+    // fall back to the room's first task.
+    if(slot.firstTaskId){
+      const photos = getWalkPhotos(slot.roomId, slot.firstTaskId, walkId);
+      return photos[0] || '';
+    }
     const firstTask = ROOMS[slot.roomId].taskList[0];
     if(!firstTask) return '';
     const photos = getWalkPhotos(slot.roomId, firstTask.id, walkId);
@@ -10408,6 +10746,12 @@ function renderCompare(){
       hasIssue      = !!slot.task.issue;
       hasNote       = !!slot.task.notes;
       hasUnassigned = (slot.task.assign === 'Unassigned');
+    } else if(slot.bucketTasks && slot.bucketTasks.length){
+      // Contractor group — aggregate across every task in this bucket.
+      const list = slot.bucketTasks.map(x => x.task).filter(Boolean);
+      hasIssue      = list.some(t => !!t.issue);
+      hasNote       = list.some(t => !!t.notes);
+      hasUnassigned = list.some(t => t.assign === 'Unassigned');
     } else if(slot.roomId && ROOMS[slot.roomId] && Array.isArray(ROOMS[slot.roomId].taskList)){
       const list = ROOMS[slot.roomId].taskList;
       hasIssue      = list.some(t => !!t.issue);
@@ -10436,6 +10780,20 @@ function renderCompare(){
         tipHtml =
           '<div class="tl-note-tip-title">'+ esc(slot.task.name || 'Note') +'</div>' +
           '<div class="tl-note-tip-body">'+ body +'</div>';
+      } else if(slot.bucketTasks && slot.bucketTasks.length){
+        // Contractor group — pull notes from every task in this bucket and
+        // prefix each one with its room name so the source is clear.
+        const items = slot.bucketTasks
+          .filter(x => x && x.task && x.task.notes)
+          .map(x =>
+            '<div class="tl-note-tip-item">' +
+              '<div class="tl-note-tip-sub">'+ esc((x.task.name || 'Task') + ' · ' + (x.roomName || '')) +'</div>' +
+              esc(x.task.notes) +
+            '</div>'
+          ).join('');
+        tipHtml =
+          '<div class="tl-note-tip-title">'+ esc(slot.roomName || 'Notes') +'</div>' +
+          '<div class="tl-note-tip-body">'+ (items || '<span class="tl-note-tip-empty">No notes</span>') +'</div>';
       } else if(slot.roomId && ROOMS[slot.roomId]){
         const items = ROOMS[slot.roomId].taskList
           .filter(t => t && t.notes)
