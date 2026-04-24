@@ -9591,7 +9591,16 @@ function toggleScopeReview(){
 }
 let __srEscHandler = null;
 
-function closeCmpDd(){ cmpDdOpen = null; render(); }
+function closeCmpDd(){
+  // Only do anything if a compare-pane walk dropdown is actually open.
+  // Without this guard, every document-level click (including scrubber
+  // releases inside the Compare timeline) fires render() and wipes the
+  // closure-local Compare-walks state — collapsing the view back to a
+  // single date and snapping the scrubber to the first slot.
+  if(cmpDdOpen == null) return;
+  cmpDdOpen = null;
+  render();
+}
 
 // Walk dot color helper
 function walkDotColor(wid){
@@ -10462,6 +10471,9 @@ function renderCompare(){
       rm.innerHTML = '<svg width="12" height="12" viewBox="0 0 10 10" fill="none" style="display:block"><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
       rm.onclick = function(ev){
         if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+        // Reset Band B's selection back to Final walk so the next "Add date"
+        // click always re-opens with the canonical second-date default.
+        state.walkB = ((WALKS.find(w => w.id === 'close_out')) || WALKS[WALKS.length-1] || {}).id;
         root.classList.add('tl-b-hidden');
       };
       walks.appendChild(rm);
@@ -10531,7 +10543,30 @@ function renderCompare(){
   const addBandBtn = mk('button','tl-add-band');
   addBandBtn.type = 'button';
   addBandBtn.innerHTML = '<span style="font-size:14px;line-height:1">+</span> Add date';
-  addBandBtn.addEventListener('click', () => { root.classList.remove('tl-b-hidden'); });
+  addBandBtn.addEventListener('click', (ev) => {
+    if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+    // Always re-open Band B preset to Final walk, regardless of whatever the
+    // user may have last picked before removing the band.
+    const finalId = ((WALKS.find(w => w.id === 'close_out')) || WALKS[WALKS.length-1] || {}).id;
+    state.walkB = finalId;
+    // Refresh Band B's radio + collapsed-picker visual state to match.
+    const bandB = root.querySelector('.tl-band[data-band="B"]');
+    if(bandB){
+      const walksB = bandB.querySelector('.tl-walks');
+      if(walksB){
+        walksB.classList.add('is-collapsed');
+        walksB.querySelectorAll('.tl-walk-opt').forEach(opt => {
+          const input = opt.querySelector('input[type="radio"]');
+          const isSel = input && input.value === finalId;
+          opt.classList.toggle('is-selected', !!isSel);
+          if(input) input.checked = !!isSel;
+        });
+      }
+    }
+    root.classList.remove('tl-b-hidden');
+    // Repaint Band B's photo cells in case state changed.
+    if(typeof updatePhotos === 'function') updatePhotos();
+  });
   bodyEl.appendChild(addBandBtn);
 
   root.appendChild(bodyEl);
