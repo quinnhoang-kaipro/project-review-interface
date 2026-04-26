@@ -8841,72 +8841,88 @@ function render(){
       close_out:     ['#B8C8B0','#A4B49C','#C8D8C0','#A8BEA0'],
     };
     const WALK_ORDER_STRIP = ['initial_scope','progress_1','change_order','progress_2','close_out'];
-    const GP_TOTAL_TASK = 15;
+    const GP_KEY_MAP = { initial_scope:'initial', progress_1:'p1', change_order:null, progress_2:'p2', close_out:'final' };
+    const gpRoomData = (typeof GROUP_PHOTOS !== 'undefined' && GROUP_PHOTOS[selRoomId]) || {};
 
-    // Outer wrapper — no padding, flush to rp-body edges
+    const stripTiles = [];
+    WALK_ORDER_STRIP.forEach(wid => {
+      const walk = WALKS.find(w => w.id === wid);
+      if(!walk) return;
+      const gpKey = GP_KEY_MAP[wid];
+      const realPhotos = (gpKey && Array.isArray(gpRoomData[gpKey])) ? gpRoomData[gpKey] : [];
+      const grpAttr = getGroupAttr(selRoomId, wid);
+      if(realPhotos.length){
+        realPhotos.forEach((url, i) => {
+          stripTiles.push({ url, color:null, walk, walkId:wid, gpKey, idxInWalk:i, attr:grpAttr, isFirstOfWalk:i===0 });
+        });
+      } else {
+        const pal = GP_STRIP_COLORS[wid] || ['#C9BFB3'];
+        pal.forEach((col, i) => {
+          stripTiles.push({ url:null, color:col, walk, walkId:wid, gpKey:null, idxInWalk:i, attr:grpAttr, isFirstOfWalk:i===0 });
+        });
+      }
+    });
+    const stripTotal = stripTiles.length;
+    const stripPreview = Math.min(6, stripTotal);
+
     const gpStripOuter = mk('div','');
     gpStripOuter.style.cssText = 'flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border)';
 
-    // Header row
     const gpStripHdr = mk('div','');
     gpStripHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 18px 6px;';
     gpStripHdr.innerHTML = `
       <span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3)">Group photos</span>
-      <span style="font-size:10px;color:var(--t3);font-family:var(--mono)">6 of ${GP_TOTAL_TASK}</span>
+      <span id="gp-strip-count" style="font-size:10px;color:var(--t3);font-family:var(--mono)">${stripPreview} of ${stripTotal}</span>
       <div style="flex:1;height:1px;background:var(--border)"></div>
-      <button id="gp-strip-toggle" style="display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0" onclick="toggleGpStrip()">
-        See all ${GP_TOTAL_TASK}
+      ${stripTotal > stripPreview ? `<button id="gp-strip-toggle" style="display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);background:none;border:none;cursor:pointer;font-family:var(--font);padding:0" onclick="toggleGpStrip()">
+        See all ${stripTotal}
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>`;
+      </button>` : ''}`;
     gpStripOuter.appendChild(gpStripHdr);
 
-    // Single scrollable row
+    function _mountStripTile(container, t, isGrid){
+      const tile = mk('div','');
+      const baseStyle = `aspect-ratio:4/3;border-radius:var(--r);position:relative;cursor:pointer;transition:filter .15s;background-size:cover;background-position:center;background-repeat:no-repeat`;
+      tile.style.cssText = isGrid
+        ? `${baseStyle};background-color:${t.color || 'var(--bg-2)'};`
+        : `${baseStyle};background-color:${t.color || 'var(--bg-2)'};flex-shrink:0;width:130px;`;
+      if(t.url) tile.style.backgroundImage = `url("${t.url}")`;
+      tile.onmouseenter = () => tile.style.filter='brightness(.88)';
+      tile.onmouseleave = () => tile.style.filter='';
+      if(t.isFirstOfWalk){
+        const labelSize = isGrid ? '8px' : '9px';
+        const labelPad  = isGrid ? '1px 6px' : '2px 7px';
+        const labelPos  = isGrid ? 'bottom:4px;left:4px' : 'bottom:6px;left:6px';
+        tile.innerHTML = `<div style="position:absolute;${labelPos};background:rgba(29,29,29,.72);backdrop-filter:blur(4px);color:#fff;font-size:${labelSize};font-weight:600;padding:${labelPad};border-radius:3px;letter-spacing:.02em;white-space:nowrap">${t.walk.short}</div>${attrBadge(t.attr, true)}`;
+      }
+      tile.onclick = (ev) => {
+        ev.stopPropagation();
+        if(!t.url || !t.gpKey) return;
+        if(typeof openGroupPhotoDetail === 'function'){
+          openGroupPhotoDetail(selRoomId, t.gpKey, undefined);
+          if(window.gpOverlayState && window.gpOverlayState.flat){
+            const idx = window.gpOverlayState.flat.findIndex(p => p.url === t.url && p.walkKey === t.gpKey);
+            if(idx >= 0){
+              window.gpOverlayState.flatIdx = idx;
+              if(typeof _renderGpOverlay === 'function') _renderGpOverlay();
+            }
+          }
+        }
+      };
+      container.appendChild(tile);
+    }
+
     const gpScrollRow = mk('div','');
     gpScrollRow.id = 'gp-scroll-row';
     gpScrollRow.style.cssText = 'display:flex;gap:3px;overflow-x:auto;padding:0 18px 10px;scrollbar-width:none';
     gpScrollRow.innerHTML = '<style>#gp-scroll-row::-webkit-scrollbar{display:none}</style>';
-
-    // Build tiles — 3–4 per walk in order
-    WALK_ORDER_STRIP.forEach(wid => {
-      const walk = WALKS.find(w=>w.id===wid);
-      if(!walk) return;
-      const pal = GP_STRIP_COLORS[wid] || ['#C9BFB3'];
-      const grpAttr = getGroupAttr(selRoomId, wid);
-      pal.forEach((col, ci) => {
-        const tile = mk('div','');
-        tile.style.cssText = `flex-shrink:0;width:130px;aspect-ratio:4/3;background:${col};border-radius:var(--r);position:relative;cursor:pointer;transition:filter .15s`;
-        tile.onmouseenter = () => tile.style.filter='brightness(.88)';
-        tile.onmouseleave = () => tile.style.filter='';
-        // Walk label + attr badge on first tile of each walk
-        if(ci === 0){
-          tile.innerHTML = `<div style="position:absolute;bottom:6px;left:6px;background:rgba(29,29,29,.72);backdrop-filter:blur(4px);color:#fff;font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;letter-spacing:.02em;white-space:nowrap">${walk.short}</div>${attrBadge(grpAttr, true)}`;
-        }
-        gpScrollRow.appendChild(tile);
-      });
-    });
+    stripTiles.forEach(t => _mountStripTile(gpScrollRow, t, false));
     gpStripOuter.appendChild(gpScrollRow);
 
-    // Expanded grid (hidden by default)
     const gpExpandedGrid = mk('div','');
     gpExpandedGrid.id = 'gp-expanded-grid';
     gpExpandedGrid.style.cssText = 'display:none;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:3px;padding:0 18px 12px';
-    let allTaskTiles = [];
-    WALK_ORDER_STRIP.forEach(wid => {
-      const walk = WALKS.find(w=>w.id===wid);
-      if(!walk) return;
-      const pal = GP_STRIP_COLORS[wid] || ['#C9BFB3'];
-      const grpAttr = getGroupAttr(selRoomId, wid);
-      pal.forEach((col, ci) => {
-        const tile = mk('div','');
-        tile.style.cssText = `aspect-ratio:4/3;background:${col};border-radius:var(--r);position:relative;cursor:pointer;transition:filter .15s`;
-        tile.onmouseenter = () => tile.style.filter='brightness(.88)';
-        tile.onmouseleave = () => tile.style.filter='';
-        if(ci === 0){
-          tile.innerHTML = `<div style="position:absolute;bottom:4px;left:4px;background:rgba(29,29,29,.72);color:#fff;font-size:8px;font-weight:600;padding:1px 6px;border-radius:3px;white-space:nowrap">${walk.short}</div>${attrBadge(grpAttr, true)}`;
-        }
-        gpExpandedGrid.appendChild(tile);
-      });
-    });
+    stripTiles.forEach(t => _mountStripTile(gpExpandedGrid, t, true));
     gpStripOuter.appendChild(gpExpandedGrid);
 
     let gpStripExpanded = false;
@@ -8915,11 +8931,11 @@ function render(){
       gpScrollRow.style.display = gpStripExpanded ? 'none' : 'flex';
       gpExpandedGrid.style.display = gpStripExpanded ? 'grid' : 'none';
       const btn = document.getElementById('gp-strip-toggle');
-      const countEl = gpStripHdr.querySelector('span:nth-child(2)');
-      if(countEl) countEl.textContent = gpStripExpanded ? GP_TOTAL_TASK : `6 of ${GP_TOTAL_TASK}`;
+      const countEl = document.getElementById('gp-strip-count');
+      if(countEl) countEl.textContent = gpStripExpanded ? String(stripTotal) : `${stripPreview} of ${stripTotal}`;
       if(btn) btn.innerHTML = gpStripExpanded
         ? `Collapse <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 7.5L6 4.5L9 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-        : `See all ${GP_TOTAL_TASK} <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        : `See all ${stripTotal} <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     };
 
     body.appendChild(gpStripOuter);
