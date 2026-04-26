@@ -2053,12 +2053,12 @@ table.dt tr:hover td { background:var(--bg-2); }
 .tl-root .tl-cell.tl-cell-grp-l::before {
   content:''; position:absolute; top:-4px; bottom:-4px; width:12px;
   pointer-events:none; z-index:2;
-  background:
-    linear-gradient(var(--charcoal),var(--charcoal)) top/100% 4px no-repeat,
-    linear-gradient(var(--charcoal),var(--charcoal)) bottom/100% 4px no-repeat;
+  background: var(--charcoal);
 }
 .tl-root .tl-cell.tl-cell-grp-r::after  { right:-12px; }
 .tl-root .tl-cell.tl-cell-grp-l::before { left:-12px;  }
+.tl-root .tl-cell.tl-cell-grp-solo { border:none; }
+.tl-root .tl-cell.tl-cell-grp-solo.current { box-shadow:inset 0 0 0 1px var(--border-mid); }
 .tl-root .tl-cell-grp-chip {
   position:absolute; top:8px; left:8px; z-index:3;
   display:inline-flex; align-items:center; gap:4px;
@@ -12228,7 +12228,7 @@ function renderCompare(){
     cell.onclick = null;
     cell.removeAttribute('data-clickable');
     // Reset task-grouping & room classes from any prior render
-    cell.classList.remove('tl-cell-grp', 'tl-cell-grp-l', 'tl-cell-grp-r', 'tl-cell-room-bnd');
+    cell.classList.remove('tl-cell-grp', 'tl-cell-grp-l', 'tl-cell-grp-r', 'tl-cell-grp-solo', 'tl-cell-room-bnd');
     cell.style.removeProperty('--room-tint');
 
     if(!slot){
@@ -12259,13 +12259,12 @@ function renderCompare(){
     //   (b) BOTH cells in the pair actually have a photo for this walk.
     // That keeps empty cells looking like the standard dashed empty state and
     // avoids the box wrapping a photo + a no-photo placeholder.
-    if(url && groupInfo && (groupInfo.groupL || groupInfo.groupR)){
+    if(url && groupInfo && (groupInfo.groupL || groupInfo.groupR) && groupInfo.chipLen >= 2){
       cell.classList.add('tl-cell-grp');
-      // Only mark as joined-to-left if the LEFT neighbour also has a photo.
-      // Same for right. Avoids drawing a connector that points at a no-photo
-      // cell (which would no longer carry the box treatment).
       if(groupInfo.groupL && groupInfo.chipIdx > 1) cell.classList.add('tl-cell-grp-l');
       if(groupInfo.groupR && groupInfo.chipIdx < groupInfo.chipLen) cell.classList.add('tl-cell-grp-r');
+    } else if(url && groupInfo && (groupInfo.groupL || groupInfo.groupR)){
+      cell.classList.add('tl-cell-grp-solo');
     }
     const taskLabel = slot.type==='task'
       ? (slot.isExtra ? (slot.task.name + ' · ' + (slot.extraLabel || 'Extra photo')) : slot.task.name)
