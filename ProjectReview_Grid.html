@@ -38,7 +38,9 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
 .t-address {
   font-size:15px; font-weight:600; color:var(--t1);
   letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  cursor:pointer; transition:color .12s;
 }
+.t-address:hover { color:var(--t2); }
 .t-divider { width:1px; height:22px; background:var(--border-mid); margin:0 20px; flex-shrink:0; }
 .t-tabs { display:flex; align-items:center; height:100%; }
 .t-tab {
@@ -110,9 +112,11 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
    the same relative breathing room. Carries an "active" state when a
    contractor filter is applied. */
 .sb-layer-btn-filter {
-  width:36px; height:36px; color:var(--t2);
+  width:36px; height:36px; color:var(--t1);
 }
-.sb-layer-btn-filter:hover { color:var(--t1); }
+.sb-layer-btn-filter:hover { background:var(--bg-2); color:var(--t1); }
+/* Active state — applied only while the dropdown is open (.is-filtered) so
+   the default rest state stays clean (black icon on transparent ground). */
 .sb-layer-btn-filter.is-filtered {
   background:var(--charcoal); color:#fff;
 }
@@ -1804,6 +1808,79 @@ table.dt tr:hover td { background:var(--bg-2); }
   background:var(--bg-card); color:var(--t2);
 }
 .gf-action.new-task:hover { background:var(--bg-2); color:var(--t1); }
+/* Compact icon-only variant — used for "+ New task" so the row fits an
+   extra Request edit button. */
+.gf-action.gf-action-icon {
+  width:30px; flex:0 0 auto; padding:0; display:inline-flex;
+  align-items:center; justify-content:center;
+  position:relative;
+}
+/* ── Custom hover tooltip for icon-only buttons ─────────────────────────
+   Shows the button's title attribute as a small chip on hover, so the
+   user gets immediate feedback instead of waiting for the slow native
+   browser tooltip. Applies to:
+     • Delete / Request edit / Approve in the top toolbar (#rp-approval)
+     • The "+ New task" button in the toolbar (.rp-add-btn)
+     • The "+" button in the group/contractor card actions (.gf-action-icon) */
+.gf-action.gf-action-icon[title]::after,
+.rp-add-btn[title]::after,
+#rp-approval button[title]::after {
+  content: attr(title);
+  position:absolute; left:50%; transform:translateX(-50%);
+  background:var(--charcoal); color:#fff;
+  font-family:var(--font); font-size:10.5px; font-weight:500;
+  padding:4px 8px; border-radius:4px; white-space:nowrap;
+  opacity:0; pointer-events:none; transition:opacity .12s; z-index:100;
+}
+/* Top-toolbar buttons: tooltip appears BELOW the button. */
+.rp-add-btn[title]::after,
+#rp-approval button[title]::after { top:calc(100% + 6px); }
+/* Task-card "+" sits at the bottom of the card, so its tooltip appears ABOVE. */
+.gf-action.gf-action-icon[title]::after { bottom:calc(100% + 6px); }
+.gf-action.gf-action-icon:hover::after,
+.rp-add-btn:hover::after,
+#rp-approval button:hover::after { opacity:1; }
+/* The toolbar buttons need position:relative for the absolute pseudo. */
+.rp-add-btn { position:relative; }
+#rp-approval button { position:relative; }
+/* Request edit button — neutral pill matching the Approve group sibling. */
+.gf-action.gf-action-edit {
+  background:var(--bg-card); color:var(--t1);
+  border-color:var(--border-mid);
+}
+.gf-action.gf-action-edit:hover {
+  background:var(--bg-2); border-color:var(--charcoal); color:var(--t1);
+}
+/* Action row inside an expanded task — shows Approve / Request edit /
+   Delete inline with the task details. */
+.gf-task-actions {
+  display:flex; gap:6px; padding:8px 0 2px;
+  border-top:1px dashed var(--border); margin-top:8px;
+}
+.gf-task-action {
+  flex:1; border:1px solid var(--border-mid); background:var(--bg-card);
+  border-radius:6px; cursor:pointer; font-family:var(--font);
+  font-size:11px; font-weight:600; color:var(--t1); padding:6px 8px;
+  line-height:1; white-space:nowrap;
+  transition:background .12s, color .12s, border-color .12s;
+  display:inline-flex; align-items:center; justify-content:center; gap:5px;
+}
+.gf-task-action:hover { background:var(--bg-2); border-color:var(--charcoal); }
+.gf-task-action.approve {
+  background:var(--green); border-color:var(--green); color:#fff;
+}
+.gf-task-action.approve:hover { opacity:.9; background:var(--green); }
+.gf-task-action.delete {
+  color:var(--red); border-color:rgba(224,62,62,.35); background:var(--bg-card);
+}
+.gf-task-action.delete:hover { background:#fef2f2; border-color:var(--red); color:var(--red); }
+/* Trade name caption shown under the Contractor card title in
+   Trade/Contractor view. Padded top + bottom so the text doesn't sit on
+   top of the header's divider line when the card is expanded. */
+.gf-trade-caption {
+  font-size:10.5px; color:var(--t3); font-weight:500;
+  letter-spacing:.01em; padding:8px 14px 10px;
+}
 .bp-walk-pill {
   display:inline-flex; align-items:center; gap:5px;
   padding:4px 10px; border-radius:14px; font-size:11px;
@@ -2592,14 +2669,13 @@ table.dt tr:hover td { background:var(--bg-2); }
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Project Overview
     </button>
-    <span class="t-address">3484 South Main Street, Atlanta</span>
+    <span class="t-address" title="Back to project home" onclick="if(typeof selectAllGroups==='function'){selectAllGroups();}else{selRoomId=null;selTask=null;if(typeof hlRoom==='function')hlRoom(null);if(typeof setZoom==='function')setZoom(0);}">3484 South Main Street, Atlanta</span>
     <div class="t-divider"></div>
-    <!-- Layer toggles + Filter button — restored back into the toolbar so
-         users can flip individual layers from one click. The breadcrumb is
-         empty on the home page (no group/task selected) so there's room for
-         the full set of icons; on group/task pages the breadcrumb truncates
-         with ellipsis to keep these visible. -->
-    <div style="display:flex;align-items:center;gap:0;flex-shrink:0">
+    <!-- Layer toggles — inline on the Home page (zoom===0) where there's no
+         breadcrumb taking up space. Hidden on group/task pages, where users
+         can still flip layers from the Filters dropdown to the right.
+         render() sets t-layer-toggles' display based on zoom. -->
+    <div id="t-layer-toggles" style="display:flex;align-items:center;gap:0;flex-shrink:0">
       <button class="sb-layer-btn on" data-l="budget" data-tip="Budget" onclick="togLayer('budget',this)">
         <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#3DA86A" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#3DA86A" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#3DA86A" stroke-width="1"/></svg></div>
         <span class="sb-layer-pip" style="background:#3DA86A"></span>
@@ -2626,7 +2702,7 @@ table.dt tr:hover td { background:var(--bg-2); }
         <span class="sb-layer-pip" style="background:#5a5751"></span>
       </button>
       <button class="sb-layer-btn on" data-l="status" data-tip="Status" onclick="togLayer('status',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z" stroke="#2E7D8F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8V16L21.3333 18.6667" stroke="#2E7D8F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 8 8" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.33642 8.05629e-05C4.27596 0.00203982 4.21797 0.0244662 4.17193 0.0636877C4.12589 0.102909 4.09452 0.156601 4.08298 0.215973C4.07623 0.250385 4.07632 0.285789 4.08326 0.320164C4.09019 0.35454 4.10383 0.387212 4.1234 0.416315C4.14296 0.445419 4.16807 0.470383 4.19728 0.489783C4.22649 0.509182 4.25924 0.522637 4.29365 0.529379C4.91639 0.652592 5.48846 0.95762 5.93734 1.4065C6.95955 2.4287 7.17086 4.00424 6.45412 5.25967C6.43666 5.29007 6.42535 5.32362 6.42086 5.35839C6.41636 5.39317 6.41875 5.42849 6.4279 5.46234C6.43706 5.49618 6.45279 5.5279 6.4742 5.55567C6.49561 5.58344 6.52227 5.60672 6.55268 5.62418C6.58309 5.64164 6.61663 5.65294 6.65141 5.65744C6.68618 5.66194 6.7215 5.65955 6.75535 5.65039C6.7892 5.64124 6.82091 5.62551 6.84868 5.6041C6.87645 5.58269 6.89973 5.55602 6.91719 5.52562C7.75202 4.06334 7.50448 2.21854 6.31385 1.0279C5.79019 0.504254 5.12286 0.149033 4.39639 0.00529353C4.37666 0.00130512 4.35654 -0.000452262 4.33642 8.05629e-05ZM2.78086 0.0449306C2.76538 0.0460256 2.75002 0.0484682 2.73497 0.0522306C2.08929 0.219343 1.49979 0.556303 1.02818 1.02791C0.556711 1.49938 0.219668 2.08922 0.0525076 2.73469C0.0347341 2.80315 0.0448489 2.87586 0.0806319 2.93687C0.116415 2.99787 0.174942 3.04219 0.243367 3.06009C0.311895 3.07785 0.38467 3.06766 0.44569 3.03177C0.50671 2.99588 0.55098 2.93723 0.568766 2.86871C0.712054 2.31542 1.00211 1.81064 1.40625 1.4065C1.8105 1.00225 2.31553 0.713822 2.86899 0.570574C2.9373 0.55267 2.99573 0.508433 3.0315 0.447547C3.06727 0.38666 3.07746 0.314082 3.05985 0.245698C3.04443 0.184738 3.00799 0.131176 2.95695 0.0944482C2.90592 0.0577205 2.84356 0.040186 2.78086 0.0449306ZM3.70439 1.21929C2.33495 1.21929 1.21905 2.33519 1.21905 3.70463C1.21905 5.07408 2.33495 6.18998 3.70439 6.18998C5.07383 6.18998 6.18973 5.07408 6.18973 3.70463C6.18973 2.33519 5.07383 1.21929 3.70439 1.21929ZM3.70439 1.75328C4.78524 1.75328 5.65574 2.62378 5.65574 3.70463C5.65574 4.78549 4.78524 5.65547 3.70439 5.65547C2.62354 5.65547 1.75304 4.78549 1.75304 3.70463C1.75304 2.62378 2.62354 1.75328 3.70439 1.75328ZM0.273093 4.08009C0.253336 4.07947 0.233571 4.08105 0.214163 4.08479C0.144949 4.09877 0.0840888 4.13959 0.0448992 4.19832C0.00570969 4.25706 -0.0086176 4.32893 0.00505258 4.3982C0.148853 5.12449 0.504647 5.79056 1.02818 6.3141C2.21882 7.50473 4.06152 7.75176 5.52381 6.91692C5.58492 6.88192 5.62973 6.8242 5.64849 6.75632C5.66724 6.68844 5.65841 6.6159 5.62393 6.55449C5.60664 6.52391 5.58349 6.49704 5.5558 6.47543C5.52811 6.45381 5.49643 6.43787 5.46256 6.42852C5.4287 6.41917 5.39333 6.4166 5.35847 6.42094C5.32361 6.42529 5.28995 6.43647 5.25942 6.45385C4.00399 7.17059 2.42846 6.9598 1.40625 5.93759C0.957473 5.48881 0.650838 4.91649 0.527569 4.2939C0.515565 4.23475 0.483871 4.1814 0.437655 4.14258C0.391439 4.10375 0.333433 4.08172 0.273093 4.08009Z" fill="#2E7D8F"/></svg></div>
         <span class="sb-layer-pip" style="background:#2E7D8F"></span>
       </button>
       <div class="sb-sep"></div>
@@ -2642,8 +2718,10 @@ table.dt tr:hover td { background:var(--bg-2); }
         <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#E03E3E" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#E03E3E"/></svg></div>
         <span class="sb-layer-pip" style="background:#E03E3E"></span>
       </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:0;flex-shrink:0">
       <div style="position:relative;display:inline-flex;align-items:center;margin-left:8px" id="ctor-sel-wrap">
-        <button class="sb-layer-btn sb-layer-btn-filter" id="ctor-sel-btn" data-tip="Filter by contractor" onclick="toggleCtorSel(event)">
+        <button class="sb-layer-btn sb-layer-btn-filter" id="ctor-sel-btn" data-tip="Filters" onclick="toggleCtorSel(event)">
           <div class="sb-layer-ico" style="width:24px;height:24px;opacity:1">
             <svg width="22" height="22" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M1.77715 0C1.30791 0 0.913345 0.323184 0.794786 0.756543H0.265619C0.230699 0.756407 0.196097 0.763184 0.163809 0.776484C0.131521 0.789785 0.102185 0.809345 0.0774931 0.834037C0.0528011 0.858729 0.0332412 0.888064 0.0199414 0.920352C0.00664158 0.95264 -0.000135133 0.987241 2.04281e-06 1.02216C0.000137003 1.05691 0.00711449 1.09128 0.0205361 1.12333C0.0339577 1.15538 0.0535605 1.18447 0.0782254 1.20895C0.10289 1.23342 0.132134 1.25279 0.164287 1.26596C0.19644 1.27914 0.230873 1.28585 0.265619 1.28571H0.793752C0.911506 1.72026 1.30706 2.04484 1.77715 2.04484C2.24251 2.04484 2.63477 1.72655 2.75694 1.29863L7.14375 1.28571C7.1785 1.28564 7.21289 1.27873 7.24497 1.26537C7.27704 1.25201 7.30617 1.23247 7.33069 1.20785C7.35521 1.18323 7.37464 1.15403 7.38788 1.1219C7.40111 1.08977 7.40789 1.05535 7.40782 1.02061C7.40768 0.950617 7.37982 0.883531 7.33033 0.834038C7.28083 0.784545 7.21375 0.75668 7.14375 0.756543L2.76417 0.769463C2.65017 0.32945 2.25116 5.3e-07 1.77715 0ZM1.77715 0.529167C2.05284 0.529167 2.27066 0.746478 2.27066 1.02216C2.27066 1.29784 2.05284 1.51567 1.77715 1.51567C1.50147 1.51567 1.28416 1.29784 1.28416 1.02216C1.28416 0.746478 1.50147 0.529167 1.77715 0.529167ZM4.60386 2.55695C4.12685 2.55695 3.72542 2.88588 3.60702 3.32693H0.265619C0.230829 3.32679 0.196355 3.33352 0.164168 3.34672C0.131981 3.35993 0.102715 3.37935 0.078043 3.40388C0.0533714 3.4284 0.0337792 3.45756 0.020388 3.48966C0.00699669 3.52177 6.92175e-05 3.55621 2.04281e-06 3.591C-6.68499e-05 3.62587 0.00676021 3.66042 0.0200906 3.69264C0.033421 3.72487 0.0529917 3.75415 0.0776769 3.77878C0.102362 3.80342 0.131675 3.82293 0.163929 3.8362C0.196183 3.84947 0.230742 3.85623 0.265619 3.8561H3.60753C3.72631 4.29702 4.12725 4.62659 4.60386 4.62659C5.08047 4.62659 5.4814 4.29702 5.60018 3.8561H7.14375C7.1785 3.85603 7.21289 3.84912 7.24497 3.83576C7.27704 3.8224 7.30617 3.80285 7.33069 3.77823C7.35521 3.75362 7.37464 3.72441 7.38788 3.69229C7.40111 3.66016 7.40789 3.62574 7.40782 3.591C7.40768 3.521 7.37982 3.45392 7.33033 3.40442C7.28083 3.35493 7.21375 3.32707 7.14375 3.32693H5.60069C5.4823 2.88588 5.08086 2.55695 4.60386 2.55695ZM4.60386 3.08612C4.88664 3.08612 5.11028 3.30822 5.11028 3.591C5.11028 3.87377 4.88664 4.09742 4.60386 4.09742C4.32107 4.09742 4.09743 3.87377 4.09743 3.591C4.09743 3.30822 4.32107 3.08612 4.60386 3.08612ZM2.54765 5.25446C2.0712 5.25446 1.66974 5.58373 1.55081 6.02444H0.265619C0.230699 6.0243 0.196097 6.03108 0.163809 6.04438C0.131521 6.05768 0.102185 6.07724 0.077493 6.10193C0.0528009 6.12662 0.0332411 6.15596 0.0199413 6.18825C0.00664148 6.22054 -0.000135173 6.25514 2.04281e-06 6.29006C0.000137029 6.3248 0.00711453 6.35918 0.0205361 6.39123C0.0339577 6.42328 0.0535606 6.45237 0.0782254 6.47684C0.10289 6.50131 0.132134 6.52069 0.164287 6.53386C0.19644 6.54703 0.230873 6.55374 0.265619 6.55361H1.5503C1.66847 6.99542 2.0704 7.32565 2.54765 7.32565C3.02488 7.32565 3.4263 6.9954 3.54449 6.55361H7.14375C7.21366 6.55347 7.28067 6.52567 7.33014 6.47629C7.37962 6.42691 7.40755 6.35996 7.40782 6.29006C7.40796 6.25527 7.40123 6.22079 7.38803 6.18861C7.37482 6.15642 7.3554 6.12715 7.33087 6.10248C7.30635 6.07781 7.27719 6.05822 7.24509 6.04483C7.21298 6.03143 7.17854 6.02451 7.14375 6.02444H3.54397C3.42503 5.58376 3.02409 5.25446 2.54765 5.25446ZM2.54765 5.78363C2.83044 5.78363 3.05408 6.00728 3.05408 6.29006C3.05408 6.57283 2.83044 6.79648 2.54765 6.79648C2.26487 6.79648 2.04122 6.57283 2.04122 6.29006C2.04122 6.00728 2.26487 5.78363 2.54765 5.78363Z" fill="currentColor"/>
@@ -2662,84 +2740,10 @@ table.dt tr:hover td { background:var(--bg-2); }
          up from the secondary bar; populated by JS. -->
     <div id="rp-approval" style="display:flex;align-items:center;gap:8px;flex-shrink:0"></div>
     <span class="rp-hdr-vsep" style="margin:0 8px"></span>
-    <button class="rp-add-btn" title="Add task">
+    <button class="rp-add-btn" data-tip="New task" title="New task">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
-    <button class="t-icon-btn" title="Search">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    </button>
-    <button class="t-icon-btn" title="Download">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="2" y1="13" x2="14" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    </button>
-
-    <!-- Share button + popover -->
-    <div style="position:relative" id="share-wrap">
-      <button class="t-icon-btn" id="share-btn" onclick="toggleSharePopover(event)" title="Share Digital Scope">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="12" cy="3" r="1.8" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="13" r="1.8" stroke="currentColor" stroke-width="1.4"/><circle cx="3" cy="8" r="1.8" stroke="currentColor" stroke-width="1.4"/><line x1="10.3" y1="3.9" x2="4.7" y2="7.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="4.7" y1="8.9" x2="10.3" y2="12.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      </button>
-
-      <!-- Popover -->
-      <div id="share-popover" style="display:none;position:absolute;top:calc(100% + 10px);right:0;z-index:400;width:360px;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 8px 32px rgba(0,0,0,.14),0 2px 8px rgba(0,0,0,.08);overflow:hidden">
-        <!-- Header -->
-        <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border)">
-          <div style="font-size:13px;font-weight:600;color:var(--t1)">Create Digital Scope</div>
-          <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.5">Select an audience — each starts with a preset tailored to their needs. You can still customize what's shown before sending.</div>
-        </div>
-        <!-- Audience cards -->
-        <div style="padding:10px;display:flex;flex-direction:column;gap:6px">
-
-          <!-- Contractor — clickable -->
-          <button onclick="openDigitalScope('contractor')" onmouseenter="this.style.borderColor='var(--green)';this.style.background='rgba(61,168,106,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='none'" style="display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:var(--rm);border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);text-align:left;transition:border-color .12s,background .12s;width:100%">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(61,168,106,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 13c0-2.8 2.7-5 6-5s6 2.2 6 5" stroke="#3DA86A" stroke-width="1.4" stroke-linecap="round"/><path d="M5 8V7C5 4.8 6.8 3 9 3s4 1.8 4 4v1" stroke="#3DA86A" stroke-width="1.4" stroke-linecap="round"/><line x1="6" y1="13" x2="12" y2="13" stroke="#3DA86A" stroke-width="1.4" stroke-linecap="round"/></svg>
-            </div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:12px;font-weight:600;color:var(--t1)">Contractor</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4">Tasks, photos, materials & their assignments. No other contractor details or internal notes.</div>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--t3)"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-
-          <!-- Homeowner -->
-          <button onclick="openDigitalScope('homeowner')" onmouseenter="this.style.borderColor='#3B8FD4';this.style.background='rgba(59,143,212,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='none'" style="display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:var(--rm);border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);text-align:left;transition:border-color .12s,background .12s;width:100%">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(59,143,212,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 7L8 2l6 5v7H2V7Z" stroke="#3B8FD4" stroke-width="1.4" stroke-linejoin="round"/><rect x="5.5" y="9" width="5" height="5" rx=".5" stroke="#3B8FD4" stroke-width="1.2"/></svg>
-            </div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:600;color:var(--t1)">Homeowner</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4">Scope overview, photos & total cost. No contractor names or rates.</div>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--t3)"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-
-          <!-- Investor -->
-          <button onclick="openDigitalScope('investor')" onmouseenter="this.style.borderColor='#8B5DD4';this.style.background='rgba(139,93,212,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='none'" style="display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:var(--rm);border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);text-align:left;transition:border-color .12s,background .12s;width:100%">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(139,93,212,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8B5DD4" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:600;color:var(--t1)">Investor</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4">High-level financials, before/after photos & group summaries. ROI-focused.</div>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--t3)"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-
-          <!-- Tenant -->
-          <button onclick="openDigitalScope('tenant')" onmouseenter="this.style.borderColor='#E8702A';this.style.background='rgba(232,112,42,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='none'" style="display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:var(--rm);border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);text-align:left;transition:border-color .12s,background .12s;width:100%">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(232,112,42,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="#E8702A" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/></svg>
-            </div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:600;color:var(--t1)">Tenant</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4">Damage evidence, photos & cost responsibility only. No full scope detail.</div>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--t3)"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-
-        </div>
-      </div>
-    </div>
-
+    <!-- Search / Download / Share icons removed per design direction. -->
     <button class="t-cta">Approve Scope</button>
   </div>
 
@@ -6904,23 +6908,42 @@ function renderNavTitle(){
   const _wrap = mk('div','');
   _wrap.style.cssText = 'display:flex;align-items:baseline;gap:8px;min-width:0;max-width:100%;overflow:hidden;font-family:var(--font)';
   if(zoom >= 2 && selTask){
-    // Task selected — show task name prominently with group name in muted
-    // small text after a divider. The task name truncates first because it's
-    // the longer of the two.
+    // Task selected — render a 2-line vertical stack:
+    //   row 1: ← Group name (clickable back-link to the group page)
+    //   row 2: Task name (bold, larger)
+    const stack = mk('div','');
+    stack.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0;max-width:100%;overflow:hidden;line-height:1.15';
+
+    // Row 1 — back arrow + group dot + group name
+    const grpRow = mk('button','');
+    grpRow.type = 'button';
+    grpRow.title = 'Back to ' + _room.name;
+    grpRow.setAttribute('aria-label', 'Back to ' + _room.name);
+    grpRow.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:none;border:none;padding:0;margin:0;cursor:pointer;color:var(--t3);font:inherit;font-family:var(--font);text-align:left;min-width:0;max-width:100%;transition:color .12s';
+    const _rc = (typeof RC === 'object' && RC[selRoomId]) ? RC[selRoomId] : 'var(--charcoal)';
+    grpRow.innerHTML =
+      '<svg width="11" height="11" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '<span style="width:7px;height:7px;border-radius:50%;background:'+_rc+';display:inline-block;flex-shrink:0"></span>' +
+      '<span style="font-size:11.5px;font-weight:500;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">'+(_room.name||'')+'</span>';
+    grpRow.onmouseenter = () => { grpRow.style.color = 'var(--t1)'; };
+    grpRow.onmouseleave = () => { grpRow.style.color = 'var(--t3)'; };
+    grpRow.onclick = (ev) => {
+      ev.stopPropagation();
+      selTask = null;
+      if(typeof setZoom === 'function') setZoom(1);
+      else if(typeof render === 'function') render();
+    };
+    stack.appendChild(grpRow);
+
+    // Row 2 — task name (bigger, bolder)
     const taskEl = mk('div','');
-    taskEl.style.cssText = 'font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex-shrink:1;letter-spacing:-.005em';
+    taskEl.style.cssText = 'font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;letter-spacing:-.005em';
     taskEl.textContent = selTask.name || '';
     taskEl.title = selTask.name || '';
-    _wrap.appendChild(taskEl);
-    const sep = mk('span','');
-    sep.style.cssText = 'font-size:12px;color:var(--border-mid);flex-shrink:0';
-    sep.textContent = '·';
-    _wrap.appendChild(sep);
-    const grpEl = mk('div','');
-    grpEl.style.cssText = 'font-size:12px;font-weight:400;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex-shrink:2;letter-spacing:-.005em';
-    grpEl.textContent = _room.name;
-    grpEl.title = _room.name;
-    _wrap.appendChild(grpEl);
+    stack.appendChild(taskEl);
+
+    _wrap.style.alignItems = 'center';
+    _wrap.appendChild(stack);
   } else {
     // Group selected (zoom 1) — back-arrow + group name. The arrow takes the
     // user up one level to the home view (showing every group at once).
@@ -7579,6 +7602,11 @@ function render(){
   updateModeLabel();
   renderFloorplanLayers();
   renderNavTitle();
+  // Inline layer toggles only show on the Home page (zoom===0), where the
+  // breadcrumb is empty and the toolbar has room. On group/task pages, layers
+  // are reachable via the Filters dropdown to keep the toolbar uncluttered.
+  const _ltRow = document.getElementById('t-layer-toggles');
+  if(_ltRow) _ltRow.style.display = (zoom === 0) ? 'flex' : 'none';
   // renderApprovalFooter moved below the apprSlot clear so it can populate
   // #rp-approval (in the top secondary menu) without being wiped.
   updateAttentionBadge();
@@ -8902,6 +8930,9 @@ function render(){
     // the page, matching the section-heading hierarchy of everything below.
     // The group name sits above the task name as a clickable back-link so
     // the user can jump up to the group-level page in one click.
+    // Task title heading inside the body. The group back-link that used to
+    // sit here was promoted up to the secondary menu bar (renderNavTitle
+    // builds a 2-line stack: ← group · then the task name).
     const _taskHdr = mk('div','');
     _taskHdr.style.cssText = 'margin:0 18px 18px;padding:0';
     _taskHdr.innerHTML =
@@ -8911,30 +8942,8 @@ function render(){
         '<div style="flex:1;height:1px;background:var(--border)"></div>' +
         '<span style="font-size:11px;color:var(--t3);font-family:var(--mono)">'+(task.cost?fmt(task.cost):'')+'</span>' +
       '</div>' +
-      '<button type="button" id="__task-hdr-grp-link" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;padding:8px 2px 0;margin:0;cursor:pointer;color:var(--t3);font:inherit;font-family:var(--font);text-align:left">' +
-        '<svg width="11" height="11" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:'+color+';display:inline-block"></span><span style="font-size:13px;font-weight:500;letter-spacing:-.005em">'+(room.name||'')+'</span></span>' +
-      '</button>' +
-      '<h2 style="font-size:22px;font-weight:700;color:var(--t1);letter-spacing:-.02em;line-height:1.25;margin:4px 0 0;padding:0 2px">'+task.name+'</h2>';
+      '<h2 style="font-size:22px;font-weight:700;color:var(--t1);letter-spacing:-.02em;line-height:1.25;margin:8px 0 0;padding:0 2px">'+task.name+'</h2>';
     body.appendChild(_taskHdr);
-    // Wire the group back-link — clearing selTask + setZoom(1) takes the
-    // user up one level to that group's full task list view.
-    const _grpLinkBtn = _taskHdr.querySelector('#__task-hdr-grp-link');
-    if(_grpLinkBtn){
-      _grpLinkBtn.addEventListener('mouseenter', () => {
-        _grpLinkBtn.style.color = 'var(--t1)';
-        const dot = _grpLinkBtn.querySelector('span > span:first-child');
-      });
-      _grpLinkBtn.addEventListener('mouseleave', () => {
-        _grpLinkBtn.style.color = 'var(--t3)';
-      });
-      _grpLinkBtn.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        selTask = null;
-        if(typeof setZoom === 'function') setZoom(1);
-        else if(typeof render === 'function') render();
-      });
-    }
 
     const GP_STRIP_COLORS = {
       initial_scope: ['#C9C0B0','#BEB5A5','#D4CCB8','#C4BBA8'],
@@ -10017,6 +10026,23 @@ function __gfTaskDetailsHtml(task, roomName){
   if(task.issue){
     html += '<div class="gf-td-issue">Issue: '+ task.issue +'</div>';
   }
+  // Per-task action row inside the expanded card — Approve / Request edit /
+  // Delete. data-gf-task-action attributes let the click handler tell which
+  // button was hit without us re-binding listeners per row.
+  const _appLabel = task.done ? 'Approved' : 'Approve';
+  html += '<div class="gf-task-actions">'+
+    '<button type="button" class="gf-task-action approve" data-gf-task-action="approve">'+
+      '<svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 7-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+      _appLabel+
+    '</button>'+
+    '<button type="button" class="gf-task-action edit" data-gf-task-action="edit">'+
+      '<svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M9.5 2.5l2 2-7 7H2.5v-2l7-7z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+      'Request edit'+
+    '</button>'+
+    '<button type="button" class="gf-task-action delete" data-gf-task-action="delete" aria-label="Delete task" title="Delete task">'+
+      '<svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2.5h3v1M6 6v4M8 6v4M3.5 3.5l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+    '</button>'+
+  '</div>';
   html += '</div>';
   return html;
 }
@@ -10160,13 +10186,24 @@ function renderBpGroupFeed(){
           '</button>'+
         '</div>' +
         '<div class="gf-task-details">'+ __gfTaskDetailsHtml(task, room.name) +'</div>';
-      // Click anywhere on the task summary — chevron, name, meta — toggles
-      // the details panel. Clicks inside the already-expanded details panel
-      // are treated as local controls and don't collapse the row. Selection
-      // (selRoom/pickTask) is no longer auto-fired so clicking to expand
-      // doesn't navigate the right panel away.
+      // Click anywhere on the task summary toggles expansion. Action buttons
+      // inside the expanded details panel intercept their own clicks via
+      // data-gf-task-action.
       row.addEventListener('click', (e) => {
         e.stopPropagation();
+        const actBtn = e.target.closest('[data-gf-task-action]');
+        if(actBtn){
+          const kind = actBtn.dataset.gfTaskAction;
+          if(kind === 'approve' && !task.done){
+            task.done = true;
+            if(typeof render === 'function') render();
+          }
+          // edit + delete are stubs in the prototype — flash a tint so the
+          // click feels acknowledged without mutating data.
+          actBtn.style.filter = 'brightness(.92)';
+          setTimeout(() => { actBtn.style.filter = ''; }, 140);
+          return;
+        }
         if(e.target.closest('.gf-task-details')) return;
         row.classList.toggle('expanded');
       });
@@ -10174,12 +10211,16 @@ function renderBpGroupFeed(){
     });
     card.appendChild(body);
 
-    // Actions row
+    // Actions row — Approve group, Request edit, and a compact + button for
+    // adding a new task. The three fit on one line in the sidebar's width.
     const actions = document.createElement('div');
     actions.className = 'gf-actions';
     actions.innerHTML =
-      '<button class="gf-action approve" type="button">Approve group</button>' +
-      '<button class="gf-action new-task" type="button">New task</button>';
+      '<button class="gf-action approve" type="button" style="flex:1">Approve group</button>' +
+      '<button class="gf-action gf-action-edit" type="button" style="flex:1">Request edit</button>' +
+      '<button class="gf-action new-task gf-action-icon" type="button" title="New task" aria-label="New task">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>' +
+      '</button>';
     // Stop clicks from bubbling to the head toggle
     actions.addEventListener('click', e => e.stopPropagation());
     card.appendChild(actions);
@@ -10279,6 +10320,16 @@ function renderBpContractorFeed(){
     });
     card.appendChild(head);
 
+    // Trade caption — sits directly under the company name. Pulls the
+    // trade from CONTRACTOR_META (e.g. "General contractor", "Flooring").
+    // Falls back to a friendly default for unknown contractors so every
+    // card carries a sub-label.
+    const _ctorTrade = (CONTRACTOR_META[name] && CONTRACTOR_META[name].trade) || 'Contractor';
+    const tradeEl = document.createElement('div');
+    tradeEl.className = 'gf-trade-caption';
+    tradeEl.textContent = _ctorTrade;
+    card.appendChild(tradeEl);
+
     const body = document.createElement('div');
     body.className = 'gf-body';
     items.forEach(({ rid, room, task }) => {
@@ -10318,10 +10369,19 @@ function renderBpContractorFeed(){
           '</button>'+
         '</div>' +
         '<div class="gf-task-details">'+ __gfTaskDetailsHtml(task, room.name) +'</div>';
-      // Click anywhere on the task summary toggles the expanded state.
-      // Clicks inside the details panel itself are local controls.
       row.addEventListener('click', (e) => {
         e.stopPropagation();
+        const actBtn = e.target.closest('[data-gf-task-action]');
+        if(actBtn){
+          const kind = actBtn.dataset.gfTaskAction;
+          if(kind === 'approve' && !task.done){
+            task.done = true;
+            if(typeof render === 'function') render();
+          }
+          actBtn.style.filter = 'brightness(.92)';
+          setTimeout(() => { actBtn.style.filter = ''; }, 140);
+          return;
+        }
         if(e.target.closest('.gf-task-details')) return;
         row.classList.toggle('expanded');
       });
@@ -10332,8 +10392,8 @@ function renderBpContractorFeed(){
     const actions = document.createElement('div');
     actions.className = 'gf-actions';
     actions.innerHTML =
-      '<button class="gf-action approve" type="button">Approve contractor</button>' +
-      '<button class="gf-action new-task" type="button">Message</button>';
+      '<button class="gf-action approve" type="button" style="flex:1">Approve contractor</button>' +
+      '<button class="gf-action gf-action-edit" type="button" style="flex:1">Request edit</button>';
     actions.addEventListener('click', e => e.stopPropagation());
     card.appendChild(actions);
 
@@ -10533,11 +10593,13 @@ function getAllContractors(){
 
 // Contractor metadata — company name, trade, GC flag
 const CONTRACTOR_META = {
-  'Apex General':       { trade:'General Contractor', gc:true  },
-  'ClearFlow Plumbing': { trade:'Plumbing',           gc:false },
-  'Brushstroke Co.':    { trade:'Paint & Finishes',   gc:false },
-  'Hartwood Flooring':  { trade:'Flooring',           gc:false },
-  'Tilecraft Studio':   { trade:'Tile & Stone',       gc:false },
+  'Apex General':                   { trade:'General Contractor', gc:true  },
+  'ClearFlow Plumbing':             { trade:'Plumbing',           gc:false },
+  'Brushstroke Co.':                { trade:'Paint & Finishes',   gc:false },
+  'Hartwood Flooring':              { trade:'Flooring',           gc:false },
+  'Tilecraft Studio':               { trade:'Tile & Stone',       gc:false },
+  'Atlantic Flooring Solutions LLC':{ trade:'Flooring',           gc:false },
+  'Sustainable Construction Services LLC':{ trade:'General Contractor', gc:false },
 };
 
 function taskMatchesCtor(task){ return !activeContractor || task.assign === activeContractor; }
@@ -10549,22 +10611,83 @@ function toggleCtorSel(e){
   renderCtorSel();
 }
 
+// Layer-toggle metadata for the unified Filters dropdown — each entry
+// mirrors the original sb-layer-btn icon + label.
+const FILTER_LAYERS = [
+  { key:'budget',     label:'Budget',        icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#3DA86A" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#3DA86A" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#3DA86A" stroke-width="1"/></svg>' },
+  { key:'contractor', label:'Contractor',    icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6.5" r="3" stroke="#3B8FD4" stroke-width="1.4"/><path d="M3 15.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#3B8FD4" stroke-width="1.4" stroke-linecap="round"/></svg>' },
+  { key:'modifier',   label:'Modifiers',     icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2.5l1.6 4.9H16l-4.1 3 1.6 4.9L9 12.3l-4.5 3.1 1.6-4.9L2 7.4h5.4z" stroke="#D4A017" stroke-width="1.4" stroke-linejoin="round"/></svg>' },
+  { key:'materials',  label:'Materials',     icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="8.5" width="5" height="7" rx="1" stroke="#E8702A" stroke-width="1.3"/><rect x="10.5" y="5" width="5" height="10.5" rx="1" stroke="#E8702A" stroke-width="1.3"/><path d="M4.5 8.5V6a2 2 0 014 0v2.5" stroke="#E8702A" stroke-width="1.2" stroke-linecap="round"/></svg>' },
+  { key:'notes',      label:'Notes',         icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="3" y="2.5" width="12" height="13" rx="1.5" stroke="#8B5DD4" stroke-width="1.4"/><line x1="6" y1="6.5" x2="12" y2="6.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="9.5" x2="12" y2="9.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/></svg>' },
+  { key:'activity',   label:'Activity',      icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#5a5751" stroke-width="1.4"/><path d="M9 5.5V9l2.5 2.5" stroke="#5a5751" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
+  { key:'status',     label:'Status',        icon:'<svg width="16" height="16" viewBox="0 0 8 8" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.33642 8.05629e-05C4.27596 0.00203982 4.21797 0.0244662 4.17193 0.0636877C4.12589 0.102909 4.09452 0.156601 4.08298 0.215973C4.07623 0.250385 4.07632 0.285789 4.08326 0.320164C4.09019 0.35454 4.10383 0.387212 4.1234 0.416315C4.14296 0.445419 4.16807 0.470383 4.19728 0.489783C4.22649 0.509182 4.25924 0.522637 4.29365 0.529379C4.91639 0.652592 5.48846 0.95762 5.93734 1.4065C6.95955 2.4287 7.17086 4.00424 6.45412 5.25967C6.43666 5.29007 6.42535 5.32362 6.42086 5.35839C6.41636 5.39317 6.41875 5.42849 6.4279 5.46234C6.43706 5.49618 6.45279 5.5279 6.4742 5.55567C6.49561 5.58344 6.52227 5.60672 6.55268 5.62418C6.58309 5.64164 6.61663 5.65294 6.65141 5.65744C6.68618 5.66194 6.7215 5.65955 6.75535 5.65039C6.7892 5.64124 6.82091 5.62551 6.84868 5.6041C6.87645 5.58269 6.89973 5.55602 6.91719 5.52562C7.75202 4.06334 7.50448 2.21854 6.31385 1.0279C5.79019 0.504254 5.12286 0.149033 4.39639 0.00529353C4.37666 0.00130512 4.35654 -0.000452262 4.33642 8.05629e-05ZM2.78086 0.0449306C2.76538 0.0460256 2.75002 0.0484682 2.73497 0.0522306C2.08929 0.219343 1.49979 0.556303 1.02818 1.02791C0.556711 1.49938 0.219668 2.08922 0.0525076 2.73469C0.0347341 2.80315 0.0448489 2.87586 0.0806319 2.93687C0.116415 2.99787 0.174942 3.04219 0.243367 3.06009C0.311895 3.07785 0.38467 3.06766 0.44569 3.03177C0.50671 2.99588 0.55098 2.93723 0.568766 2.86871C0.712054 2.31542 1.00211 1.81064 1.40625 1.4065C1.8105 1.00225 2.31553 0.713822 2.86899 0.570574C2.9373 0.55267 2.99573 0.508433 3.0315 0.447547C3.06727 0.38666 3.07746 0.314082 3.05985 0.245698C3.04443 0.184738 3.00799 0.131176 2.95695 0.0944482C2.90592 0.0577205 2.84356 0.040186 2.78086 0.0449306ZM3.70439 1.21929C2.33495 1.21929 1.21905 2.33519 1.21905 3.70463C1.21905 5.07408 2.33495 6.18998 3.70439 6.18998C5.07383 6.18998 6.18973 5.07408 6.18973 3.70463C6.18973 2.33519 5.07383 1.21929 3.70439 1.21929ZM3.70439 1.75328C4.78524 1.75328 5.65574 2.62378 5.65574 3.70463C5.65574 4.78549 4.78524 5.65547 3.70439 5.65547C2.62354 5.65547 1.75304 4.78549 1.75304 3.70463C1.75304 2.62378 2.62354 1.75328 3.70439 1.75328ZM0.273093 4.08009C0.253336 4.07947 0.233571 4.08105 0.214163 4.08479C0.144949 4.09877 0.0840888 4.13959 0.0448992 4.19832C0.00570969 4.25706 -0.0086176 4.32893 0.00505258 4.3982C0.148853 5.12449 0.504647 5.79056 1.02818 6.3141C2.21882 7.50473 4.06152 7.75176 5.52381 6.91692C5.58492 6.88192 5.62973 6.8242 5.64849 6.75632C5.66724 6.68844 5.65841 6.6159 5.62393 6.55449C5.60664 6.52391 5.58349 6.49704 5.5558 6.47543C5.52811 6.45381 5.49643 6.43787 5.46256 6.42852C5.4287 6.41917 5.39333 6.4166 5.35847 6.42094C5.32361 6.42529 5.28995 6.43647 5.25942 6.45385C4.00399 7.17059 2.42846 6.9598 1.40625 5.93759C0.957473 5.48881 0.650838 4.91649 0.527569 4.2939C0.515565 4.23475 0.483871 4.1814 0.437655 4.14258C0.391439 4.10375 0.333433 4.08172 0.273093 4.08009Z" fill="#2E7D8F"/></svg>' },
+  { key:'unassigned', label:'Unassigned',    icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M2 14h14M3.5 14v-3C3.5 7.4 5.5 5 9 5s5.5 2.4 5.5 6v3" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6" stroke="#E8702A" stroke-width="1.3" stroke-linecap="round"/></svg>' },
+  { key:'onhold',     label:'Out of stock',  icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M2.5 2.5h6.5l6 6-6.5 6.5-6-6V2.5z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="6" r="1.2" fill="#E03E3E"/></svg>' },
+  { key:'changes',    label:'Change orders', icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#E03E3E" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#E03E3E"/></svg>' },
+];
+
 function renderCtorSel(){
   const dd = document.getElementById('ctor-sel-dd');
   const label = document.getElementById('ctor-sel-label');
   const btn = document.getElementById('ctor-sel-btn');
   if(!dd) return;
   if(label) label.textContent = activeContractor || 'All contractors';
-  // The new icon-style filter button picks up its visual state from the
-  // is-filtered class (defined in CSS). No more inline style overrides.
-  if(btn) btn.classList.toggle('is-filtered', !!activeContractor);
-  dd.style.display = ctorSelOpen ? 'block' : 'none';
+  // is-filtered only fires while the dropdown is OPEN. Default rest state
+  // shows a plain black icon on transparent — no permanent badge for active
+  // filters, since the inline layer icons (visible at zoom 0) already
+  // communicate which layers are on.
+  if(btn) btn.classList.toggle('is-filtered', !!ctorSelOpen);
+  // Make the dropdown wider + scrollable to fit both sections.
+  dd.style.cssText = (ctorSelOpen ? 'display:block;' : 'display:none;') +
+    'position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:280px;max-width:320px;max-height:70vh;overflow-y:auto';
   if(!ctorSelOpen) return;
   dd.innerHTML = '';
+
+  // ── Section 1: DISPLAY layer toggles ──
+  // Skipped on the Home page (zoom===0) where the inline layer icons in the
+  // toolbar already let the user toggle each layer with one click — including
+  // them here would be duplicative. On group/task pages where the inline
+  // icons are hidden, this section is the only way to flip layers, so we
+  // always show it there.
+  const _showLayerSection = (typeof zoom !== 'undefined' && zoom >= 1);
+  if(_showLayerSection){
+    const layersHdr = document.createElement('div');
+    layersHdr.style.cssText = 'padding:10px 14px 6px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);background:var(--bg-2);border-bottom:1px solid var(--border)';
+    layersHdr.textContent = 'Display layers';
+    dd.appendChild(layersHdr);
+    FILTER_LAYERS.forEach(L => {
+      const isOn = !!LAYERS[L.key];
+      const row = document.createElement('button');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:12px;width:100%;text-align:left;border:none;border-bottom:1px solid var(--border);font-family:var(--font);cursor:pointer;background:'+(isOn?'rgba(61,168,106,.04)':'none')+';color:var(--t1)';
+      row.innerHTML =
+        '<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0">'+L.icon+'</span>' +
+        '<span style="flex:1;font-weight:'+(isOn?'600':'500')+';color:var(--t1)">'+L.label+'</span>' +
+        '<span style="display:inline-flex;align-items:center;justify-content:'+(isOn?'flex-end':'flex-start')+';width:28px;height:16px;border-radius:8px;background:'+(isOn?'var(--green)':'var(--border-mid)')+';padding:2px;transition:background .15s;flex-shrink:0">' +
+          '<span style="width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span>' +
+        '</span>';
+      row.onclick = e => {
+        e.stopPropagation();
+        LAYERS[L.key] = !LAYERS[L.key];
+        document.querySelectorAll('.sb-layer-btn[data-l="'+L.key+'"]').forEach(b => b.classList.toggle('on', LAYERS[L.key]));
+        renderCtorSel();
+        if(typeof render === 'function') render();
+      };
+      dd.appendChild(row);
+    });
+  }
+
+  // ── Section 2: CONTRACTOR filter ──
+  // Top border only shows when there's a layers section above (i.e. on
+  // group/task pages); otherwise the dropdown's own border handles it.
+  const ctorHdr = document.createElement('div');
+  ctorHdr.style.cssText = 'padding:10px 14px 6px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);background:var(--bg-2);'+(_showLayerSection?'border-top:1px solid var(--border);':'')+'border-bottom:1px solid var(--border)';
+  ctorHdr.textContent = 'Filter by contractor';
+  dd.appendChild(ctorHdr);
+
   const allBtn = document.createElement('button');
   allBtn.style.cssText = `display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:12px;width:100%;text-align:left;border:none;border-bottom:1px solid var(--border);font-family:var(--font);cursor:pointer;background:${!activeContractor?'var(--bg-2)':'none'};font-weight:${!activeContractor?'600':'400'};color:var(--t1)`;
   allBtn.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:var(--border-mid);display:inline-block;flex-shrink:0"></span>All contractors`;
-  allBtn.onclick = e => { e.stopPropagation(); activeContractor=null; ctorSelOpen=false; renderCtorSel(); render(); };
+  allBtn.onclick = e => { e.stopPropagation(); activeContractor=null; renderCtorSel(); render(); };
   dd.appendChild(allBtn);
   getAllContractors()
     .sort((a,b) => {
@@ -10588,7 +10711,7 @@ function renderCtorSel(){
         ${meta ? `<span style="font-size:10px;color:var(--t3)">${meta.trade}</span>` : ''}
       </span>
       <span style="font-size:11px;color:var(--t3);font-family:var(--mono);flex-shrink:0">${count} task${count!==1?'s':''}</span>`;
-    item.onclick = e => { e.stopPropagation(); activeContractor=name; ctorSelOpen=false; renderCtorSel(); render(); };
+    item.onclick = e => { e.stopPropagation(); activeContractor=name; renderCtorSel(); render(); };
     dd.appendChild(item);
   });
 }
