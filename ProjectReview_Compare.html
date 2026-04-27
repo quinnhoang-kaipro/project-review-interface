@@ -1802,6 +1802,49 @@ table.dt tr:hover td { background:var(--bg-2); }
   background:var(--bg-card); color:var(--t2);
 }
 .gf-action.new-task:hover { background:var(--bg-2); color:var(--t1); }
+/* Compact icon-only variant — used for "+ New task" so the row fits an
+   extra Request edit button. */
+.gf-action.gf-action-icon {
+  width:30px; flex:0 0 auto; padding:0; display:inline-flex;
+  align-items:center; justify-content:center;
+  position:relative;
+}
+/* Request edit button — neutral pill matching the Approve group sibling. */
+.gf-action.gf-action-edit {
+  background:var(--bg-card); color:var(--t1);
+  border-color:var(--border-mid);
+}
+.gf-action.gf-action-edit:hover {
+  background:var(--bg-2); border-color:var(--charcoal); color:var(--t1);
+}
+/* Action row inside an expanded task — Approve / Request edit / Delete. */
+.gf-task-actions {
+  display:flex; gap:6px; padding:8px 0 2px;
+  border-top:1px dashed var(--border); margin-top:8px;
+}
+.gf-task-action {
+  flex:1; border:1px solid var(--border-mid); background:var(--bg-card);
+  border-radius:6px; cursor:pointer; font-family:var(--font);
+  font-size:11px; font-weight:600; color:var(--t1); padding:6px 8px;
+  line-height:1; white-space:nowrap;
+  transition:background .12s, color .12s, border-color .12s;
+  display:inline-flex; align-items:center; justify-content:center; gap:5px;
+}
+.gf-task-action:hover { background:var(--bg-2); border-color:var(--charcoal); }
+.gf-task-action.approve {
+  background:var(--green); border-color:var(--green); color:#fff;
+}
+.gf-task-action.approve:hover { opacity:.9; background:var(--green); }
+.gf-task-action.delete {
+  color:var(--red); border-color:rgba(224,62,62,.35); background:var(--bg-card);
+}
+.gf-task-action.delete:hover { background:#fef2f2; border-color:var(--red); color:var(--red); }
+/* Trade name caption shown under the Contractor card title in
+   Trade/Contractor view. */
+.gf-trade-caption {
+  font-size:10.5px; color:var(--t3); font-weight:500;
+  letter-spacing:.01em; padding:8px 14px 10px;
+}
 /* Custom hover tooltip for icon-only buttons (matches Grid file). */
 .rp-add-btn { position:relative; }
 .rp-add-btn[title]::after,
@@ -4993,14 +5036,14 @@ const WALK_PHOTOS = {
     '4BDDF66C':   { initial_scope:['Kitchen__Includes_small_hall_/Plumbing_-_Clear_Drains/0f8c6916-b931-431f-afbc-61cf13934b9f.jpeg'], progress_1:[], change_order:['Kitchen__Includes_small_hall_/Plumbing_-_Clear_Drains/0f8c6916-b931-431f-afbc-61cf13934b9f.jpeg'], progress_2:[], close_out:['Kitchen__Includes_small_hall_/5ddda469-b239-4b69-90bf-124f83088596.jpeg'] },
   },
   living: {
-    'E4C9D26A':   { initial_scope:['Living_Room/Cabinet_Hardware/f19fb0cf-f725-4995-a1c6-e31118f7a2cf.jpeg'], progress_1:[], change_order:['Living_Room/Cabinet_Hardware/f19fb0cf-f725-4995-a1c6-e31118f7a2cf.jpeg'], progress_2:[], close_out:[] },
+    'E4C9D26A':   { initial_scope:['Living_Room/Cabinet_Hardware/f19fb0cf-f725-4995-a1c6-e31118f7a2cf.jpeg'], progress_1:[], change_order:['Living_Room/Cabinet_Hardware/f19fb0cf-f725-4995-a1c6-e31118f7a2cf.jpeg'], progress_2:[], close_out:['Living_Room/28793cbd-62fc-48b3-b8ff-b1a7a3c93e6f.jpeg'] },
     '1E71EE03':   { initial_scope:['Living_Room/Switches___Outlets/574cd5e2-e079-4432-8f7c-80390eb0fe68.jpeg','Living_Room/Switches___Outlets/6875232d-af0e-4385-a24a-4294f39e0a74.jpeg'], progress_1:[], change_order:['Living_Room/Switches___Outlets/574cd5e2-e079-4432-8f7c-80390eb0fe68.jpeg','Living_Room/28793cbd-62fc-48b3-b8ff-b1a7a3c93e6f.jpeg'], progress_2:[], close_out:[] },
     '1E71EE03-2': { initial_scope:['Living_Room/Switches___Outlets/eb9e893a-c210-45d6-9dc6-161940b49aeb.jpeg'], progress_1:[], change_order:['Living_Room/Switches___Outlets/eb9e893a-c210-45d6-9dc6-161940b49aeb.jpeg'], progress_2:[], close_out:[] },
     '7113B4A1':   { initial_scope:['Living_Room/Switches___Outlets/574cd5e2-e079-4432-8f7c-80390eb0fe68.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
     '7113B4A1-2': { initial_scope:['Living_Room/Switches___Outlets/6875232d-af0e-4385-a24a-4294f39e0a74.jpeg'], progress_1:[], change_order:['Living_Room/Switches___Outlets/6875232d-af0e-4385-a24a-4294f39e0a74.jpeg'], progress_2:[], close_out:[] },
     '62A68E90':   { initial_scope:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_1:[], change_order:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_2:[], close_out:[] },
-    '62A68E90-2': { initial_scope:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_1:[], change_order:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_2:[], close_out:[] },
-    '62A68E90-3': { initial_scope:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
+    '62A68E90-2': { initial_scope:['Living_Room/fireplace.png'], progress_1:[], change_order:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_2:[], close_out:['Living_Room/27bdc9b1-0017-4511-9463-a040172fc6ec 1.png'] },
+    '62A68E90-3': { initial_scope:['Living_Room/fireplace.png'], progress_1:[], change_order:[], progress_2:[], close_out:[] },
     '62A68E90-4': { initial_scope:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_1:[], change_order:['Living_Room/Fireplace/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'], progress_2:[], close_out:[] },
     '8ECF1126':   { initial_scope:['Living_Room/HVAC_Vent/1bd536db-a0ac-4bf0-b1f6-f6c15c746414.jpeg','Living_Room/HVAC_Vent/2579863b-dfc5-4efe-ae94-7ebb3e93c4d5.jpeg'], progress_1:[], change_order:['Living_Room/HVAC_Vent/1bd536db-a0ac-4bf0-b1f6-f6c15c746414.jpeg','Living_Room/HVAC_Vent/2579863b-dfc5-4efe-ae94-7ebb3e93c4d5.jpeg'], progress_2:[], close_out:[] },
     '3EEE9A70':   { initial_scope:['Living_Room/Light_Fixtures___Fans/4ac7cde1-230a-4378-b6be-00bbe712b0f7.jpeg','Living_Room/Light_Fixtures___Fans/e858b94d-a9fc-4334-91a2-f7bed7f9d7df.jpeg'], progress_1:[], change_order:['Living_Room/Light_Fixtures___Fans/4ac7cde1-230a-4378-b6be-00bbe712b0f7.jpeg'], progress_2:[], close_out:[] },
@@ -5173,7 +5216,7 @@ const GROUP_PHOTOS = {
     initial: ['Living_Room/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'],
     p1:      [],
     p2:      [],
-    final:   [],
+    final:   ['Living_Room/27bdc9b1-0017-4511-9463-a040172fc6ec 1.png'],
   },
   dining: {
     initial: ['Dining_Room/139abe7c-94cb-4690-88cf-2d5905547d87.jpeg','Dining_Room/2526665f-8633-42e1-8984-91b9086533b4.jpeg','Dining_Room/43409dd9-19ab-42a5-926c-d86a21047ead.jpeg'],
@@ -9881,6 +9924,22 @@ function __gfTaskDetailsHtml(task, roomName){
   if(task.issue){
     html += '<div class="gf-td-issue">Issue: '+ task.issue +'</div>';
   }
+  // Per-task action row inside the expanded card — Approve / Request edit /
+  // Delete. Wired by the row click handler via data-gf-task-action.
+  const _appLabel = task.done ? 'Approved' : 'Approve';
+  html += '<div class="gf-task-actions">'+
+    '<button type="button" class="gf-task-action approve" data-gf-task-action="approve">'+
+      '<svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 7-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+      _appLabel+
+    '</button>'+
+    '<button type="button" class="gf-task-action edit" data-gf-task-action="edit">'+
+      '<svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M9.5 2.5l2 2-7 7H2.5v-2l7-7z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+      'Request edit'+
+    '</button>'+
+    '<button type="button" class="gf-task-action delete" data-gf-task-action="delete" aria-label="Delete task" title="Delete task">'+
+      '<svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2.5h3v1M6 6v4M8 6v4M3.5 3.5l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'+
+    '</button>'+
+  '</div>';
   html += '</div>';
   return html;
 }
@@ -10024,37 +10083,39 @@ function renderBpGroupFeed(){
           '</button>'+
         '</div>' +
         '<div class="gf-task-details">'+ __gfTaskDetailsHtml(task, room.name) +'</div>';
-      // Clicking a task selects it in the right panel, same as clicking a room
+      // Click anywhere on the task summary toggles the expanded state.
+      // Action buttons inside the expanded details panel intercept their
+      // own clicks via data-gf-task-action.
       row.addEventListener('click', (e) => {
         e.stopPropagation();
-        // Any control inside the details panel stays local — clicking a pill,
-        // input, or button in the expanded details shouldn't change selection
-        // or collapse the row.
-        if(e.target.closest('.gf-task-details')) return;
-        // Chevron toggles the details panel without changing selection —
-        // useful for collapsing a row that's already expanded.
-        const tog = e.target.closest('[data-gf-toggle]');
-        if(tog){ row.classList.toggle('expanded'); return; }
-        // v5: clicking anywhere on the summary of a collapsed row also
-        // expands it, so users don't have to aim at the small chevron.
-        // Once expanded, summary clicks only re-select (no auto-collapse).
-        if(!row.classList.contains('expanded')){
-          row.classList.add('expanded');
+        const actBtn = e.target.closest('[data-gf-task-action]');
+        if(actBtn){
+          const kind = actBtn.dataset.gfTaskAction;
+          if(kind === 'approve' && !task.done){
+            task.done = true;
+            if(typeof render === 'function') render();
+          }
+          actBtn.style.filter = 'brightness(.92)';
+          setTimeout(() => { actBtn.style.filter = ''; }, 140);
+          return;
         }
-        if(typeof selRoom === 'function') selRoom(rid);
-        if(typeof pickTask === 'function') pickTask(rid, task);
+        if(e.target.closest('.gf-task-details')) return;
+        row.classList.toggle('expanded');
       });
       body.appendChild(row);
     });
     card.appendChild(body);
 
-    // Actions row
+    // Actions row — Approve group, Request edit, and a compact + button for
+    // adding a new task. Matches the layout in ProjectReview_Grid.html.
     const actions = document.createElement('div');
     actions.className = 'gf-actions';
     actions.innerHTML =
-      '<button class="gf-action approve" type="button">Approve group</button>' +
-      '<button class="gf-action new-task" type="button">New task</button>';
-    // Stop clicks from bubbling to the head toggle
+      '<button class="gf-action approve" type="button" style="flex:1">Approve group</button>' +
+      '<button class="gf-action gf-action-edit" type="button" style="flex:1">Request edit</button>' +
+      '<button class="gf-action new-task gf-action-icon" type="button" title="New task" aria-label="New task">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>' +
+      '</button>';
     actions.addEventListener('click', e => e.stopPropagation());
     card.appendChild(actions);
 
@@ -10153,6 +10214,14 @@ function renderBpContractorFeed(){
     });
     card.appendChild(head);
 
+    // Trade caption — sits directly under the company name. Pulls the
+    // trade from CONTRACTOR_META (e.g. "General Contractor", "Flooring").
+    const _ctorTrade = (CONTRACTOR_META[name] && CONTRACTOR_META[name].trade) || 'Contractor';
+    const tradeEl = document.createElement('div');
+    tradeEl.className = 'gf-trade-caption';
+    tradeEl.textContent = _ctorTrade;
+    card.appendChild(tradeEl);
+
     const body = document.createElement('div');
     body.className = 'gf-body';
     items.forEach(({ rid, room, task }) => {
@@ -10194,11 +10263,19 @@ function renderBpContractorFeed(){
         '<div class="gf-task-details">'+ __gfTaskDetailsHtml(task, room.name) +'</div>';
       row.addEventListener('click', (e) => {
         e.stopPropagation();
-        const tog = e.target.closest('[data-gf-toggle]');
-        if(tog){ row.classList.toggle('expanded'); return; }
+        const actBtn = e.target.closest('[data-gf-task-action]');
+        if(actBtn){
+          const kind = actBtn.dataset.gfTaskAction;
+          if(kind === 'approve' && !task.done){
+            task.done = true;
+            if(typeof render === 'function') render();
+          }
+          actBtn.style.filter = 'brightness(.92)';
+          setTimeout(() => { actBtn.style.filter = ''; }, 140);
+          return;
+        }
         if(e.target.closest('.gf-task-details')) return;
-        if(typeof selRoom === 'function') selRoom(rid);
-        if(typeof pickTask === 'function') pickTask(rid, task);
+        row.classList.toggle('expanded');
       });
       body.appendChild(row);
     });
@@ -10207,8 +10284,8 @@ function renderBpContractorFeed(){
     const actions = document.createElement('div');
     actions.className = 'gf-actions';
     actions.innerHTML =
-      '<button class="gf-action approve" type="button">Approve contractor</button>' +
-      '<button class="gf-action new-task" type="button">Message</button>';
+      '<button class="gf-action approve" type="button" style="flex:1">Approve contractor</button>' +
+      '<button class="gf-action gf-action-edit" type="button" style="flex:1">Request edit</button>';
     actions.addEventListener('click', e => e.stopPropagation());
     card.appendChild(actions);
 
@@ -10408,11 +10485,13 @@ function getAllContractors(){
 
 // Contractor metadata — company name, trade, GC flag
 const CONTRACTOR_META = {
-  'Apex General':       { trade:'General Contractor', gc:true  },
-  'ClearFlow Plumbing': { trade:'Plumbing',           gc:false },
-  'Brushstroke Co.':    { trade:'Paint & Finishes',   gc:false },
-  'Hartwood Flooring':  { trade:'Flooring',           gc:false },
-  'Tilecraft Studio':   { trade:'Tile & Stone',       gc:false },
+  'Apex General':                   { trade:'General Contractor', gc:true  },
+  'ClearFlow Plumbing':             { trade:'Plumbing',           gc:false },
+  'Brushstroke Co.':                { trade:'Paint & Finishes',   gc:false },
+  'Hartwood Flooring':              { trade:'Flooring',           gc:false },
+  'Tilecraft Studio':               { trade:'Tile & Stone',       gc:false },
+  'Atlantic Flooring Solutions LLC':{ trade:'Flooring',           gc:false },
+  'Sustainable Construction Services LLC':{ trade:'General Contractor', gc:false },
 };
 
 function taskMatchesCtor(task){ return !activeContractor || task.assign === activeContractor; }
