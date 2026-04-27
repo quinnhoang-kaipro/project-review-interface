@@ -104,6 +104,19 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
 }
 .sb-layer-btn.on .sb-layer-pip { opacity:1; }
 /* Tooltip */
+/* Filter button — slightly larger than the layer toggles so it reads as a
+   distinct affordance (filter, not just another layer). The icon itself is
+   24px (vs 18px for layers); button square bumps to 36px so the icon has
+   the same relative breathing room. Carries an "active" state when a
+   contractor filter is applied. */
+.sb-layer-btn-filter {
+  width:36px; height:36px; color:var(--t2);
+}
+.sb-layer-btn-filter:hover { color:var(--t1); }
+.sb-layer-btn-filter.is-filtered {
+  background:var(--charcoal); color:#fff;
+}
+.sb-layer-btn-filter.is-filtered:hover { background:var(--charcoal); color:#fff; }
 .sb-layer-btn::after {
   content: attr(data-tip);
   position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%);
@@ -1567,6 +1580,12 @@ table.dt tr:hover td { background:var(--bg-2); }
 }
 .gf-card:hover { border-color:var(--border-mid); }
 .gf-card.selected { border-color:var(--charcoal); box-shadow:0 0 0 1px var(--charcoal) inset; }
+/* Scroll-driven highlight — fired by __syncScopeHighlight as the user scrolls
+   through the right-side content. Visually distinct from the .selected click
+   state so the user can tell at a glance "this is what I'm currently looking
+   at on the right" vs "this is what I've actively selected". */
+.gf-card.scope-sync-active { border-color:var(--charcoal); box-shadow:0 0 0 1px var(--charcoal) inset, 0 1px 6px rgba(0,0,0,.08); }
+.gf-task.scope-sync-active { background:var(--bg-2); box-shadow:inset 3px 0 0 0 var(--charcoal); }
 
 /* "All groups" summary card — sits above the per-group list and lets the user
    zoom back out to the full-scope Home view. No expand/collapse behaviour. */
@@ -2707,6 +2726,21 @@ table.dt tr:hover td { background:var(--bg-2); }
           <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#E03E3E" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#E03E3E"/></svg></div>
           <span class="sb-layer-pip" style="background:#E03E3E"></span>
         </button>
+        <!-- Contractor filter — moved from the right side to live inline with
+             the layer toggles. Sized slightly larger than its neighbours so
+             it reads as a filter affordance, not just another layer toggle.
+             margin-left adds breathing room between the Change orders icon
+             and this filter, so the two read as distinct controls. -->
+        <div style="position:relative;display:inline-flex;align-items:center;margin-left:8px" id="ctor-sel-wrap">
+          <button class="sb-layer-btn sb-layer-btn-filter" id="ctor-sel-btn" data-tip="Filter by contractor" onclick="toggleCtorSel(event)">
+            <div class="sb-layer-ico" style="width:24px;height:24px;opacity:1">
+              <svg width="22" height="22" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1.77715 0C1.30791 0 0.913345 0.323184 0.794786 0.756543H0.265619C0.230699 0.756407 0.196097 0.763184 0.163809 0.776484C0.131521 0.789785 0.102185 0.809345 0.0774931 0.834037C0.0528011 0.858729 0.0332412 0.888064 0.0199414 0.920352C0.00664158 0.95264 -0.000135133 0.987241 2.04281e-06 1.02216C0.000137003 1.05691 0.00711449 1.09128 0.0205361 1.12333C0.0339577 1.15538 0.0535605 1.18447 0.0782254 1.20895C0.10289 1.23342 0.132134 1.25279 0.164287 1.26596C0.19644 1.27914 0.230873 1.28585 0.265619 1.28571H0.793752C0.911506 1.72026 1.30706 2.04484 1.77715 2.04484C2.24251 2.04484 2.63477 1.72655 2.75694 1.29863L7.14375 1.28571C7.1785 1.28564 7.21289 1.27873 7.24497 1.26537C7.27704 1.25201 7.30617 1.23247 7.33069 1.20785C7.35521 1.18323 7.37464 1.15403 7.38788 1.1219C7.40111 1.08977 7.40789 1.05535 7.40782 1.02061C7.40768 0.950617 7.37982 0.883531 7.33033 0.834038C7.28083 0.784545 7.21375 0.75668 7.14375 0.756543L2.76417 0.769463C2.65017 0.32945 2.25116 5.3e-07 1.77715 0ZM1.77715 0.529167C2.05284 0.529167 2.27066 0.746478 2.27066 1.02216C2.27066 1.29784 2.05284 1.51567 1.77715 1.51567C1.50147 1.51567 1.28416 1.29784 1.28416 1.02216C1.28416 0.746478 1.50147 0.529167 1.77715 0.529167ZM4.60386 2.55695C4.12685 2.55695 3.72542 2.88588 3.60702 3.32693H0.265619C0.230829 3.32679 0.196355 3.33352 0.164168 3.34672C0.131981 3.35993 0.102715 3.37935 0.078043 3.40388C0.0533714 3.4284 0.0337792 3.45756 0.020388 3.48966C0.00699669 3.52177 6.92175e-05 3.55621 2.04281e-06 3.591C-6.68499e-05 3.62587 0.00676021 3.66042 0.0200906 3.69264C0.033421 3.72487 0.0529917 3.75415 0.0776769 3.77878C0.102362 3.80342 0.131675 3.82293 0.163929 3.8362C0.196183 3.84947 0.230742 3.85623 0.265619 3.8561H3.60753C3.72631 4.29702 4.12725 4.62659 4.60386 4.62659C5.08047 4.62659 5.4814 4.29702 5.60018 3.8561H7.14375C7.1785 3.85603 7.21289 3.84912 7.24497 3.83576C7.27704 3.8224 7.30617 3.80285 7.33069 3.77823C7.35521 3.75362 7.37464 3.72441 7.38788 3.69229C7.40111 3.66016 7.40789 3.62574 7.40782 3.591C7.40768 3.521 7.37982 3.45392 7.33033 3.40442C7.28083 3.35493 7.21375 3.32707 7.14375 3.32693H5.60069C5.4823 2.88588 5.08086 2.55695 4.60386 2.55695ZM4.60386 3.08612C4.88664 3.08612 5.11028 3.30822 5.11028 3.591C5.11028 3.87377 4.88664 4.09742 4.60386 4.09742C4.32107 4.09742 4.09743 3.87377 4.09743 3.591C4.09743 3.30822 4.32107 3.08612 4.60386 3.08612ZM2.54765 5.25446C2.0712 5.25446 1.66974 5.58373 1.55081 6.02444H0.265619C0.230699 6.0243 0.196097 6.03108 0.163809 6.04438C0.131521 6.05768 0.102185 6.07724 0.077493 6.10193C0.0528009 6.12662 0.0332411 6.15596 0.0199413 6.18825C0.00664148 6.22054 -0.000135173 6.25514 2.04281e-06 6.29006C0.000137029 6.3248 0.00711453 6.35918 0.0205361 6.39123C0.0339577 6.42328 0.0535606 6.45237 0.0782254 6.47684C0.10289 6.50131 0.132134 6.52069 0.164287 6.53386C0.19644 6.54703 0.230873 6.55374 0.265619 6.55361H1.5503C1.66847 6.99542 2.0704 7.32565 2.54765 7.32565C3.02488 7.32565 3.4263 6.9954 3.54449 6.55361H7.14375C7.21366 6.55347 7.28067 6.52567 7.33014 6.47629C7.37962 6.42691 7.40755 6.35996 7.40782 6.29006C7.40796 6.25527 7.40123 6.22079 7.38803 6.18861C7.37482 6.15642 7.3554 6.12715 7.33087 6.10248C7.30635 6.07781 7.27719 6.05822 7.24509 6.04483C7.21298 6.03143 7.17854 6.02451 7.14375 6.02444H3.54397C3.42503 5.58376 3.02409 5.25446 2.54765 5.25446ZM2.54765 5.78363C2.83044 5.78363 3.05408 6.00728 3.05408 6.29006C3.05408 6.57283 2.83044 6.79648 2.54765 6.79648C2.26487 6.79648 2.04122 6.57283 2.04122 6.29006C2.04122 6.00728 2.26487 5.78363 2.54765 5.78363Z" fill="currentColor"/>
+              </svg>
+            </div>
+          </button>
+          <div id="ctor-sel-dd" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:220px;overflow:hidden"></div>
+        </div>
       </div>
     </div>
 
@@ -2744,15 +2778,10 @@ table.dt tr:hover td { background:var(--bg-2); }
         <div id="walk-sel-dd" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:210px;overflow:hidden"></div>
       </div>
 
-      <!-- Contractor filter -->
-      <div style="position:relative" id="ctor-sel-wrap">
-        <button id="ctor-sel-btn" onclick="toggleCtorSel(event)" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:var(--bg-2);border:1px solid var(--border-mid);font-size:12px;font-weight:500;color:var(--t1);cursor:pointer;font-family:var(--font);white-space:nowrap;transition:opacity .15s">
-          <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="3.5" r="2.2" stroke="currentColor" stroke-width="1.2"/><path d="M1 10c0-2.5 2-4.5 4.5-4.5S10 7.5 10 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-          <span id="ctor-sel-label">All contractors</span>
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        </button>
-        <div id="ctor-sel-dd" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:200px;overflow:hidden"></div>
-      </div>
+      <!-- Contractor filter moved to the layer-toggle row (left side). The
+           hidden span keeps the legacy id alive so toggleCtorSel can update
+           the active label without runtime errors. -->
+      <span id="ctor-sel-label" style="display:none">All contractors</span>
 
       <!-- Approval pair (populated by JS) -->
       <div id="rp-approval"></div>
@@ -5062,9 +5091,9 @@ const WALK_PHOTOS = {
     // GFCI Outlets
     '3560F38B':   { initial_scope:['Kitchen__Includes_small_hall_/GFCI_Outlets/5b7862a5-28ca-49b3-917b-713b2e1dc0d8.jpeg'], progress_1:[], change_order:['Kitchen__Includes_small_hall_/abe9d86a-c4ce-4587-b740-a9da19ebc0a2.jpeg'], progress_2:['Kitchen__Includes_small_hall_/abe9d86a-c4ce-4587-b740-a9da19ebc0a2.jpeg'], close_out:['Kitchen__Includes_small_hall_/55147167-deda-4ba7-bbf5-95f87754f9dd.jpeg'] },
     // Outlets
-    'FBF856B6':   { initial_scope:['Kitchen__Includes_small_hall_/Outlets/3cf1eec4-e5a6-4e86-9517-7abcd0109b4a.jpeg'], progress_1:['Kitchen__Includes_small_hall_/ad2289be-585b-472d-9113-952fe4fb2cef.jpeg'], change_order:['Kitchen__Includes_small_hall_/ad2289be-585b-472d-9113-952fe4fb2cef.jpeg','Kitchen__Includes_small_hall_/Outlets/3cf1eec4-e5a6-4e86-9517-7abcd0109b4a.jpeg'], progress_2:[], close_out:[] },
+    'FBF856B6':   { initial_scope:['Kitchen__Includes_small_hall_/Outlets/3cf1eec4-e5a6-4e86-9517-7abcd0109b4a.jpeg'], progress_1:['Kitchen__Includes_small_hall_/ad2289be-585b-472d-9113-952fe4fb2cef.jpeg'], change_order:['Kitchen__Includes_small_hall_/ad2289be-585b-472d-9113-952fe4fb2cef.jpeg','Kitchen__Includes_small_hall_/Outlets/3cf1eec4-e5a6-4e86-9517-7abcd0109b4a.jpeg'], progress_2:[], close_out:['Kitchen__Includes_small_hall_/7fd30e68-f754-467e-816c-9e21946ca9fd.jpeg'] },
     // Switches
-    '8F5D1BA2':   { initial_scope:['Kitchen__Includes_small_hall_/Switches/8a4406be-644e-404e-9746-40c21f4989a3.jpeg'], progress_1:[], change_order:['Kitchen__Includes_small_hall_/b1885227-af50-490a-8aaf-39787d702bf7.jpeg'], progress_2:[], close_out:[] },
+    '8F5D1BA2':   { initial_scope:['Kitchen__Includes_small_hall_/Switches/8a4406be-644e-404e-9746-40c21f4989a3.jpeg'], progress_1:[], change_order:['Kitchen__Includes_small_hall_/b1885227-af50-490a-8aaf-39787d702bf7.jpeg'], progress_2:[], close_out:['Kitchen__Includes_small_hall_/0bdff34e-2d57-40d1-b736-942a4250eb78.jpeg'] },
     // Flooring/Hardwood Refinish — folder has 3 photos
     '9A346B01':   { initial_scope:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/3b06fd50-7711-450e-8787-00ac4be26215.jpeg'], progress_1:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/76e88a67-bda9-486c-9624-01ecf9ee6e73.jpeg'], change_order:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/db10a16d-ed32-45b4-b45c-480b7aa50f3e.jpeg','Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/76e88a67-bda9-486c-9624-01ecf9ee6e73.jpeg'], progress_2:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/db10a16d-ed32-45b4-b45c-480b7aa50f3e.jpeg'], close_out:['Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/76e88a67-bda9-486c-9624-01ecf9ee6e73.jpeg','Kitchen__Includes_small_hall_/Flooring_Hardwood_Refinish/db10a16d-ed32-45b4-b45c-480b7aa50f3e.jpeg'] },
     // Supply and Return Register Replacement — no dedicated folder
@@ -5239,12 +5268,25 @@ function getWalkPhotos(roomId, taskId, walkId) {
 // Keyed by roomId → walkId → [urls]
 const GROUP_PHOTOS = {
   kitchen: {
-    initial: ['Kitchen__Includes_small_hall_/06d83fff-127f-46e0-aaca-ce8be3ea90cb.jpeg'],
+    // Initial walk — adds the 3 Group-Before/* shots (the "before" photos of
+    // the kitchen, captured on Initial walk).
+    initial: [
+      'Kitchen__Includes_small_hall_/06d83fff-127f-46e0-aaca-ce8be3ea90cb.jpeg',
+      'Kitchen__Includes_small_hall_/Group-Before/46f37bbf-e1c3-4cd8-acb7-9db280c42582.jpeg',
+      'Kitchen__Includes_small_hall_/Group-Before/9188e234-fd80-4d23-880e-0730f23450a8.jpeg',
+      'Kitchen__Includes_small_hall_/Group-Before/ad6e8246-4d6a-4023-b1c0-14ecbfcf4aaf.jpeg',
+    ],
     p1:      ['Kitchen__Includes_small_hall_/11c28d25-3fa8-4537-8bd2-7a4c701d7b88.jpeg'],
     p2:      ['Kitchen__Includes_small_hall_/157397f5-de73-44d9-918b-d27b2a041c24.jpeg'],
-    // 893b13de was previously attributed to E97DEB6F (Door Hardware) close_out
-    // but is actually a group-level Final walk shot — reattributed here.
-    final:   ['Kitchen__Includes_small_hall_/223356be-29fa-4d38-a4c7-3f3d3d182c1f.jpeg','Kitchen__Includes_small_hall_/893b13de-cea3-4a4b-962d-017b261135fa.jpeg'],
+    // Final walk — adds the 3 Group-After/* shots (post-renovation kitchen
+    // captures on Final walk). 893b13de was reattributed from E97DEB6F.
+    final: [
+      'Kitchen__Includes_small_hall_/223356be-29fa-4d38-a4c7-3f3d3d182c1f.jpeg',
+      'Kitchen__Includes_small_hall_/893b13de-cea3-4a4b-962d-017b261135fa.jpeg',
+      'Kitchen__Includes_small_hall_/Group-After/4ad31ac5-38c9-42ac-aa37-7777c6ac0bdf.jpeg',
+      'Kitchen__Includes_small_hall_/Group-After/5c0710d5-23f1-4c43-86f5-a7c52b1a375a.jpeg',
+      'Kitchen__Includes_small_hall_/Group-After/a0f657bc-2d2b-405c-b560-6b3abeda51b5.jpeg',
+    ],
   },
   living: {
     initial: ['Living_Room/27bdc9b1-0017-4511-9463-a040172fc6ec.jpeg'],
@@ -6923,13 +6965,29 @@ function renderNavTitle(){
     grpEl.title = _room.name;
     _wrap.appendChild(grpEl);
   } else {
-    // Group selected (zoom 1) — just the group name, big and bold.
+    // Group selected (zoom 1) — back-arrow + group name. The arrow takes the
+    // user up one level to the home view (showing every group at once).
+    const back = mk('button','');
+    back.type = 'button';
+    back.title = 'Back to all groups';
+    back.setAttribute('aria-label', 'Back to all groups');
+    back.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:var(--t2);padding:0;flex-shrink:0;transition:background .12s,color .12s';
+    back.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M8 2L3.5 6.5L8 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    back.onmouseenter = () => { back.style.background = 'var(--bg-2)'; back.style.color = 'var(--t1)'; };
+    back.onmouseleave = () => { back.style.background = 'transparent'; back.style.color = 'var(--t2)'; };
+    back.onclick = (ev) => {
+      ev.stopPropagation();
+      if(typeof selectAllGroups === 'function') selectAllGroups();
+      else { selRoomId = null; selTask = null; if(typeof hlRoom === 'function') hlRoom(null); if(typeof setZoom === 'function') setZoom(0); }
+    };
+    _wrap.appendChild(back);
     const grpEl = mk('div','');
     grpEl.style.cssText = 'font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex-shrink:1;letter-spacing:-.005em';
     grpEl.textContent = _room.name;
     grpEl.title = _room.name;
     _wrap.appendChild(grpEl);
   }
+  if(zoom === 1) _wrap.style.alignItems = 'center';
   el.appendChild(_wrap);
   return;
 
@@ -7214,115 +7272,104 @@ function renderApprovalFooter(){
   };
 
   // ── HOME ──
-  if(zoom === 0){
-    const allTasks = Object.values(ROOMS).flatMap(r=>r.taskList);
-    const totalCount = allTasks.length;
-    const doneCount  = allTasks.filter(t=>t.done).length;
-    const allApproved = doneCount === totalCount;
-
-    showFooter();
-    footer.appendChild(makeInfo(
-      'Scope of work',
-      allApproved
-        ? `<span style="color:var(--green);font-weight:500">✓ All ${totalCount} tasks approved</span>`
-        : `<span style="font-family:var(--mono)">${doneCount} / ${totalCount}</span> tasks approved`
-    ));
-
-    const actions = mk('div','appr-footer-actions');
-    const approveBtn = mk('button', allApproved ? 'af-approve approved' : 'af-approve');
-    approveBtn.innerHTML = allApproved
-      ? ICON_CHECK + ' All tasks approved'
-      : ICON_CHECK + ' Approve all tasks';
-    if(!allApproved){
-      approveBtn.onclick = () => {
-        Object.values(ROOMS).forEach(r => r.taskList.forEach(t => t.done=true));
-        Object.keys(ROOMS).forEach(id => GROUP_APPROVED[id]=true);
-        render();
-      };
-    }
-    actions.appendChild(approveBtn);
-    footer.appendChild(actions);
-    return;
-  }
+  // Bottom bar suppressed at the home view per design direction. The user
+  // can drill into a group/task and approve from there.
+  if(zoom === 0) return;
 
   // ── GROUP ──
+  // Buttons live in the top secondary menu (#rp-approval), not the bottom
+  // footer, so the page is uncluttered. Footer stays hidden.
   if(zoom === 1 && selRoomId && selRoomId !== 'unassigned'){
     const room = ROOMS[selRoomId];
     if(!room) return;
-    const color = RC[selRoomId];
-    const doneCount = room.taskList.filter(t=>t.done).length;
-    const total = room.taskList.length;
-    const allDone = doneCount === total;
     const isGroupApproved = !!GROUP_APPROVED[selRoomId];
+    const apprSlot = document.getElementById('rp-approval');
+    if(!apprSlot) return;
+    apprSlot.style.cssText = 'display:flex;align-items:center;gap:8px;flex-shrink:0';
 
-    showFooter();
-
-    const info = mk('div','appr-footer-info');
-    const title = mk('div','appr-footer-title');
-    title.style.cssText='display:flex;align-items:center;gap:8px';
-    const dot = mk('span',''); dot.style.cssText=`width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0`;
-    const nameSpan = mk('span',''); nameSpan.textContent = room.name;
-    title.appendChild(dot); title.appendChild(nameSpan);
-    const sub = mk('div','appr-footer-sub');
-    sub.innerHTML = isGroupApproved
-      ? `<span style="color:var(--green);font-weight:500">✓ Group approved</span>`
-      : allDone
-        ? `All ${total} tasks approved — ready for group sign-off`
-        : `<span style="font-family:var(--mono)">${doneCount} / ${total}</span> tasks approved`;
-    info.appendChild(title); info.appendChild(sub);
-    footer.appendChild(info);
-
-    const actions = mk('div','appr-footer-actions');
     const editBtn = mk('button','af-edit');
+    editBtn.style.cssText = 'height:32px;padding:0 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px';
     editBtn.innerHTML = ICON_EDIT + ' Request edit';
     editBtn.onclick = () => {};
-    actions.appendChild(editBtn);
+    apprSlot.appendChild(editBtn);
+
     const approveBtn = mk('button', isGroupApproved ? 'af-approve approved' : 'af-approve');
-    approveBtn.innerHTML = isGroupApproved ? ICON_CHECK + ' Group approved' : ICON_CHECK + ` Approve ${room.name}`;
-    if(!isGroupApproved){ approveBtn.onclick = () => { GROUP_APPROVED[selRoomId]=true; room.taskList.forEach(t=>t.done=true); render(); }; }
-    actions.appendChild(approveBtn);
-    footer.appendChild(actions);
+    approveBtn.style.cssText = 'height:32px;padding:0 14px;font-size:12px;display:inline-flex;align-items:center;gap:6px';
+    approveBtn.innerHTML = isGroupApproved
+      ? ICON_CHECK + ' Group approved'
+      : ICON_CHECK + ' Approve group';
+    if(!isGroupApproved){
+      approveBtn.onclick = () => {
+        GROUP_APPROVED[selRoomId] = true;
+        room.taskList.forEach(t => t.done = true);
+        render();
+      };
+    }
+    apprSlot.appendChild(approveBtn);
+    return;
   }
 
   // ── TASK ──
-  else if(zoom === 2 && selTask){
+  // Like the group view, the Delete / Request edit / Approve buttons live
+  // in the top secondary menu instead of a footer bar — and they're rendered
+  // as icon-only buttons to save horizontal room (the breadcrumb in the
+  // center can be long: "Task name · Group name").
+  if(zoom === 2 && selTask){
     const task = selTask;
     const room = ROOMS[selRoomId];
     if(!room) return;
-    const color = RC[selRoomId];
+    const apprSlot = document.getElementById('rp-approval');
+    if(!apprSlot) return;
+    apprSlot.style.cssText = 'display:flex;align-items:center;gap:6px;flex-shrink:0';
 
-    showFooter();
+    // Shared icon-button factory — produces a 32×32 square button with a
+    // tooltip and configurable color theming.
+    function _iconBtn({title, html, onClick, theme}){
+      const b = mk('button','');
+      const palette = theme === 'red'
+        ? { fg:'var(--red)',   bdr:'rgba(224,62,62,.3)',  hoverBg:'#fef2f2', hoverBdr:'var(--red)',   hoverFg:'var(--red)' }
+        : theme === 'green'
+        ? { fg:'var(--green)', bdr:'rgba(61,168,106,.4)', hoverBg:'rgba(61,168,106,.08)', hoverBdr:'var(--green)', hoverFg:'var(--green)' }
+        : theme === 'green-on'
+        ? { fg:'#fff', bdr:'var(--green)', bg:'var(--green)' }
+        : { fg:'var(--t2)',    bdr:'var(--border-mid)',   hoverBg:'var(--bg-2)',         hoverBdr:'var(--t2)',     hoverFg:'var(--t1)' };
+      b.style.cssText =
+        'width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;'+
+        'background:'+(palette.bg || 'transparent')+';border:1px solid '+palette.bdr+';'+
+        'border-radius:8px;color:'+palette.fg+';cursor:'+(onClick?'pointer':'default')+';'+
+        'padding:0;transition:background .12s,border-color .12s,color .12s;font-family:var(--font)';
+      b.title = title;
+      b.setAttribute('aria-label', title);
+      b.innerHTML = html;
+      if(onClick && palette.hoverBg){
+        b.addEventListener('mouseenter', () => { b.style.background = palette.hoverBg; b.style.borderColor = palette.hoverBdr; b.style.color = palette.hoverFg; });
+        b.addEventListener('mouseleave', () => { b.style.background = 'transparent'; b.style.borderColor = palette.bdr; b.style.color = palette.fg; });
+      }
+      if(onClick) b.addEventListener('click', onClick);
+      return b;
+    }
 
-    const info = mk('div','appr-footer-info');
-    const title = mk('div','appr-footer-title');
-    title.style.cssText='display:flex;align-items:center;gap:8px';
-    const dot = mk('span',''); dot.style.cssText=`width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0`;
-    const nameSpan = mk('span',''); nameSpan.textContent = task.name;
-    title.appendChild(dot); title.appendChild(nameSpan);
-    const sub = mk('div','appr-footer-sub');
-    sub.innerHTML = task.done
-      ? `<span style="color:var(--green);font-weight:500">✓ Task approved</span>`
-      : `${room.name} · ${fmt(task.cost)}`;
-    info.appendChild(title); info.appendChild(sub);
-    footer.appendChild(info);
+    const ICON_TRASH = '<svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2.5h3v1M6 6v4M8 6v4M3.5 3.5l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const ICON_EDIT_BIG  = '<svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M9.5 2.5l2 2-7 7H2.5v-2l7-7z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const ICON_CHECK_BIG = '<svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-    const actions = mk('div','appr-footer-actions');
-    const deleteBtn = mk('button','af-edit');
-    deleteBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2.5h3v1M6 6v4M8 6v4M3.5 3.5l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete task`;
-    deleteBtn.style.color='var(--red)'; deleteBtn.style.borderColor='rgba(224,62,62,.3)';
-    deleteBtn.onmouseenter = () => { deleteBtn.style.borderColor='var(--red)'; deleteBtn.style.background='#fef2f2'; };
-    deleteBtn.onmouseleave = () => { deleteBtn.style.borderColor='rgba(224,62,62,.3)'; deleteBtn.style.background='transparent'; };
-    deleteBtn.onclick = () => {};
-    actions.appendChild(deleteBtn);
-    const editBtn = mk('button','af-edit');
-    editBtn.innerHTML = ICON_EDIT + ' Request edit';
-    editBtn.onclick = () => {};
-    actions.appendChild(editBtn);
-    const approveBtn = mk('button', task.done ? 'af-approve approved' : 'af-approve');
-    approveBtn.innerHTML = task.done ? ICON_CHECK + ' Approved' : ICON_CHECK + ' Approve task';
-    if(!task.done){ approveBtn.onclick = () => { task.done=true; render(); }; }
-    actions.appendChild(approveBtn);
-    footer.appendChild(actions);
+    apprSlot.appendChild(_iconBtn({
+      title: 'Delete task',
+      html: ICON_TRASH,
+      theme: 'red',
+      onClick: () => {},
+    }));
+    apprSlot.appendChild(_iconBtn({
+      title: 'Request edit',
+      html: ICON_EDIT_BIG,
+      onClick: () => {},
+    }));
+    apprSlot.appendChild(_iconBtn({
+      title: task.done ? 'Task approved' : 'Approve task',
+      html: ICON_CHECK_BIG,
+      theme: task.done ? 'green-on' : 'green',
+      onClick: task.done ? null : () => { task.done = true; render(); },
+    }));
   }
 }
 
@@ -7380,12 +7427,16 @@ function renderRpScrubber(){
   const thumbEl = document.getElementById('rp-scrub-thumb');
   if(!wrap || !ticksEl || !trackEl || !thumbEl) return;
 
-  // Hide in Compare walks and Scope review modes; the scrubber is a Photo
-  // grid affordance specifically.
+  // Hide in Compare walks and Scope review modes — the scrubber is a Photo
+  // grid affordance. Also hide at the Home zoom (zoom===0) where the right
+  // panel already shows every group at once and there's nothing meaningful
+  // to scrub through; only show it once the user has drilled into a group
+  // (zoom>=1) or task (zoom===2).
   const onPhoto = (typeof viewMode === 'undefined' || viewMode === 'photo')
     && !(typeof compareMode !== 'undefined' && compareMode)
     && !(typeof scopeReviewMode !== 'undefined' && scopeReviewMode);
-  if(!onPhoto){ wrap.style.display = 'none'; return; }
+  const drilledIn = (typeof zoom !== 'undefined' && zoom >= 1);
+  if(!onPhoto || !drilledIn){ wrap.style.display = 'none'; return; }
   wrap.style.display = 'flex';
 
   const slots = __buildScrubSlots();
@@ -7504,6 +7555,54 @@ function renderRpScrubber(){
   }
 }
 
+// ── Scope sidebar scroll-sync ───────────────────────────────────────────────
+// As the user scrolls the right-side main content (home group sections,
+// stacked groups feed, stacked tasks feed), highlight + scroll-into-view the
+// matching .gf-card / .gf-task in the Scope sidebar. Same intent as the
+// floor plan's room-highlight-on-select, but driven by scroll position rather
+// than click. Pure visual update — no re-render — so scroll position holds.
+function __syncScopeHighlight(roomId, taskId){
+  // Only relevant when the Scope tab is active in the left sidebar.
+  if(typeof bpView === 'undefined' || bpView !== 'groups') return;
+  const host = document.getElementById('bp-groups-inner');
+  if(!host) return;
+
+  // Drop any stale highlights from the previous tick.
+  host.querySelectorAll('.gf-card.scope-sync-active').forEach(el => el.classList.remove('scope-sync-active'));
+  host.querySelectorAll('.gf-task.scope-sync-active').forEach(el => el.classList.remove('scope-sync-active'));
+
+  if(!roomId) return;
+
+  const card = host.querySelector('.gf-card[data-room-id="'+roomId+'"]');
+  if(!card) return;
+  card.classList.add('scope-sync-active');
+
+  let target = card;
+  if(taskId){
+    // Make sure the group is expanded so its task rows are reachable. We
+    // mark it via the same JS Set the renderer uses, so a subsequent
+    // re-render preserves the expansion.
+    if(window.__bpGroupsExpanded && !window.__bpGroupsExpanded.has(roomId)){
+      window.__bpGroupsExpanded.add(roomId);
+      card.classList.add('expanded');
+    } else {
+      card.classList.add('expanded');
+    }
+    const taskRow = card.querySelector('.gf-task[data-task-id="'+taskId+'"]');
+    if(taskRow){
+      taskRow.classList.add('scope-sync-active');
+      target = taskRow;
+    }
+  }
+
+  // Scroll the matching element into view inside the Scope sidebar's own
+  // scroller — using nearest so we don't yank the page when the target is
+  // already mostly visible.
+  if(typeof target.scrollIntoView === 'function'){
+    try { target.scrollIntoView({ block:'nearest', behavior:'smooth' }); } catch(_){ try { target.scrollIntoView(); } catch(__){} }
+  }
+}
+
 function __scrubGoTo(slots, idx){
   const slot = slots[idx];
   if(!slot) return;
@@ -7523,7 +7622,8 @@ function render(){
   updateModeLabel();
   renderFloorplanLayers();
   renderNavTitle();
-  renderApprovalFooter();
+  // renderApprovalFooter moved below the apprSlot clear so it can populate
+  // #rp-approval (in the top secondary menu) without being wiped.
   updateAttentionBadge();
   renderUnassignedBadge();
   if(typeof renderRpScrubber === 'function') renderRpScrubber();
@@ -7532,6 +7632,12 @@ function render(){
   // toggles (Budget, Contractor, Modifiers, etc.) propagate into its cards.
   if(typeof bpView !== 'undefined' && bpView === 'groups' && typeof renderBpGroupFeed === 'function'){
     renderBpGroupFeed();
+    // After the scope sidebar rebuilds, mirror the active selection so the
+    // matching card/task is highlighted + scrolled into view (matches the
+    // floor plan's behaviour on click).
+    if(typeof __syncScopeHighlight === 'function'){
+      __syncScopeHighlight(selRoomId, selTask && selTask.id);
+    }
   } else if(typeof bpView !== 'undefined' && bpView === 'contractors' && typeof renderBpContractorFeed === 'function'){
     renderBpContractorFeed();
   } else if(typeof syncGroupFeedSelection === 'function'){
@@ -7544,6 +7650,8 @@ function render(){
   body.style.display='';
   body.style.flexDirection='';
   if(apprSlot) apprSlot.innerHTML='';
+  // Populate the top secondary menu's approval slot AFTER it's cleared.
+  renderApprovalFooter();
 
   // ── COMPARE MODE ──
   if(compareMode){ renderCompare(); renderUnassignedBadge(); return; }
@@ -7786,14 +7894,14 @@ function render(){
         const gpData = (typeof GROUP_PHOTOS !== 'undefined' && GROUP_PHOTOS[id]) || null;
         if(gpData){
           ['initial','p1','p2','final'].forEach(k => {
-            (gpData[k] || []).forEach(url => realRoomPhotos.push(url));
+            (gpData[k] || []).forEach(url => realRoomPhotos.push({ url, kind:'group', walkKey:k }));
           });
         }
         const r = ROOMS[id];
         if(r && r.taskList){
           r.taskList.forEach(t => {
             WALKS.forEach(w => {
-              getWalkPhotos(id, t.id, w.id).forEach(url => realRoomPhotos.push(url));
+              getWalkPhotos(id, t.id, w.id).forEach(url => realRoomPhotos.push({ url, kind:'task', taskId:t.id, walkId:w.id }));
             });
           });
         }
@@ -7826,6 +7934,10 @@ function render(){
 
       const sec = mk('div','');
       sec.style.cssText = 'margin-bottom:28px';
+      // Tag the section with the room id so the Scope sidebar's scroll-sync
+      // observer can highlight the matching card when this section enters the
+      // viewport.
+      if(!byContractor && id) sec.dataset.roomId = id;
 
       // ── Group header row ──
       const hdr = mk('div','');
@@ -7965,12 +8077,11 @@ function render(){
           : DEFAULT_ATTR;
         const meta = TILE_META[i % TILE_META.length];
 
-        // Photo index across the preview + extra grids: preview tiles run
-        // 0..PREVIEW_COUNT-1, extra tiles continue from PREVIEW_COUNT.
         const photoIdxInRoom = isExtra ? (PREVIEW_COUNT + i) : i;
-        const realUrl = (useRealRoomPhotos && photoIdxInRoom < realRoomPhotos.length)
+        const realPhoto = (useRealRoomPhotos && photoIdxInRoom < realRoomPhotos.length)
           ? realRoomPhotos[photoIdxInRoom]
           : null;
+        const realUrl = realPhoto && realPhoto.url;
 
         const tile = mk('div','');
         const bgDecl = realUrl
@@ -7980,9 +8091,6 @@ function render(){
         tile.onmouseenter = () => tile.style.filter='brightness(.88)';
         tile.onmouseleave = () => tile.style.filter='';
         tile.onclick = e => {
-          // Contractor mode: open the first photo of any task in the bucket,
-          // preserving the per-task (roomId, taskId) pair so the modal opens
-          // on the correct record. Room mode keeps the original behaviour.
           if(byContractor){
             for(const t of room.taskList){
               const rid = t.__roomId;
@@ -7992,6 +8100,21 @@ function render(){
                 if(ps.length){ openPhotoDetail(rid, t.id, w.id, 0); return; }
               }
             }
+            return;
+          }
+          if(realPhoto && realPhoto.kind === 'group' && realPhoto.walkKey && typeof openGroupPhotoDetail === 'function'){
+            openGroupPhotoDetail(id, realPhoto.walkKey, undefined);
+            if(window.gpOverlayState && window.gpOverlayState.flat){
+              const idx = window.gpOverlayState.flat.findIndex(p => p.url === realPhoto.url && p.walkKey === realPhoto.walkKey);
+              if(idx >= 0){
+                window.gpOverlayState.flatIdx = idx;
+                if(typeof _renderGpOverlay === 'function') _renderGpOverlay();
+              }
+            }
+            return;
+          }
+          if(realPhoto && realPhoto.kind === 'task' && realPhoto.taskId && realPhoto.walkId){
+            openPhotoDetail(id, realPhoto.taskId, realPhoto.walkId, 0);
             return;
           }
           const r = ROOMS[id];
@@ -8093,7 +8216,30 @@ function render(){
       g.appendChild(usec);
     }
 
-    body.appendChild(g); return;
+    body.appendChild(g);
+
+    // Scope sidebar scroll-sync — when a room section enters the viewport,
+    // highlight + scroll the matching .gf-card in the Scope sidebar.
+    if(typeof IntersectionObserver === 'function'){
+      const rb = document.getElementById('rp-body');
+      if(rb){
+        let __homeSyncRaf = 0;
+        const obs = new IntersectionObserver(entries => {
+          let best = null;
+          entries.forEach(e => {
+            if(!e.isIntersecting) return;
+            if(!best || e.intersectionRatio > best.intersectionRatio) best = e;
+          });
+          if(!best) return;
+          const rid = best.target.dataset.roomId;
+          if(!rid) return;
+          if(__homeSyncRaf) cancelAnimationFrame(__homeSyncRaf);
+          __homeSyncRaf = requestAnimationFrame(() => __syncScopeHighlight(rid));
+        }, { root: rb, threshold: [0.25, 0.5], rootMargin: '-20% 0px -45% 0px' });
+        g.querySelectorAll('[data-room-id]').forEach(el => obs.observe(el));
+      }
+    }
+    return;
   }
 
   // ── UNASSIGNED GROUP ZOOM ─────────────────────────────────────────────────
@@ -9468,9 +9614,32 @@ function appendStackedTasksFeed(body, currentRoomId, currentTask){
         const idx = idxOf[key];
         if(typeof idx !== 'number') return;
         if(__syncRaf) cancelAnimationFrame(__syncRaf);
-        __syncRaf = requestAnimationFrame(() => __scrollSync(idx));
+        __syncRaf = requestAnimationFrame(() => {
+          __scrollSync(idx);
+          // Scope sidebar mirror — highlight + scroll the matching task row.
+          if(typeof __syncScopeHighlight === 'function'){
+            __syncScopeHighlight(el.dataset.roomId, el.dataset.taskId);
+          }
+        });
       }, { root: rb, threshold: [0.35, 0.7], rootMargin: '-30% 0px -45% 0px' });
       wrap.querySelectorAll('[data-task-id]').forEach(el => obs.observe(el));
+
+      // Sentinel at the top — when the user scrolls back to the top of the
+      // task page, restore the originally-selected task as the highlighted
+      // one in the Scope sidebar.
+      if(currentTask){
+        const taskSentinel = mk('div','');
+        taskSentinel.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none';
+        body.insertBefore(taskSentinel, body.firstChild);
+        const taskTopObs = new IntersectionObserver(entries => {
+          entries.forEach(e => {
+            if(e.isIntersecting && typeof __syncScopeHighlight === 'function'){
+              __syncScopeHighlight(currentRoomId, currentTask.id);
+            }
+          });
+        }, { root: rb, threshold: 0.01 });
+        taskTopObs.observe(taskSentinel);
+      }
     }
   }
 }
@@ -9617,7 +9786,11 @@ function appendStackedGroupsFeed(body, currentRoomId){
       if(!best) return;
       const rid = best.target.dataset.roomId;
       const room = rid && ROOMS[rid];
-      if(room) setHeaderName(room.name);
+      if(room){
+        setHeaderName(room.name);
+        // Mirror the visible group into the Scope sidebar — highlight + scroll.
+        if(typeof __syncScopeHighlight === 'function') __syncScopeHighlight(rid);
+      }
     }, { root: rb, threshold: [0.3, 0.6], rootMargin: '-25% 0px -50% 0px' });
     wrap.querySelectorAll('[data-room-id]').forEach(el => obs.observe(el));
 
@@ -9634,7 +9807,10 @@ function appendStackedGroupsFeed(body, currentRoomId){
       body.insertBefore(sentinel, body.firstChild);
       const topObs = new IntersectionObserver(entries => {
         entries.forEach(e => {
-          if(e.isIntersecting && origRoom) setHeaderName(origRoom.name);
+          if(e.isIntersecting && origRoom){
+            setHeaderName(origRoom.name);
+            if(typeof __syncScopeHighlight === 'function') __syncScopeHighlight(currentRoomId);
+          }
         });
       }, { root: rb, threshold: 0.01 });
       topObs.observe(sentinel);
@@ -10433,11 +10609,9 @@ function renderCtorSel(){
   const btn = document.getElementById('ctor-sel-btn');
   if(!dd) return;
   if(label) label.textContent = activeContractor || 'All contractors';
-  if(btn){
-    btn.style.background = activeContractor ? 'rgba(59,143,212,.08)' : 'var(--bg-2)';
-    btn.style.borderColor = activeContractor ? 'var(--blue)' : 'var(--border-mid)';
-    btn.style.color = activeContractor ? 'var(--blue)' : 'var(--t1)';
-  }
+  // The new icon-style filter button picks up its visual state from the
+  // is-filtered class (defined in CSS). No more inline style overrides.
+  if(btn) btn.classList.toggle('is-filtered', !!activeContractor);
   dd.style.display = ctorSelOpen ? 'block' : 'none';
   if(!ctorSelOpen) return;
   dd.innerHTML = '';
@@ -12088,12 +12262,15 @@ function renderCompare(){
       const photos = getWalkPhotos(slot.roomId, slot.taskId, walkId);
       return photos[0] || '';
     }
-    // group — proxy to a task's photo for this walk. Contractor groups carry
-    // their own firstTaskId (which belongs to this contractor); room groups
-    // fall back to the room's first task. Rooms flagged with noGroupPhoto
-    // intentionally skip this fallback so the cell doesn't visually duplicate
-    // the adjacent first-task cell — the cell renderer shows a meaningful
-    // empty-state message instead.
+    // group — first try GROUP_PHOTOS for this room/walk. If real group
+    // photos exist, show them. Otherwise fall back to noGroupPhoto skip /
+    // first-task photo as before.
+    const _gpKeyMap = { initial_scope:'initial', progress_1:'p1', change_order:null, progress_2:'p2', close_out:'final' };
+    const _gpKey = _gpKeyMap[walkId];
+    const _gpData = (typeof GROUP_PHOTOS !== 'undefined' && GROUP_PHOTOS[slot.roomId]) || null;
+    if(_gpKey && _gpData && Array.isArray(_gpData[_gpKey]) && _gpData[_gpKey].length){
+      return _gpData[_gpKey][0];
+    }
     if(slot.noGroupPhoto) return '';
     if(slot.firstTaskId){
       const photos = getWalkPhotos(slot.roomId, slot.firstTaskId, walkId);
