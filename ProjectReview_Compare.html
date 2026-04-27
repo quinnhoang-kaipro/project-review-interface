@@ -38,7 +38,9 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
 .t-address {
   font-size:15px; font-weight:600; color:var(--t1);
   letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  cursor:pointer; transition:color .12s;
 }
+.t-address:hover { color:var(--t2); }
 .t-divider { width:1px; height:22px; background:var(--border-mid); margin:0 20px; flex-shrink:0; }
 .t-tabs { display:flex; align-items:center; height:100%; }
 .t-tab {
@@ -105,9 +107,10 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
 .sb-layer-btn.on .sb-layer-pip { opacity:1; }
 /* Tooltip */
 .sb-layer-btn-filter {
-  width:36px; height:36px; color:var(--t2);
+  width:36px; height:36px; color:var(--t1);
 }
-.sb-layer-btn-filter:hover { color:var(--t1); }
+.sb-layer-btn-filter:hover { background:var(--bg-2); color:var(--t1); }
+/* Active state — applied only while the dropdown is open. */
 .sb-layer-btn-filter.is-filtered {
   background:var(--charcoal); color:#fff;
 }
@@ -1575,6 +1578,12 @@ table.dt tr:hover td { background:var(--bg-2); }
 }
 .gf-card:hover { border-color:var(--border-mid); }
 .gf-card.selected { border-color:var(--charcoal); box-shadow:0 0 0 1px var(--charcoal) inset; }
+/* Scroll/scrub-driven highlight — fired by __syncScopeHighlight as the user
+   scrubs through tasks in the Compare timeline. Visually distinct from the
+   .selected click state so the user can tell "this is what I'm currently
+   looking at" vs "this is what I've actively selected". */
+.gf-card.scope-sync-active { border-color:var(--charcoal); box-shadow:0 0 0 1px var(--charcoal) inset, 0 1px 6px rgba(0,0,0,.08); }
+.gf-task.scope-sync-active { background:var(--bg-2); box-shadow:inset 3px 0 0 0 var(--charcoal); }
 
 /* "All groups" summary card — sits above the per-group list and lets the user
    zoom back out to the full-scope Home view. No expand/collapse behaviour. */
@@ -1793,6 +1802,21 @@ table.dt tr:hover td { background:var(--bg-2); }
   background:var(--bg-card); color:var(--t2);
 }
 .gf-action.new-task:hover { background:var(--bg-2); color:var(--t1); }
+/* Custom hover tooltip for icon-only buttons (matches Grid file). */
+.rp-add-btn { position:relative; }
+.rp-add-btn[title]::after,
+#rp-approval button[title]::after {
+  content: attr(title);
+  position:absolute; left:50%; transform:translateX(-50%);
+  top:calc(100% + 6px);
+  background:var(--charcoal); color:#fff;
+  font-family:var(--font); font-size:10.5px; font-weight:500;
+  padding:4px 8px; border-radius:4px; white-space:nowrap;
+  opacity:0; pointer-events:none; transition:opacity .12s; z-index:100;
+}
+.rp-add-btn:hover::after,
+#rp-approval button:hover::after { opacity:1; }
+#rp-approval button { position:relative; }
 .bp-walk-pill {
   display:inline-flex; align-items:center; gap:5px;
   padding:4px 10px; border-radius:14px; font-size:11px;
@@ -2581,7 +2605,7 @@ table.dt tr:hover td { background:var(--bg-2); }
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Project Overview
     </button>
-    <span class="t-address">3484 South Main Street, Atlanta</span>
+    <span class="t-address" title="Back to project home" onclick="if(typeof selectAllGroups==='function'){selectAllGroups();}else{selRoomId=null;selTask=null;if(typeof hlRoom==='function')hlRoom(null);if(typeof setZoom==='function')setZoom(0);}">3484 South Main Street, Atlanta</span>
     <div class="t-divider"></div>
     <!-- Layer toggles + Filter button — moved up here from the secondary
          menu bar so the toolbar carries every page-level control in one row. -->
@@ -2612,7 +2636,7 @@ table.dt tr:hover td { background:var(--bg-2); }
         <span class="sb-layer-pip" style="background:#5a5751"></span>
       </button>
       <button class="sb-layer-btn on" data-l="status" data-tip="Status" onclick="togLayer('status',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z" stroke="#2E7D8F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8V16L21.3333 18.6667" stroke="#2E7D8F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 8 8" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.33642 8.05629e-05C4.27596 0.00203982 4.21797 0.0244662 4.17193 0.0636877C4.12589 0.102909 4.09452 0.156601 4.08298 0.215973C4.07623 0.250385 4.07632 0.285789 4.08326 0.320164C4.09019 0.35454 4.10383 0.387212 4.1234 0.416315C4.14296 0.445419 4.16807 0.470383 4.19728 0.489783C4.22649 0.509182 4.25924 0.522637 4.29365 0.529379C4.91639 0.652592 5.48846 0.95762 5.93734 1.4065C6.95955 2.4287 7.17086 4.00424 6.45412 5.25967C6.43666 5.29007 6.42535 5.32362 6.42086 5.35839C6.41636 5.39317 6.41875 5.42849 6.4279 5.46234C6.43706 5.49618 6.45279 5.5279 6.4742 5.55567C6.49561 5.58344 6.52227 5.60672 6.55268 5.62418C6.58309 5.64164 6.61663 5.65294 6.65141 5.65744C6.68618 5.66194 6.7215 5.65955 6.75535 5.65039C6.7892 5.64124 6.82091 5.62551 6.84868 5.6041C6.87645 5.58269 6.89973 5.55602 6.91719 5.52562C7.75202 4.06334 7.50448 2.21854 6.31385 1.0279C5.79019 0.504254 5.12286 0.149033 4.39639 0.00529353C4.37666 0.00130512 4.35654 -0.000452262 4.33642 8.05629e-05ZM2.78086 0.0449306C2.76538 0.0460256 2.75002 0.0484682 2.73497 0.0522306C2.08929 0.219343 1.49979 0.556303 1.02818 1.02791C0.556711 1.49938 0.219668 2.08922 0.0525076 2.73469C0.0347341 2.80315 0.0448489 2.87586 0.0806319 2.93687C0.116415 2.99787 0.174942 3.04219 0.243367 3.06009C0.311895 3.07785 0.38467 3.06766 0.44569 3.03177C0.50671 2.99588 0.55098 2.93723 0.568766 2.86871C0.712054 2.31542 1.00211 1.81064 1.40625 1.4065C1.8105 1.00225 2.31553 0.713822 2.86899 0.570574C2.9373 0.55267 2.99573 0.508433 3.0315 0.447547C3.06727 0.38666 3.07746 0.314082 3.05985 0.245698C3.04443 0.184738 3.00799 0.131176 2.95695 0.0944482C2.90592 0.0577205 2.84356 0.040186 2.78086 0.0449306ZM3.70439 1.21929C2.33495 1.21929 1.21905 2.33519 1.21905 3.70463C1.21905 5.07408 2.33495 6.18998 3.70439 6.18998C5.07383 6.18998 6.18973 5.07408 6.18973 3.70463C6.18973 2.33519 5.07383 1.21929 3.70439 1.21929ZM3.70439 1.75328C4.78524 1.75328 5.65574 2.62378 5.65574 3.70463C5.65574 4.78549 4.78524 5.65547 3.70439 5.65547C2.62354 5.65547 1.75304 4.78549 1.75304 3.70463C1.75304 2.62378 2.62354 1.75328 3.70439 1.75328ZM0.273093 4.08009C0.253336 4.07947 0.233571 4.08105 0.214163 4.08479C0.144949 4.09877 0.0840888 4.13959 0.0448992 4.19832C0.00570969 4.25706 -0.0086176 4.32893 0.00505258 4.3982C0.148853 5.12449 0.504647 5.79056 1.02818 6.3141C2.21882 7.50473 4.06152 7.75176 5.52381 6.91692C5.58492 6.88192 5.62973 6.8242 5.64849 6.75632C5.66724 6.68844 5.65841 6.6159 5.62393 6.55449C5.60664 6.52391 5.58349 6.49704 5.5558 6.47543C5.52811 6.45381 5.49643 6.43787 5.46256 6.42852C5.4287 6.41917 5.39333 6.4166 5.35847 6.42094C5.32361 6.42529 5.28995 6.43647 5.25942 6.45385C4.00399 7.17059 2.42846 6.9598 1.40625 5.93759C0.957473 5.48881 0.650838 4.91649 0.527569 4.2939C0.515565 4.23475 0.483871 4.1814 0.437655 4.14258C0.391439 4.10375 0.333433 4.08172 0.273093 4.08009Z" fill="#2E7D8F"/></svg></div>
         <span class="sb-layer-pip" style="background:#2E7D8F"></span>
       </button>
       <div class="sb-sep"></div>
@@ -2643,84 +2667,10 @@ table.dt tr:hover td { background:var(--bg-2); }
     <div class="t-space"></div>
     <div id="rp-approval" style="display:flex;align-items:center;gap:8px;flex-shrink:0"></div>
     <span class="rp-hdr-vsep" style="margin:0 8px"></span>
-    <button class="rp-add-btn" title="Add task">
+    <button class="rp-add-btn" data-tip="New task" title="New task">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
-    <button class="t-icon-btn" title="Search">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    </button>
-    <button class="t-icon-btn" title="Download">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="2" y1="13" x2="14" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    </button>
-
-    <!-- Share button + popover -->
-    <div style="position:relative" id="share-wrap">
-      <button class="t-icon-btn" id="share-btn" onclick="toggleSharePopover(event)" title="Share Digital Scope">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="12" cy="3" r="1.8" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="13" r="1.8" stroke="currentColor" stroke-width="1.4"/><circle cx="3" cy="8" r="1.8" stroke="currentColor" stroke-width="1.4"/><line x1="10.3" y1="3.9" x2="4.7" y2="7.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="4.7" y1="8.9" x2="10.3" y2="12.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      </button>
-
-      <!-- Popover -->
-      <div id="share-popover" style="display:none;position:absolute;top:calc(100% + 10px);right:0;z-index:400;width:360px;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 8px 32px rgba(0,0,0,.14),0 2px 8px rgba(0,0,0,.08);overflow:hidden">
-        <!-- Header -->
-        <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border)">
-          <div style="font-size:13px;font-weight:600;color:var(--t1)">Create Digital Scope</div>
-          <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.5">Select an audience — each starts with a preset tailored to their needs. You can still customize what's shown before sending.</div>
-        </div>
-        <!-- Audience cards -->
-        <div style="padding:10px;display:flex;flex-direction:column;gap:6px">
-
-          <!-- Contractor — clickable -->
-          <button onclick="openDigitalScope('contractor')" onmouseenter="this.style.borderColor='var(--green)';this.style.background='rgba(61,168,106,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='none'" style="display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:var(--rm);border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);text-align:left;transition:border-color .12s,background .12s;width:100%">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(61,168,106,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 13c0-2.8 2.7-5 6-5s6 2.2 6 5" stroke="#3DA86A" stroke-width="1.4" stroke-linecap="round"/><path d="M5 8V7C5 4.8 6.8 3 9 3s4 1.8 4 4v1" stroke="#3DA86A" stroke-width="1.4" stroke-linecap="round"/><line x1="6" y1="13" x2="12" y2="13" stroke="#3DA86A" stroke-width="1.4" stroke-linecap="round"/></svg>
-            </div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:12px;font-weight:600;color:var(--t1)">Contractor</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4">Tasks, photos, materials & their assignments. No other contractor details or internal notes.</div>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--t3)"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-
-          <!-- Homeowner -->
-          <button onclick="openDigitalScope('homeowner')" onmouseenter="this.style.borderColor='#3B8FD4';this.style.background='rgba(59,143,212,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='none'" style="display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:var(--rm);border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);text-align:left;transition:border-color .12s,background .12s;width:100%">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(59,143,212,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 7L8 2l6 5v7H2V7Z" stroke="#3B8FD4" stroke-width="1.4" stroke-linejoin="round"/><rect x="5.5" y="9" width="5" height="5" rx=".5" stroke="#3B8FD4" stroke-width="1.2"/></svg>
-            </div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:600;color:var(--t1)">Homeowner</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4">Scope overview, photos & total cost. No contractor names or rates.</div>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--t3)"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-
-          <!-- Investor -->
-          <button onclick="openDigitalScope('investor')" onmouseenter="this.style.borderColor='#8B5DD4';this.style.background='rgba(139,93,212,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='none'" style="display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:var(--rm);border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);text-align:left;transition:border-color .12s,background .12s;width:100%">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(139,93,212,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8B5DD4" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:600;color:var(--t1)">Investor</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4">High-level financials, before/after photos & group summaries. ROI-focused.</div>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--t3)"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-
-          <!-- Tenant -->
-          <button onclick="openDigitalScope('tenant')" onmouseenter="this.style.borderColor='#E8702A';this.style.background='rgba(232,112,42,.04)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='none'" style="display:flex;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:var(--rm);border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);text-align:left;transition:border-color .12s,background .12s;width:100%">
-            <div style="width:32px;height:32px;border-radius:8px;background:rgba(232,112,42,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="#E8702A" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/></svg>
-            </div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:600;color:var(--t1)">Tenant</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4">Damage evidence, photos & cost responsibility only. No full scope detail.</div>
-            </div>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--t3)"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-
-        </div>
-      </div>
-    </div>
-
+    <!-- Search / Download / Share icons removed per design direction. -->
     <button class="t-cta">Approve Closeout</button>
   </div>
 
@@ -7512,6 +7462,42 @@ function __scrubGoTo(slots, idx){
   }
 }
 
+// ── Scope sidebar scroll-sync ───────────────────────────────────────────────
+// As the user scrubs through groups/tasks in the Compare timeline, highlight
+// + scroll-into-view the matching .gf-card / .gf-task in the Scope sidebar.
+// Pure visual update, no re-render — so the timeline state is preserved.
+// The last (roomId, taskId) pair is cached on window so render() can re-apply
+// the highlight after the scope sidebar rebuilds itself.
+function __syncScopeHighlight(roomId, taskId){
+  window.__scopeSyncLast = { roomId: roomId || null, taskId: taskId || null };
+  if(typeof bpView === 'undefined' || bpView !== 'groups') return;
+  const host = document.getElementById('bp-groups-inner');
+  if(!host) return;
+  host.querySelectorAll('.gf-card.scope-sync-active').forEach(el => el.classList.remove('scope-sync-active'));
+  host.querySelectorAll('.gf-task.scope-sync-active').forEach(el => el.classList.remove('scope-sync-active'));
+  if(!roomId) return;
+  const card = host.querySelector('.gf-card[data-room-id="'+roomId+'"]');
+  if(!card) return;
+  card.classList.add('scope-sync-active');
+  let target = card;
+  if(taskId){
+    if(window.__bpGroupsExpanded && !window.__bpGroupsExpanded.has(roomId)){
+      window.__bpGroupsExpanded.add(roomId);
+      card.classList.add('expanded');
+    } else {
+      card.classList.add('expanded');
+    }
+    const taskRow = card.querySelector('.gf-task[data-task-id="'+taskId+'"]');
+    if(taskRow){
+      taskRow.classList.add('scope-sync-active');
+      target = taskRow;
+    }
+  }
+  if(typeof target.scrollIntoView === 'function'){
+    try { target.scrollIntoView({ block:'nearest', behavior:'smooth' }); } catch(_){ try { target.scrollIntoView(); } catch(__){} }
+  }
+}
+
 function render(){
   updateModeLabel();
   renderFloorplanLayers();
@@ -7525,6 +7511,13 @@ function render(){
   // toggles (Budget, Contractor, Modifiers, etc.) propagate into its cards.
   if(typeof bpView !== 'undefined' && bpView === 'groups' && typeof renderBpGroupFeed === 'function'){
     renderBpGroupFeed();
+    // Re-apply the most recent timeline → scope sync after the sidebar
+    // rebuild so the matching card/task stays highlighted + scrolled into
+    // view across re-renders.
+    if(typeof __syncScopeHighlight === 'function' && window.__scopeSyncLast){
+      const _l = window.__scopeSyncLast;
+      __syncScopeHighlight(_l.roomId, _l.taskId);
+    }
   } else if(typeof bpView !== 'undefined' && bpView === 'contractors' && typeof renderBpContractorFeed === 'function'){
     renderBpContractorFeed();
   } else if(typeof syncGroupFeedSelection === 'function'){
@@ -10437,9 +10430,9 @@ function renderCtorSel(){
   const btn = document.getElementById('ctor-sel-btn');
   if(!dd) return;
   if(label) label.textContent = activeContractor || 'All contractors';
-  // The new icon-style filter button picks up its visual state from the
-  // is-filtered class (defined in CSS). No more inline style overrides.
-  if(btn) btn.classList.toggle('is-filtered', !!activeContractor);
+  // is-filtered only fires while the dropdown is OPEN. Default rest state
+  // shows a plain black icon on transparent.
+  if(btn) btn.classList.toggle('is-filtered', !!ctorSelOpen);
   dd.style.display = ctorSelOpen ? 'block' : 'none';
   if(!ctorSelOpen) return;
   dd.innerHTML = '';
@@ -11603,7 +11596,22 @@ function renderCompare(){
   _persisted.currentIdx = state.currentIdx;
   _persisted.walkA      = state.walkA;
   _persisted.walkB      = state.walkB;
-  if(typeof _persisted.bandBVisible !== 'boolean') _persisted.bandBVisible = false;
+  // Compare file defaults to showing both dates (Initial walk + Final walk)
+  // — the user can still close Band B via the X to drop back to one date.
+  if(typeof _persisted.bandBVisible !== 'boolean') _persisted.bandBVisible = true;
+
+  // ── Scope sidebar sync helper ──
+  // Translates the current scrubber position to a (roomId, taskId?) pair and
+  // pings __syncScopeHighlight so the matching .gf-card / .gf-task in the
+  // Scope sidebar lights up + scrolls into view. No-op when the sidebar is
+  // showing a different tab (Floor plan / Trade-Contractor).
+  function __syncScopeFromSlot(){
+    if(typeof __syncScopeHighlight !== 'function') return;
+    const s = slots[state.currentIdx];
+    if(!s){ __syncScopeHighlight(null); return; }
+    if(s.type === 'task') __syncScopeHighlight(s.roomId, s.taskId);
+    else                  __syncScopeHighlight(s.roomId, null);
+  }
 
   // ── Shell ──
   // Band B's visibility persists across re-renders too — only collapse to
@@ -11703,6 +11711,7 @@ function renderCompare(){
     renderHead();
     updatePhotos();
     if(typeof renderSlider === 'function') renderSlider();
+    __syncScopeFromSlot();
   }
 
   // Filter info strip — shown when timeline is reduced to a single room
@@ -11891,6 +11900,7 @@ function renderCompare(){
         state.currentIdx = Math.max(0, Math.min(slots.length - 1, n));
         _persisted.currentIdx = state.currentIdx;
         rangeWrap.setAttribute('aria-valuenow', String(state.currentIdx));
+        __syncScopeFromSlot();
       }
     },
     getBoundingClientRect(){ return track.getBoundingClientRect(); },
@@ -12018,6 +12028,7 @@ function renderCompare(){
     renderHead();
     updatePhotos();
     renderSlider();
+    __syncScopeFromSlot();
   });
 
   // v5++: pointer scrubbing is owned by rangeWrap, not the <input> itself.
@@ -12043,6 +12054,7 @@ function renderCompare(){
     renderHead();
     updatePhotos();
     renderSlider();
+    __syncScopeFromSlot();
   }
   let __scrubDragging = false;
   function __startScrub(ev){
@@ -12446,6 +12458,9 @@ function renderCompare(){
   renderHead();
   updatePhotos();
   renderSlider();
+  // Mirror the starting slot into the Scope sidebar — defer one tick so
+  // the sidebar has finished its own render() pass first.
+  setTimeout(() => { try { __syncScopeFromSlot(); } catch(e){} }, 0);
 
   // Keyboard nav — left/right arrows advance through slots.
   if(window.__tlKeyHandler){
