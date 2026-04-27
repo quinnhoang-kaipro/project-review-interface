@@ -2594,8 +2594,77 @@ table.dt tr:hover td { background:var(--bg-2); }
     </button>
     <span class="t-address">3484 South Main Street, Atlanta</span>
     <div class="t-divider"></div>
-    <nav class="t-tabs"></nav>
+    <!-- Layer toggles + Filter button — restored back into the toolbar so
+         users can flip individual layers from one click. The breadcrumb is
+         empty on the home page (no group/task selected) so there's room for
+         the full set of icons; on group/task pages the breadcrumb truncates
+         with ellipsis to keep these visible. -->
+    <div style="display:flex;align-items:center;gap:0;flex-shrink:0">
+      <button class="sb-layer-btn on" data-l="budget" data-tip="Budget" onclick="togLayer('budget',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#3DA86A" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#3DA86A" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#3DA86A" stroke-width="1"/></svg></div>
+        <span class="sb-layer-pip" style="background:#3DA86A"></span>
+      </button>
+      <button class="sb-layer-btn" data-l="contractor" data-tip="Contractor" onclick="togLayer('contractor',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6.5" r="3" stroke="#3B8FD4" stroke-width="1.4"/><path d="M3 15.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#3B8FD4" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#3B8FD4"></span>
+      </button>
+      <button class="sb-layer-btn" data-l="modifier" data-tip="Modifiers" onclick="togLayer('modifier',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5l1.6 4.9H16l-4.1 3 1.6 4.9L9 12.3l-4.5 3.1 1.6-4.9L2 7.4h5.4z" stroke="#D4A017" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#D4A017"></span>
+      </button>
+      <button class="sb-layer-btn" data-l="materials" data-tip="Materials" onclick="togLayer('materials',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="8.5" width="5" height="7" rx="1" stroke="#E8702A" stroke-width="1.3"/><rect x="10.5" y="5" width="5" height="10.5" rx="1" stroke="#E8702A" stroke-width="1.3"/><path d="M4.5 8.5V6a2 2 0 014 0v2.5" stroke="#E8702A" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#E8702A"></span>
+      </button>
+      <div class="sb-sep"></div>
+      <button class="sb-layer-btn" data-l="notes" data-tip="Notes" onclick="togLayer('notes',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="2.5" width="12" height="13" rx="1.5" stroke="#8B5DD4" stroke-width="1.4"/><line x1="6" y1="6.5" x2="12" y2="6.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="9.5" x2="12" y2="9.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="12.5" x2="9.5" y2="12.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#8B5DD4"></span>
+      </button>
+      <button class="sb-layer-btn" data-l="activity" data-tip="Activity" onclick="togLayer('activity',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#5a5751" stroke-width="1.4"/><path d="M9 5.5V9l2.5 2.5" stroke="#5a5751" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#5a5751"></span>
+      </button>
+      <button class="sb-layer-btn on" data-l="status" data-tip="Status" onclick="togLayer('status',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z" stroke="#2E7D8F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8V16L21.3333 18.6667" stroke="#2E7D8F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#2E7D8F"></span>
+      </button>
+      <div class="sb-sep"></div>
+      <button class="sb-layer-btn" data-l="unassigned" data-tip="Unassigned" onclick="togLayer('unassigned',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14h14M3.5 14v-3C3.5 7.4 5.5 5 9 5s5.5 2.4 5.5 6v3" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6" stroke="#E8702A" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#E8702A"></span>
+      </button>
+      <button class="sb-layer-btn" data-l="onhold" data-tip="Out of stock" onclick="togLayer('onhold',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2.5 2.5h6.5l6 6-6.5 6.5-6-6V2.5z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="6" r="1.2" fill="#E03E3E"/></svg></div>
+        <span class="sb-layer-pip" style="background:#E03E3E"></span>
+      </button>
+      <button class="sb-layer-btn" data-l="changes" data-tip="Change orders" onclick="togLayer('changes',this)">
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#E03E3E" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#E03E3E"/></svg></div>
+        <span class="sb-layer-pip" style="background:#E03E3E"></span>
+      </button>
+      <div style="position:relative;display:inline-flex;align-items:center;margin-left:8px" id="ctor-sel-wrap">
+        <button class="sb-layer-btn sb-layer-btn-filter" id="ctor-sel-btn" data-tip="Filter by contractor" onclick="toggleCtorSel(event)">
+          <div class="sb-layer-ico" style="width:24px;height:24px;opacity:1">
+            <svg width="22" height="22" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.77715 0C1.30791 0 0.913345 0.323184 0.794786 0.756543H0.265619C0.230699 0.756407 0.196097 0.763184 0.163809 0.776484C0.131521 0.789785 0.102185 0.809345 0.0774931 0.834037C0.0528011 0.858729 0.0332412 0.888064 0.0199414 0.920352C0.00664158 0.95264 -0.000135133 0.987241 2.04281e-06 1.02216C0.000137003 1.05691 0.00711449 1.09128 0.0205361 1.12333C0.0339577 1.15538 0.0535605 1.18447 0.0782254 1.20895C0.10289 1.23342 0.132134 1.25279 0.164287 1.26596C0.19644 1.27914 0.230873 1.28585 0.265619 1.28571H0.793752C0.911506 1.72026 1.30706 2.04484 1.77715 2.04484C2.24251 2.04484 2.63477 1.72655 2.75694 1.29863L7.14375 1.28571C7.1785 1.28564 7.21289 1.27873 7.24497 1.26537C7.27704 1.25201 7.30617 1.23247 7.33069 1.20785C7.35521 1.18323 7.37464 1.15403 7.38788 1.1219C7.40111 1.08977 7.40789 1.05535 7.40782 1.02061C7.40768 0.950617 7.37982 0.883531 7.33033 0.834038C7.28083 0.784545 7.21375 0.75668 7.14375 0.756543L2.76417 0.769463C2.65017 0.32945 2.25116 5.3e-07 1.77715 0ZM1.77715 0.529167C2.05284 0.529167 2.27066 0.746478 2.27066 1.02216C2.27066 1.29784 2.05284 1.51567 1.77715 1.51567C1.50147 1.51567 1.28416 1.29784 1.28416 1.02216C1.28416 0.746478 1.50147 0.529167 1.77715 0.529167ZM4.60386 2.55695C4.12685 2.55695 3.72542 2.88588 3.60702 3.32693H0.265619C0.230829 3.32679 0.196355 3.33352 0.164168 3.34672C0.131981 3.35993 0.102715 3.37935 0.078043 3.40388C0.0533714 3.4284 0.0337792 3.45756 0.020388 3.48966C0.00699669 3.52177 6.92175e-05 3.55621 2.04281e-06 3.591C-6.68499e-05 3.62587 0.00676021 3.66042 0.0200906 3.69264C0.033421 3.72487 0.0529917 3.75415 0.0776769 3.77878C0.102362 3.80342 0.131675 3.82293 0.163929 3.8362C0.196183 3.84947 0.230742 3.85623 0.265619 3.8561H3.60753C3.72631 4.29702 4.12725 4.62659 4.60386 4.62659C5.08047 4.62659 5.4814 4.29702 5.60018 3.8561H7.14375C7.1785 3.85603 7.21289 3.84912 7.24497 3.83576C7.27704 3.8224 7.30617 3.80285 7.33069 3.77823C7.35521 3.75362 7.37464 3.72441 7.38788 3.69229C7.40111 3.66016 7.40789 3.62574 7.40782 3.591C7.40768 3.521 7.37982 3.45392 7.33033 3.40442C7.28083 3.35493 7.21375 3.32707 7.14375 3.32693H5.60069C5.4823 2.88588 5.08086 2.55695 4.60386 2.55695ZM4.60386 3.08612C4.88664 3.08612 5.11028 3.30822 5.11028 3.591C5.11028 3.87377 4.88664 4.09742 4.60386 4.09742C4.32107 4.09742 4.09743 3.87377 4.09743 3.591C4.09743 3.30822 4.32107 3.08612 4.60386 3.08612ZM2.54765 5.25446C2.0712 5.25446 1.66974 5.58373 1.55081 6.02444H0.265619C0.230699 6.0243 0.196097 6.03108 0.163809 6.04438C0.131521 6.05768 0.102185 6.07724 0.077493 6.10193C0.0528009 6.12662 0.0332411 6.15596 0.0199413 6.18825C0.00664148 6.22054 -0.000135173 6.25514 2.04281e-06 6.29006C0.000137029 6.3248 0.00711453 6.35918 0.0205361 6.39123C0.0339577 6.42328 0.0535606 6.45237 0.0782254 6.47684C0.10289 6.50131 0.132134 6.52069 0.164287 6.53386C0.19644 6.54703 0.230873 6.55374 0.265619 6.55361H1.5503C1.66847 6.99542 2.0704 7.32565 2.54765 7.32565C3.02488 7.32565 3.4263 6.9954 3.54449 6.55361H7.14375C7.21366 6.55347 7.28067 6.52567 7.33014 6.47629C7.37962 6.42691 7.40755 6.35996 7.40782 6.29006C7.40796 6.25527 7.40123 6.22079 7.38803 6.18861C7.37482 6.15642 7.3554 6.12715 7.33087 6.10248C7.30635 6.07781 7.27719 6.05822 7.24509 6.04483C7.21298 6.03143 7.17854 6.02451 7.14375 6.02444H3.54397C3.42503 5.58376 3.02409 5.25446 2.54765 5.25446ZM2.54765 5.78363C2.83044 5.78363 3.05408 6.00728 3.05408 6.29006C3.05408 6.57283 2.83044 6.79648 2.54765 6.79648C2.26487 6.79648 2.04122 6.57283 2.04122 6.29006C2.04122 6.00728 2.26487 5.78363 2.54765 5.78363Z" fill="currentColor"/>
+            </svg>
+          </div>
+        </button>
+        <div id="ctor-sel-dd" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:220px;overflow:hidden"></div>
+      </div>
+    </div>
+    <!-- Breadcrumb (group/task title) — sits in the middle of the toolbar
+         after the layer toggles. Truncates with ellipsis if it would push
+         the right-side controls off the row. -->
+    <div id="rp-breadcrumb" style="display:flex;align-items:center;gap:0;position:relative;min-width:0;flex-shrink:1;overflow:hidden;margin-left:16px"></div>
     <div class="t-space"></div>
+    <!-- Per-page approval pair (Request edit + Approve group/task) — moved
+         up from the secondary bar; populated by JS. -->
+    <div id="rp-approval" style="display:flex;align-items:center;gap:8px;flex-shrink:0"></div>
+    <span class="rp-hdr-vsep" style="margin:0 8px"></span>
+    <button class="rp-add-btn" title="Add task">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
     <button class="t-icon-btn" title="Search">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
     </button>
@@ -2671,129 +2740,33 @@ table.dt tr:hover td { background:var(--bg-2); }
       </div>
     </div>
 
-    <button class="t-cta">Complete Review</button>
+    <button class="t-cta">Approve Scope</button>
   </div>
 
 
-  <!-- FULL-WIDTH TOOLBAR (zoom · layers · views · add) -->
-  <div class="rp-hdr">
-    <!-- Left: data layer toggles pinned to the left edge of the menu bar -->
-    <div class="rp-hdr-left">
-      <!-- Data layers -->
-      <div style="display:flex;align-items:center;gap:0">
-        <button class="sb-layer-btn on" data-l="budget" data-tip="Budget" onclick="togLayer('budget',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#3DA86A" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#3DA86A" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#3DA86A" stroke-width="1"/></svg></div>
-          <span class="sb-layer-pip" style="background:#3DA86A"></span>
-        </button>
-        <button class="sb-layer-btn" data-l="contractor" data-tip="Contractor" onclick="togLayer('contractor',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6.5" r="3" stroke="#3B8FD4" stroke-width="1.4"/><path d="M3 15.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#3B8FD4" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-          <span class="sb-layer-pip" style="background:#3B8FD4"></span>
-        </button>
-        <button class="sb-layer-btn" data-l="modifier" data-tip="Modifiers" onclick="togLayer('modifier',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5l1.6 4.9H16l-4.1 3 1.6 4.9L9 12.3l-4.5 3.1 1.6-4.9L2 7.4h5.4z" stroke="#D4A017" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
-          <span class="sb-layer-pip" style="background:#D4A017"></span>
-        </button>
-        <button class="sb-layer-btn" data-l="materials" data-tip="Materials" onclick="togLayer('materials',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="8.5" width="5" height="7" rx="1" stroke="#E8702A" stroke-width="1.3"/><rect x="10.5" y="5" width="5" height="10.5" rx="1" stroke="#E8702A" stroke-width="1.3"/><path d="M4.5 8.5V6a2 2 0 014 0v2.5" stroke="#E8702A" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-          <span class="sb-layer-pip" style="background:#E8702A"></span>
-        </button>
-        <div class="sb-sep"></div>
-        <button class="sb-layer-btn" data-l="notes" data-tip="Notes" onclick="togLayer('notes',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="2.5" width="12" height="13" rx="1.5" stroke="#8B5DD4" stroke-width="1.4"/><line x1="6" y1="6.5" x2="12" y2="6.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="9.5" x2="12" y2="9.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="12.5" x2="9.5" y2="12.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-          <span class="sb-layer-pip" style="background:#8B5DD4"></span>
-        </button>
-        <button class="sb-layer-btn" data-l="activity" data-tip="Activity" onclick="togLayer('activity',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#5a5751" stroke-width="1.4"/><path d="M9 5.5V9l2.5 2.5" stroke="#5a5751" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <span class="sb-layer-pip" style="background:#5a5751"></span>
-        </button>
-        <button class="sb-layer-btn on" data-l="status" data-tip="Status" onclick="togLayer('status',this)">
-          <!-- Status toolbar icon — uses the "In Progress" SVG (clock face)
-               recolored to the status palette so it reads as a workflow/state
-               toggle next to the other layer icons. -->
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z" stroke="#2E7D8F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8V16L21.3333 18.6667" stroke="#2E7D8F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <span class="sb-layer-pip" style="background:#2E7D8F"></span>
-        </button>
-        <div class="sb-sep"></div>
-        <button class="sb-layer-btn" data-l="unassigned" data-tip="Unassigned" onclick="togLayer('unassigned',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14h14M3.5 14v-3C3.5 7.4 5.5 5 9 5s5.5 2.4 5.5 6v3" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6" stroke="#E8702A" stroke-width="1.3" stroke-linecap="round"/></svg></div>
-          <span class="sb-layer-pip" style="background:#E8702A"></span>
-        </button>
-        <button class="sb-layer-btn" data-l="onhold" data-tip="Out of stock" onclick="togLayer('onhold',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2.5 2.5h6.5l6 6-6.5 6.5-6-6V2.5z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="6" r="1.2" fill="#E03E3E"/></svg></div>
-          <span class="sb-layer-pip" style="background:#E03E3E"></span>
-        </button>
-        <button class="sb-layer-btn" data-l="changes" data-tip="Change orders" onclick="togLayer('changes',this)">
-          <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#E03E3E" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#E03E3E"/></svg></div>
-          <span class="sb-layer-pip" style="background:#E03E3E"></span>
-        </button>
-        <!-- Contractor filter — moved from the right side to live inline with
-             the layer toggles. Sized slightly larger than its neighbours so
-             it reads as a filter affordance, not just another layer toggle.
-             margin-left adds breathing room between the Change orders icon
-             and this filter, so the two read as distinct controls. -->
-        <div style="position:relative;display:inline-flex;align-items:center;margin-left:8px" id="ctor-sel-wrap">
-          <button class="sb-layer-btn sb-layer-btn-filter" id="ctor-sel-btn" data-tip="Filter by contractor" onclick="toggleCtorSel(event)">
-            <div class="sb-layer-ico" style="width:24px;height:24px;opacity:1">
-              <svg width="22" height="22" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1.77715 0C1.30791 0 0.913345 0.323184 0.794786 0.756543H0.265619C0.230699 0.756407 0.196097 0.763184 0.163809 0.776484C0.131521 0.789785 0.102185 0.809345 0.0774931 0.834037C0.0528011 0.858729 0.0332412 0.888064 0.0199414 0.920352C0.00664158 0.95264 -0.000135133 0.987241 2.04281e-06 1.02216C0.000137003 1.05691 0.00711449 1.09128 0.0205361 1.12333C0.0339577 1.15538 0.0535605 1.18447 0.0782254 1.20895C0.10289 1.23342 0.132134 1.25279 0.164287 1.26596C0.19644 1.27914 0.230873 1.28585 0.265619 1.28571H0.793752C0.911506 1.72026 1.30706 2.04484 1.77715 2.04484C2.24251 2.04484 2.63477 1.72655 2.75694 1.29863L7.14375 1.28571C7.1785 1.28564 7.21289 1.27873 7.24497 1.26537C7.27704 1.25201 7.30617 1.23247 7.33069 1.20785C7.35521 1.18323 7.37464 1.15403 7.38788 1.1219C7.40111 1.08977 7.40789 1.05535 7.40782 1.02061C7.40768 0.950617 7.37982 0.883531 7.33033 0.834038C7.28083 0.784545 7.21375 0.75668 7.14375 0.756543L2.76417 0.769463C2.65017 0.32945 2.25116 5.3e-07 1.77715 0ZM1.77715 0.529167C2.05284 0.529167 2.27066 0.746478 2.27066 1.02216C2.27066 1.29784 2.05284 1.51567 1.77715 1.51567C1.50147 1.51567 1.28416 1.29784 1.28416 1.02216C1.28416 0.746478 1.50147 0.529167 1.77715 0.529167ZM4.60386 2.55695C4.12685 2.55695 3.72542 2.88588 3.60702 3.32693H0.265619C0.230829 3.32679 0.196355 3.33352 0.164168 3.34672C0.131981 3.35993 0.102715 3.37935 0.078043 3.40388C0.0533714 3.4284 0.0337792 3.45756 0.020388 3.48966C0.00699669 3.52177 6.92175e-05 3.55621 2.04281e-06 3.591C-6.68499e-05 3.62587 0.00676021 3.66042 0.0200906 3.69264C0.033421 3.72487 0.0529917 3.75415 0.0776769 3.77878C0.102362 3.80342 0.131675 3.82293 0.163929 3.8362C0.196183 3.84947 0.230742 3.85623 0.265619 3.8561H3.60753C3.72631 4.29702 4.12725 4.62659 4.60386 4.62659C5.08047 4.62659 5.4814 4.29702 5.60018 3.8561H7.14375C7.1785 3.85603 7.21289 3.84912 7.24497 3.83576C7.27704 3.8224 7.30617 3.80285 7.33069 3.77823C7.35521 3.75362 7.37464 3.72441 7.38788 3.69229C7.40111 3.66016 7.40789 3.62574 7.40782 3.591C7.40768 3.521 7.37982 3.45392 7.33033 3.40442C7.28083 3.35493 7.21375 3.32707 7.14375 3.32693H5.60069C5.4823 2.88588 5.08086 2.55695 4.60386 2.55695ZM4.60386 3.08612C4.88664 3.08612 5.11028 3.30822 5.11028 3.591C5.11028 3.87377 4.88664 4.09742 4.60386 4.09742C4.32107 4.09742 4.09743 3.87377 4.09743 3.591C4.09743 3.30822 4.32107 3.08612 4.60386 3.08612ZM2.54765 5.25446C2.0712 5.25446 1.66974 5.58373 1.55081 6.02444H0.265619C0.230699 6.0243 0.196097 6.03108 0.163809 6.04438C0.131521 6.05768 0.102185 6.07724 0.077493 6.10193C0.0528009 6.12662 0.0332411 6.15596 0.0199413 6.18825C0.00664148 6.22054 -0.000135173 6.25514 2.04281e-06 6.29006C0.000137029 6.3248 0.00711453 6.35918 0.0205361 6.39123C0.0339577 6.42328 0.0535606 6.45237 0.0782254 6.47684C0.10289 6.50131 0.132134 6.52069 0.164287 6.53386C0.19644 6.54703 0.230873 6.55374 0.265619 6.55361H1.5503C1.66847 6.99542 2.0704 7.32565 2.54765 7.32565C3.02488 7.32565 3.4263 6.9954 3.54449 6.55361H7.14375C7.21366 6.55347 7.28067 6.52567 7.33014 6.47629C7.37962 6.42691 7.40755 6.35996 7.40782 6.29006C7.40796 6.25527 7.40123 6.22079 7.38803 6.18861C7.37482 6.15642 7.3554 6.12715 7.33087 6.10248C7.30635 6.07781 7.27719 6.05822 7.24509 6.04483C7.21298 6.03143 7.17854 6.02451 7.14375 6.02444H3.54397C3.42503 5.58376 3.02409 5.25446 2.54765 5.25446ZM2.54765 5.78363C2.83044 5.78363 3.05408 6.00728 3.05408 6.29006C3.05408 6.57283 2.83044 6.79648 2.54765 6.79648C2.26487 6.79648 2.04122 6.57283 2.04122 6.29006C2.04122 6.00728 2.26487 5.78363 2.54765 5.78363Z" fill="currentColor"/>
-              </svg>
-            </div>
-          </button>
-          <div id="ctor-sel-dd" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:220px;overflow:hidden"></div>
-        </div>
-      </div>
+  <!-- Secondary toolbar — now hidden, since all of its controls (layer
+       toggles, filter, breadcrumb, approval, add task) live in the top
+       toolbar above. Kept in DOM so the legacy IDs (#walk-sel-wrap,
+       #ctor-sel-label, etc.) still resolve without JS errors. -->
+  <!-- Secondary toolbar — every visible control was moved into the top
+       toolbar above. Only hidden legacy elements remain so any stray
+       getElementById calls in the existing JS keep working. -->
+  <div class="rp-hdr" style="display:none">
+    <span class="vt-mode-label" id="vt-mode-label" style="display:none">Photo grid</span>
+    <div class="view-toggle" style="display:none">
+      <button class="vt-btn active" id="vt-photo" onclick="setView('photo')" title="Photo grid"></button>
+      <button class="vt-btn" id="vt-table" onclick="setView('table')" title="Table view"></button>
+      <button class="vt-btn" id="vt-compare" title="Compare walks"></button>
+      <button class="vt-btn" id="vt-sr" title="Compare walks (2)"></button>
     </div>
-
-    <!-- Center slot — repurposed in this single-mode variant. The original
-         file showed a "Photo grid" label + view-mode toggle here; this file
-         pins the view to Photo grid and instead surfaces the active group/
-         task title in this slot via #rp-breadcrumb (so it sits where the
-         toggle used to be). -->
-    <div class="rp-hdr-center" style="min-width:0;flex-shrink:1;overflow:hidden">
-      <div id="rp-breadcrumb" style="display:flex;align-items:center;gap:0;position:relative;min-width:0;flex-shrink:1;overflow:hidden;max-width:100%"></div>
-      <!-- Hidden mode label + view toggle — kept in DOM so legacy JS that
-           queries them by id (vt-mode-label / vt-photo / vt-compare / vt-sr)
-           keeps working without runtime errors. -->
-      <span class="vt-mode-label" id="vt-mode-label" style="display:none">Photo grid</span>
-      <div class="view-toggle" style="display:none">
-        <button class="vt-btn active" id="vt-photo" onclick="setView('photo')" title="Photo grid"></button>
-        <button class="vt-btn" id="vt-table" onclick="setView('table')" title="Table view" style="display:none"></button>
-        <button class="vt-btn" id="vt-compare" title="Compare walks"></button>
-        <button class="vt-btn" id="vt-sr" title="Compare walks (2)" style="display:none"></button>
-      </div>
-    </div>
-
-    <!-- Right: walk · filters · approval · add (breadcrumb moved to center) -->
-    <div class="rp-hdr-right">
-
-      <!-- Global walk selector — hidden across all modes (walk switching lives
-           inside the compare / scope-review timelines themselves). Flip the
-           wrapper's display:none back to position:relative to restore it. -->
-      <div style="display:none" id="walk-sel-wrap">
-        <button id="walk-sel-btn" onclick="toggleWalkSel(event)" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:var(--bg-2);border:1px solid var(--border-mid);font-size:12px;font-weight:500;color:var(--t1);cursor:pointer;font-family:var(--font);white-space:nowrap;transition:opacity .15s">
-          <span id="walk-sel-dot" style="width:8px;height:8px;border-radius:50%;background:var(--charcoal);flex-shrink:0;display:inline-block"></span>
-          <span id="walk-sel-label">Initial walk</span>
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        </button>
-        <div id="walk-sel-dd" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:300;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--rl);box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:210px;overflow:hidden"></div>
-      </div>
-
-      <!-- Contractor filter moved to the layer-toggle row (left side). The
-           hidden span keeps the legacy id alive so toggleCtorSel can update
-           the active label without runtime errors. -->
-      <span id="ctor-sel-label" style="display:none">All contractors</span>
-
-      <!-- Approval pair (populated by JS) -->
-      <div id="rp-approval"></div>
-
-      <span class="rp-hdr-vsep"></span>
-
-      <!-- Add task -->
-      <button class="rp-add-btn" title="Add task">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <div style="display:none" id="walk-sel-wrap">
+      <button id="walk-sel-btn" onclick="toggleWalkSel(event)">
+        <span id="walk-sel-dot"></span>
+        <span id="walk-sel-label">Initial walk</span>
       </button>
-
+      <div id="walk-sel-dd" style="display:none"></div>
     </div>
+    <span id="ctor-sel-label" style="display:none">All contractors</span>
     <span class="rp-tag" id="rp-tag" style="display:none"></span>
   </div>
 
@@ -2811,27 +2784,11 @@ table.dt tr:hover td { background:var(--bg-2); }
         </button>
         <button class="bp-view-tab" data-view="groups" onclick="setBpView('groups',this)">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1.5" width="11" height="3" rx=".8" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="5.5" width="11" height="3" rx=".8" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9.5" width="11" height="3" rx=".8" stroke="currentColor" stroke-width="1.2"/></svg>
-          Scope
+          Group
         </button>
         <button class="bp-view-tab" data-view="contractors" onclick="setBpView('contractors',this)">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2"/><path d="M1.8 12c0-2.3 2.1-4.2 4.7-4.2s4.7 1.9 4.7 4.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-          Contractors
-        </button>
-        <button class="bp-view-tab" data-view="dollhouse" onclick="setBpView('dollhouse',this)">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L12 4.5v6L6.5 12 1 10.5V4.5L6.5 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M6.5 1v11M1 4.5l5.5 3 5.5-3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-          3D
-        </button>
-        <button class="bp-view-tab" data-view="video" onclick="setBpView('video',this)">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="2.5" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M9 5l3-1.5v5L9 7" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-          Video
-        </button>
-        <button class="bp-view-tab" data-view="satellite" onclick="setBpView('satellite',this)">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 10L6 7l2 2 3-4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Satellite
-        </button>
-        <button class="bp-view-tab" data-view="street" onclick="setBpView('street',this)">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 10L4 3h5l3 7H1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M4 10V7M6.5 10V7M9 10V7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-          Street
+          Trade/Contractor
         </button>
         <!-- Collapse chevron ( < ) — hides the whole left panel. The matching
              > pill (.bp-expand-btn) appears on the left edge to re-open it. -->
@@ -10203,25 +10160,15 @@ function renderBpGroupFeed(){
           '</button>'+
         '</div>' +
         '<div class="gf-task-details">'+ __gfTaskDetailsHtml(task, room.name) +'</div>';
-      // Clicking a task selects it in the right panel, same as clicking a room
+      // Click anywhere on the task summary — chevron, name, meta — toggles
+      // the details panel. Clicks inside the already-expanded details panel
+      // are treated as local controls and don't collapse the row. Selection
+      // (selRoom/pickTask) is no longer auto-fired so clicking to expand
+      // doesn't navigate the right panel away.
       row.addEventListener('click', (e) => {
         e.stopPropagation();
-        // Any control inside the details panel stays local — clicking a pill,
-        // input, or button in the expanded details shouldn't change selection
-        // or collapse the row.
         if(e.target.closest('.gf-task-details')) return;
-        // Chevron toggles the details panel without changing selection —
-        // useful for collapsing a row that's already expanded.
-        const tog = e.target.closest('[data-gf-toggle]');
-        if(tog){ row.classList.toggle('expanded'); return; }
-        // v5: clicking anywhere on the summary of a collapsed row also
-        // expands it, so users don't have to aim at the small chevron.
-        // Once expanded, summary clicks only re-select (no auto-collapse).
-        if(!row.classList.contains('expanded')){
-          row.classList.add('expanded');
-        }
-        if(typeof selRoom === 'function') selRoom(rid);
-        if(typeof pickTask === 'function') pickTask(rid, task);
+        row.classList.toggle('expanded');
       });
       body.appendChild(row);
     });
@@ -10371,13 +10318,12 @@ function renderBpContractorFeed(){
           '</button>'+
         '</div>' +
         '<div class="gf-task-details">'+ __gfTaskDetailsHtml(task, room.name) +'</div>';
+      // Click anywhere on the task summary toggles the expanded state.
+      // Clicks inside the details panel itself are local controls.
       row.addEventListener('click', (e) => {
         e.stopPropagation();
-        const tog = e.target.closest('[data-gf-toggle]');
-        if(tog){ row.classList.toggle('expanded'); return; }
         if(e.target.closest('.gf-task-details')) return;
-        if(typeof selRoom === 'function') selRoom(rid);
-        if(typeof pickTask === 'function') pickTask(rid, task);
+        row.classList.toggle('expanded');
       });
       body.appendChild(row);
     });
