@@ -8,12 +8,12 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --green:#3DA86A; --charcoal:#1D1D1D; --red:#E03E3E;
-  --blue:#3B8FD4; --orange:#E8702A; --purple:#8B5DD4;
-  --bg:#FFFFFF; --bg-card:#FFFFFF; --bg-2:#F0F0F0;
+  --green:#60926C; --charcoal:#1D1D1D; --red:#B14541;
+  --blue:#567DA3; --orange:#B3643E; --purple:#8B5DD4;
+  --bg:#F8F5F0; --bg-card:#FFFFFF; --bg-2:#EFEAE3;
   --border:rgba(0,0,0,0.08); --border-mid:rgba(0,0,0,0.14);
   --t1:#1D1D1D; --t2:#5a5751; --t3:#9a9590;
-  --bp-bg:#F7F7F7; --bp-wall:#9a9a9a; --bp-room:#EBEBEB; --bp-room-h:#DCDCDC; --bp-text:#6b6b6b;
+  --bp-bg:#F8F5F0; --bp-wall:#9a9a9a; --bp-room:#FFFFFF; --bp-room-h:#FFFFFF; --bp-text:#6b6b6b;
   --sidebar:400px; --toolbar:50px;
   --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
   --r:4px; --rm:8px; --rl:12px;
@@ -21,49 +21,65 @@
 html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); background:var(--bg); color:var(--t1); -webkit-font-smoothing:antialiased; }
 .app { display:flex; flex-direction:column; width:100%; height:100vh; }
 
-/* ── TOP NAV BAR ── */
+/* ── TOP NAV BAR (dark theme) ── */
+:root {
+  --tb-bg:#1D1D1D;
+  --tb-text:#FFFFFF;
+  --tb-text-mute:rgba(255,255,255,.55);
+  --tb-text-soft:rgba(255,255,255,.7);
+  --tb-divider:rgba(255,255,255,.16);
+  --tb-hover:rgba(255,255,255,.08);
+  --tb-accent:#E8C24A;
+}
 .toolbar {
   height:52px; display:flex; align-items:center; padding:0 20px;
-  background:var(--bg-card); flex-shrink:0; gap:0;
-  border-bottom:1px solid var(--border);
+  background:var(--tb-bg); flex-shrink:0; gap:0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  /* Scoped overrides so any descendant using var(--t1/--t2/--t3/--bg-2)
+     (including inline styles set by JS, which can't be reached by class
+     selectors) resolves to a white-on-dark shade instead of dark-on-dark. */
+  --t1:#FFFFFF;
+  --t2:rgba(255,255,255,.72);
+  --t3:rgba(255,255,255,.5);
+  --bg-2:rgba(255,255,255,.08);
 }
 .t-back {
   display:flex; align-items:center; gap:5px;
-  font-size:13px; color:var(--t2); cursor:pointer;
+  font-size:13px; color:var(--tb-text-mute); cursor:pointer;
   margin-right:20px; flex-shrink:0; border:none; background:none;
   font-family:var(--font); transition:color .12s;
 }
-.t-back:hover { color:var(--t1); }
+.t-back:hover { color:var(--tb-text); }
 .t-back svg { opacity:.6; }
 .t-address {
-  font-size:15px; font-weight:600; color:var(--t1);
+  font-size:15px; font-weight:600; color:var(--tb-text);
   letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   cursor:pointer; transition:color .12s;
 }
-.t-address:hover { color:var(--t2); }
-.t-divider { width:1px; height:22px; background:var(--border-mid); margin:0 20px; flex-shrink:0; }
+.t-address:hover { color:var(--tb-text-soft); }
+.t-divider { width:1px; height:22px; background:var(--tb-divider); margin:0 20px; flex-shrink:0; }
 .t-tabs { display:flex; align-items:center; height:100%; }
 .t-tab {
   display:flex; align-items:center; padding:0 14px 6px;
-  font-size:12px; font-weight:500; color:var(--t3);
+  font-size:12px; font-weight:500; color:var(--tb-text-mute);
   border:none; background:none; cursor:pointer; font-family:var(--font);
   position:relative; white-space:nowrap; letter-spacing:.02em; text-transform:uppercase;
   transition:color .12s; height:100%;
 }
-.t-tab:hover { color:var(--t1); }
-.t-tab.active { color:var(--t1); font-weight:700; }
+.t-tab:hover { color:var(--tb-text); }
+.t-tab.active { color:var(--tb-accent); font-weight:700; }
 .t-tab.active::after {
   content:''; position:absolute; bottom:0; left:14px; right:14px;
-  height:3.5px; background:var(--charcoal); border-radius:1px 1px 0 0;
+  height:3.5px; background:var(--tb-accent); border-radius:1px 1px 0 0;
   margin-bottom:-2px;
 }
 .t-space { flex:1; }
 .t-icon-btn {
   width:32px; height:32px; display:flex; align-items:center; justify-content:center;
-  border:none; background:transparent; cursor:pointer; color:var(--t2);
+  border:none; background:transparent; cursor:pointer; color:var(--tb-text-mute);
   border-radius:var(--rm); transition:background .12s; flex-shrink:0;
 }
-.t-icon-btn:hover { background:var(--bg-2); color:var(--t1); }
+.t-icon-btn:hover { background:var(--tb-hover); color:var(--tb-text); }
 .t-cta {
   padding:8px 18px; border-radius:var(--rm);
   background:var(--green); border:none; color:#fff;
@@ -72,6 +88,40 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
   transition:opacity .12s;
 }
 .t-cta:hover { opacity:.88; }
+/* Dark-toolbar overrides for controls that live inside .toolbar but share
+   classes with light-themed surfaces elsewhere on the page. */
+.toolbar .sb-layer-btn:hover { background:var(--tb-hover); }
+.toolbar .sb-layer-ico { opacity:.45; }
+.toolbar .sb-layer-btn.on .sb-layer-ico { opacity:1; }
+.toolbar .sb-sep { background:var(--tb-divider); }
+.toolbar .sb-layer-btn-filter { color:var(--tb-text); }
+.toolbar .sb-layer-btn-filter:hover { background:var(--tb-hover); color:var(--tb-text); }
+.toolbar .sb-layer-btn-filter.is-filtered { background:#fff; color:#1D1D1D; }
+.toolbar .sb-layer-btn-filter.is-filtered:hover { background:#fff; color:#1D1D1D; }
+.toolbar .rp-add-btn { color:var(--tb-text-soft); border-color:var(--tb-divider); }
+.toolbar .rp-add-btn:hover { background:#fff; border-color:#fff; color:#1D1D1D; }
+.toolbar .rp-hdr-vsep { background:var(--tb-divider); }
+.toolbar #rp-breadcrumb,
+.toolbar #rp-breadcrumb * { color:var(--tb-text); }
+.toolbar #rp-breadcrumb a,
+.toolbar #rp-breadcrumb button { color:var(--tb-text-soft); }
+.toolbar #rp-breadcrumb a:hover,
+.toolbar #rp-breadcrumb button:hover { color:var(--tb-text); }
+.toolbar .g-approve-btn { color:var(--tb-text); border-color:var(--tb-divider); }
+.toolbar .g-approve-btn:hover { border-color:var(--green); color:var(--green); background:rgba(96,146,108,.12); }
+.toolbar .g-approve-btn.g-approve-done { border-color:var(--green); color:var(--green); background:rgba(96,146,108,.18); }
+/* Dropdowns rendered inside the dark toolbar (e.g., contractor filter,
+   breadcrumb nav dropdown) sit on a white surface, so their descendants
+   need to revert to the dark-on-light text tokens. */
+.toolbar #ctor-sel-dd,
+.toolbar #nav-dd,
+.toolbar .nav-dropdown {
+  --t1:#1D1D1D;
+  --t2:#5a5751;
+  --t3:#9a9590;
+  --bg-2:#EFEAE3;
+  color:var(--t1);
+}
 
 /* zoom-pill-bar lives in rp-hdr */
 .zoom-pill-bar {
@@ -140,22 +190,23 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
 /* ── RESIZER ── */
 .resizer {
   width:6px; flex-shrink:0; cursor:col-resize;
-  background:transparent; position:relative; z-index:10;
+  background:rgba(0,0,0,.13); position:relative; z-index:10;
   transition:background .15s; display:flex; align-items:center; justify-content:center;
 }
+.resizer:hover { background:rgba(0,0,0,.25); }
+.resizer.dragging { background:rgba(0,0,0,.25); }
 .resizer::after {
   content:'';
   position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:1px; height:40px;
-  background:var(--border-mid);
-  border-radius:1px;
-  transition:width .15s, height .15s;
+  width:3px; height:56px;
+  background:rgba(0,0,0,.36);
+  border-radius:2px;
+  transition:width .15s, height .15s, background .15s;
 }
 .resizer:hover::after, .resizer.dragging::after {
-  width:3px; height:56px;
-  background:var(--border-mid);
+  width:4px; height:64px;
+  background:rgba(0,0,0,.56);
 }
-.resizer.dragging { background:rgba(0,0,0,.04); }
 
 /* Expand tab shown when floor plan is collapsed — sits at the same vertical
    position and height as the tab strip so it feels like a continuation of it. */
@@ -375,8 +426,8 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
   white-space:nowrap; flex-shrink:0;
 }
 .rp-chip .rc-dot { width:6px; height:6px; border-radius:50%; }
-.rp-chip.rc-alert { border-color:rgba(224,62,62,.3); background:#fef5f5; color:var(--red); }
-.rp-chip.rc-green { border-color:rgba(61,168,106,.3); background:#f0faf5; color:var(--green); }
+.rp-chip.rc-alert { border-color:rgba(177,69,65,.3); background:#fef5f5; color:var(--red); }
+.rp-chip.rc-green { border-color:rgba(96,146,108,.3); background:#f0faf5; color:var(--green); }
 .rp-meta { font-size:12px; color:var(--t3); font-family:var(--mono); white-space:nowrap; }
 .rp-tag { display:none; }
 
@@ -611,7 +662,7 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
   font-size:13px; font-weight:600; font-family:var(--font);
   cursor:pointer; transition:all .12s; white-space:nowrap;
 }
-.af-approve:hover { background:rgba(61,168,106,.08); }
+.af-approve:hover { background:rgba(96,146,108,.08); }
 .af-approve.approved {
   background:#e8f5e9; border-color:var(--green); color:#1a6e3a;
   cursor:default;
@@ -642,7 +693,7 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
   border:1.5px solid var(--border-mid); background:transparent; color:var(--t2);
 }
 .appr-btn:hover { border-color:var(--t2); color:var(--t1); background:var(--bg-2); }
-.appr-btn.appr-approve { border-color:rgba(61,168,106,.5); color:var(--green); }
+.appr-btn.appr-approve { border-color:rgba(96,146,108,.5); color:var(--green); }
 .appr-btn.appr-approve:hover { background:#f0faf5; border-color:var(--green); }
 .appr-btn.appr-approved { border-color:var(--green); background:#f0faf5; color:var(--green); cursor:default; }
 .appr-btn.appr-edit { border-color:var(--border-mid); color:var(--t2); }
@@ -681,15 +732,15 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
 
 .photo-badges { position:absolute; top:7px; left:7px; right:7px; display:flex; flex-wrap:wrap; gap:3px; pointer-events:none; }
 .badge { display:inline-flex; align-items:center; gap:2px; padding:2px 6px; border-radius:10px; font-size:9px; font-weight:600; letter-spacing:.03em; backdrop-filter:blur(4px); white-space:nowrap; }
-.b-budget { background:rgba(61,168,106,.9); color:#fff; }
-.b-contractor { background:rgba(59,143,212,.9); color:#fff; }
+.b-budget { background:rgba(96,146,108,.9); color:#fff; }
+.b-contractor { background:rgba(86,125,163,.9); color:#fff; }
 .b-modifier { background:rgba(232,192,48,.95); color:#3a2e00; }
-.b-materials { background:rgba(232,112,42,.9); color:#fff; }
+.b-materials { background:rgba(179,100,62,.9); color:#fff; }
 .b-notes { background:rgba(139,93,212,.9); color:#fff; }
 .b-activity { background:rgba(255,255,255,.88); color:#1D1D1D; }
-.b-issue { background:rgba(224,62,62,.92); color:#fff; }
+.b-issue { background:rgba(177,69,65,.92); color:#fff; }
 .b-status-progress   { background:rgba(46,125,143,.92); color:#fff; }
-.b-status-completed  { background:rgba(61,168,106,.92); color:#fff; }
+.b-status-completed  { background:rgba(96,146,108,.92); color:#fff; }
 .b-status-rework     { background:rgba(212,90,40,.92);  color:#fff; }
 .b-status-notstarted { background:rgba(140,140,140,.92); color:#fff; }
 
@@ -857,7 +908,7 @@ html,body { width:100%; height:100%; overflow:hidden; font-family:var(--font); b
 /* ── HOME: group-level layer rollup strips ── */
 .h-rollup-row { display:flex; gap:6px; flex-wrap:wrap; width:100%; margin-top:7px; }
 .h-rollup { display:inline-flex; align-items:center; gap:5px; padding:3px 8px; border-radius:8px; background:var(--bg-card); border:1px solid var(--border); font-size:11px; color:var(--t2); }
-.h-rollup-alert { border-color:rgba(224,62,62,.25); background:#fef5f5; color:var(--red); }
+.h-rollup-alert { border-color:rgba(177,69,65,.25); background:#fef5f5; color:var(--red); }
 .h-rollup-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
 .h-rollup-val { font-weight:500; color:var(--t1); }
 .h-rollup-alert .h-rollup-val { color:var(--red); }
@@ -1148,9 +1199,9 @@ table.dt tr:hover td { background:var(--bg-2); }
 /* ── Walk dot styles ── */
 .walk-badge { position:absolute; top:7px; left:7px; display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:10px; font-size:9px; font-weight:700; letter-spacing:.04em; backdrop-filter:blur(6px); pointer-events:none; }
 .wb-initial   { background:rgba(30,30,30,.78);   color:#fff; }
-.wb-progress  { background:rgba(59,143,212,.88);  color:#fff; }
-.wb-closeout  { background:rgba(61,168,106,.88);  color:#fff; }
-.wb-co        { background:rgba(232,112,42,.88);  color:#fff; }
+.wb-progress  { background:rgba(86,125,163,.88);  color:#fff; }
+.wb-closeout  { background:rgba(96,146,108,.88);  color:#fff; }
+.wb-co        { background:rgba(179,100,62,.88);  color:#fff; }
 .wdot-initial   { background:#555; }
 .wdot-p1        { background:var(--blue); }
 .wdot-p2        { background:#5BAED4; }
@@ -1163,7 +1214,7 @@ table.dt tr:hover td { background:var(--bg-2); }
 .photo-overlay {
   position:fixed; inset:0; z-index:1000;
   display:flex; align-items:center; justify-content:center;
-  padding:5vh 5vw;
+  padding:7vh 7vw;
   background:rgba(0,0,0,.55);
   animation:overlayIn .18s ease;
 }
@@ -1174,8 +1225,8 @@ table.dt tr:hover td { background:var(--bg-2); }
 .po-modal {
   display:flex; flex-direction:row;
   width:100%; height:100%;
-  max-width:min(1200px, 92vw);
-  max-height:min(780px, 90vh);
+  max-width:min(1200px, 86vw);
+  max-height:min(780px, 86vh);
   background:#000;
   border-radius:16px; overflow:hidden;
   box-shadow:0 20px 60px rgba(0,0,0,.5);
@@ -1454,15 +1505,15 @@ table.dt tr:hover td { background:var(--bg-2); }
   font-size:9px; font-weight:600; letter-spacing:.03em;
   backdrop-filter:blur(4px); white-space:nowrap;
 }
-.b-budget     { background:rgba(61,168,106,.9);  color:#fff; }
-.b-contractor { background:rgba(59,143,212,.9);  color:#fff; }
+.b-budget     { background:rgba(96,146,108,.9);  color:#fff; }
+.b-contractor { background:rgba(86,125,163,.9);  color:#fff; }
 .b-modifier   { background:rgba(212,160,23,.92); color:#3a2e00; }
-.b-materials  { background:rgba(232,112,42,.9);  color:#fff; }
+.b-materials  { background:rgba(179,100,62,.9);  color:#fff; }
 .b-notes      { background:rgba(139,93,212,.9);  color:#fff; }
 .b-activity   { background:rgba(255,255,255,.88);color:#1D1D1D; }
-.b-issue      { background:rgba(224,62,62,.92);  color:#fff; }
+.b-issue      { background:rgba(177,69,65,.92);  color:#fff; }
 .b-status-progress   { background:rgba(46,125,143,.92); color:#fff; }
-.b-status-completed  { background:rgba(61,168,106,.92); color:#fff; }
+.b-status-completed  { background:rgba(96,146,108,.92); color:#fff; }
 .b-status-rework     { background:rgba(212,90,40,.92);  color:#fff; }
 .b-status-notstarted { background:rgba(140,140,140,.92); color:#fff; }
 
@@ -1696,7 +1747,7 @@ table.dt tr:hover td { background:var(--bg-2); }
 }
 .gf-task-issue {
   font-size:10px; font-weight:600; color:var(--red);
-  background:rgba(224,62,62,.08); border:1px solid rgba(224,62,62,.3);
+  background:rgba(177,69,65,.08); border:1px solid rgba(177,69,65,.3);
   border-radius:10px; padding:1px 7px;
   display:inline-flex; align-items:center; gap:3px;
   white-space:nowrap;
@@ -1757,7 +1808,7 @@ table.dt tr:hover td { background:var(--bg-2); }
 }
 .gf-td-pill.deferred  { color:#7a5a00; background:rgba(212,160,23,.12); border-color:rgba(212,160,23,.35); }
 .gf-td-pill.resident  { color:#5a3ea3; background:rgba(139,93,212,.10); border-color:rgba(139,93,212,.30); }
-.gf-td-pill.future    { color:#2f6d4a; background:rgba(61,168,106,.10); border-color:rgba(61,168,106,.30); }
+.gf-td-pill.future    { color:#2f6d4a; background:rgba(96,146,108,.10); border-color:rgba(96,146,108,.30); }
 .gf-td-add {
   font-size:10.5px; font-weight:600; color:var(--t3);
   background:transparent; border:1px dashed var(--border-mid);
@@ -1781,7 +1832,7 @@ table.dt tr:hover td { background:var(--bg-2); }
 .gf-td-issue {
   grid-column:1 / -1;
   margin-top:4px; padding:6px 8px;
-  background:rgba(224,62,62,.06); border:1px solid rgba(224,62,62,.25);
+  background:rgba(177,69,65,.06); border:1px solid rgba(177,69,65,.25);
   border-radius:var(--rm);
   font-size:11.5px; color:var(--red); line-height:1.4;
 }
@@ -1871,7 +1922,7 @@ table.dt tr:hover td { background:var(--bg-2); }
 }
 .gf-task-action.approve:hover { opacity:.9; background:var(--green); }
 .gf-task-action.delete {
-  color:var(--red); border-color:rgba(224,62,62,.35); background:var(--bg-card);
+  color:var(--red); border-color:rgba(177,69,65,.35); background:var(--bg-card);
 }
 .gf-task-action.delete:hover { background:#fef2f2; border-color:var(--red); color:var(--red); }
 /* Trade name caption shown under the Contractor card title in
@@ -2252,9 +2303,9 @@ table.dt tr:hover td { background:var(--bg-2); }
   white-space:nowrap; overflow:hidden; cursor:help;
   transition:padding .18s ease, gap .18s ease, box-shadow .12s ease;
 }
-.tl-root .tl-cell-badge.issue      { background:rgba(224,62,62,.92);  color:#fff; }
+.tl-root .tl-cell-badge.issue      { background:rgba(177,69,65,.92);  color:#fff; }
 .tl-root .tl-cell-badge.note       { background:rgba(139,93,212,.92); color:#fff; }
-.tl-root .tl-cell-badge.unassigned { background:rgba(232,112,42,.92); color:#fff; }
+.tl-root .tl-cell-badge.unassigned { background:rgba(179,100,62,.92); color:#fff; }
 .tl-root .tl-cell-badge svg { width:10px; height:10px; flex-shrink:0; }
 .tl-root .tl-cell-badge .tl-cell-badge-text {
   display:inline-block; max-width:0; opacity:0;
@@ -2401,9 +2452,9 @@ table.dt tr:hover td { background:var(--bg-2); }
 .tl-modal-head .sub { font-size:12px; color:var(--t3); }
 .tl-modal-badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
 .tl-modal-badge { font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:999px; background:var(--bg-2); color:var(--t2); border:1px solid var(--border); text-transform:uppercase; letter-spacing:.04em; }
-.tl-modal-badge.done { background:#ecf6ef; color:var(--green); border-color:rgba(61,168,106,.3); }
+.tl-modal-badge.done { background:#ecf6ef; color:var(--green); border-color:rgba(96,146,108,.3); }
 .tl-modal-badge.issue { background:#fdecec; color:var(--red); border-color:rgba(200,60,60,.3); }
-.tl-modal-badge.modifier { background:#fff4e6; color:var(--orange); border-color:rgba(232,112,42,.3); }
+.tl-modal-badge.modifier { background:#fff4e6; color:var(--orange); border-color:rgba(179,100,62,.3); }
 .tl-modal-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 20px; }
 .tl-modal-grid .cell { display:flex; flex-direction:column; gap:2px; }
 .tl-modal-grid .cell .lbl { font-size:10px; font-family:var(--mono); color:var(--t3); text-transform:uppercase; letter-spacing:.06em; }
@@ -2415,15 +2466,15 @@ table.dt tr:hover td { background:var(--bg-2); }
 .tl-modal-materials .row { display:grid; grid-template-columns:1fr 80px 90px 100px; gap:10px; padding:8px 12px; align-items:center; border-bottom:1px solid var(--border); font-size:12px; }
 .tl-modal-materials .row:last-child { border-bottom:none; }
 .tl-modal-materials .row.header { background:var(--bg-2); font-family:var(--mono); font-size:10px; color:var(--t3); text-transform:uppercase; letter-spacing:.06em; }
-.tl-modal-materials .row.labor { background:rgba(59,143,212,.06); }
+.tl-modal-materials .row.labor { background:rgba(86,125,163,.06); }
 .tl-modal-materials .name { color:var(--t1); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .tl-modal-materials .name .vendor { display:block; font-size:10.5px; color:var(--t3); font-weight:400; margin-top:1px; }
 .tl-modal-materials .qty, .tl-modal-materials .price { font-family:var(--mono); color:var(--t2); }
 .tl-modal-materials .price.total { color:var(--t1); font-weight:500; }
 .tl-modal-materials .status { font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:999px; text-align:center; background:var(--bg-2); color:var(--t2); text-transform:uppercase; letter-spacing:.04em; border:1px solid var(--border); }
-.tl-modal-materials .status[data-s="Completed"], .tl-modal-materials .status[data-s="Delivered"] { background:#ecf6ef; color:var(--green); border-color:rgba(61,168,106,.25); }
-.tl-modal-materials .status[data-s="Ordered"], .tl-modal-materials .status[data-s="Scheduled"] { background:#eaf3fb; color:var(--blue); border-color:rgba(59,143,212,.25); }
-.tl-modal-materials .status[data-s="Pending"], .tl-modal-materials .status[data-s="Deferred"] { background:#fff4e6; color:var(--orange); border-color:rgba(232,112,42,.25); }
+.tl-modal-materials .status[data-s="Completed"], .tl-modal-materials .status[data-s="Delivered"] { background:#ecf6ef; color:var(--green); border-color:rgba(96,146,108,.25); }
+.tl-modal-materials .status[data-s="Ordered"], .tl-modal-materials .status[data-s="Scheduled"] { background:#eaf3fb; color:var(--blue); border-color:rgba(86,125,163,.25); }
+.tl-modal-materials .status[data-s="Pending"], .tl-modal-materials .status[data-s="Deferred"] { background:#fff4e6; color:var(--orange); border-color:rgba(179,100,62,.25); }
 .tl-modal-materials .status[data-s="On hold"] { background:#fdecec; color:var(--red); border-color:rgba(200,60,60,.25); }
 .tl-modal-empty-section { font-size:12px; color:var(--t3); font-style:italic; padding:6px 0; }
 .tl-modal-activity { display:flex; flex-direction:column; gap:8px; }
@@ -2614,10 +2665,10 @@ table.dt tr:hover td { background:var(--bg-2); }
 .sr-photo-thumb { position:relative; width:100%; aspect-ratio:4/3; background:var(--bg-2); overflow:hidden; }
 .sr-photo-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
 .sr-photo-badge { position:absolute; top:4px; right:4px; font-family:var(--mono); font-size:8.5px; padding:1px 6px; border-radius:999px; text-transform:uppercase; letter-spacing:.05em; background:var(--bg-card); color:var(--t2); border:1px solid var(--border); }
-.sr-photo-badge.completed { background:#ecf6ef; color:var(--green); border-color:rgba(61,168,106,.3); }
-.sr-photo-badge.in-progress { background:#eaf3fb; color:var(--blue); border-color:rgba(59,143,212,.3); }
+.sr-photo-badge.completed { background:#ecf6ef; color:var(--green); border-color:rgba(96,146,108,.3); }
+.sr-photo-badge.in-progress { background:#eaf3fb; color:var(--blue); border-color:rgba(86,125,163,.3); }
 .sr-photo-badge.not-started { background:var(--bg-2); color:var(--t3); border-color:var(--border); }
-.sr-photo-badge.on-hold { background:#fdecec; color:var(--red); border-color:rgba(224,62,62,.3); }
+.sr-photo-badge.on-hold { background:#fdecec; color:var(--red); border-color:rgba(177,69,65,.3); }
 .sr-photo-label { font-size:10.5px; padding:5px 8px 6px; color:var(--t1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-top:1px solid var(--border); background:var(--bg-card); }
 
 /* Section empty state (used by all sub-sections during SR-2) */
@@ -2645,7 +2696,7 @@ table.dt tr:hover td { background:var(--bg-2); }
 .sr-section-title-row { display:flex; align-items:center; justify-content:space-between; padding:4px 2px 2px; margin-top:4px; }
 .sr-section-title-row .sr-section-title { padding:0; margin-top:0; }
 .sr-section-clear { font:inherit; font-family:var(--mono); font-size:9.5px; color:var(--blue); background:none; border:none; cursor:pointer; text-transform:uppercase; letter-spacing:.06em; padding:2px 4px; border-radius:var(--r); }
-.sr-section-clear:hover { background:rgba(59,143,212,.1); }
+.sr-section-clear:hover { background:rgba(86,125,163,.1); }
 
 .sr-task-list { display:flex; flex-direction:column; gap:4px; }
 .sr-task-row { display:flex; align-items:flex-start; gap:10px; padding:8px 10px; border-radius:var(--r); cursor:pointer; transition:background .12s; border:1px solid transparent; }
@@ -2677,20 +2728,20 @@ table.dt tr:hover td { background:var(--bg-2); }
          render() sets t-layer-toggles' display based on zoom. -->
     <div id="t-layer-toggles" style="display:flex;align-items:center;gap:0;flex-shrink:0">
       <button class="sb-layer-btn on" data-l="budget" data-tip="Budget" onclick="togLayer('budget',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#3DA86A" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#3DA86A" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#3DA86A" stroke-width="1"/></svg></div>
-        <span class="sb-layer-pip" style="background:#3DA86A"></span>
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#60926C" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#60926C" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#60926C" stroke-width="1"/></svg></div>
+        <span class="sb-layer-pip" style="background:#60926C"></span>
       </button>
       <button class="sb-layer-btn" data-l="contractor" data-tip="Contractor" onclick="togLayer('contractor',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6.5" r="3" stroke="#3B8FD4" stroke-width="1.4"/><path d="M3 15.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#3B8FD4" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#3B8FD4"></span>
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6.5" r="3" stroke="#567DA3" stroke-width="1.4"/><path d="M3 15.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#567DA3" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#567DA3"></span>
       </button>
       <button class="sb-layer-btn" data-l="modifier" data-tip="Modifiers" onclick="togLayer('modifier',this)">
         <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5l1.6 4.9H16l-4.1 3 1.6 4.9L9 12.3l-4.5 3.1 1.6-4.9L2 7.4h5.4z" stroke="#D4A017" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
         <span class="sb-layer-pip" style="background:#D4A017"></span>
       </button>
       <button class="sb-layer-btn" data-l="materials" data-tip="Materials" onclick="togLayer('materials',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="8.5" width="5" height="7" rx="1" stroke="#E8702A" stroke-width="1.3"/><rect x="10.5" y="5" width="5" height="10.5" rx="1" stroke="#E8702A" stroke-width="1.3"/><path d="M4.5 8.5V6a2 2 0 014 0v2.5" stroke="#E8702A" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#E8702A"></span>
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="8.5" width="5" height="7" rx="1" stroke="#B3643E" stroke-width="1.3"/><rect x="10.5" y="5" width="5" height="10.5" rx="1" stroke="#B3643E" stroke-width="1.3"/><path d="M4.5 8.5V6a2 2 0 014 0v2.5" stroke="#B3643E" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#B3643E"></span>
       </button>
       <div class="sb-sep"></div>
       <button class="sb-layer-btn" data-l="notes" data-tip="Notes" onclick="togLayer('notes',this)">
@@ -2707,16 +2758,16 @@ table.dt tr:hover td { background:var(--bg-2); }
       </button>
       <div class="sb-sep"></div>
       <button class="sb-layer-btn" data-l="unassigned" data-tip="Unassigned" onclick="togLayer('unassigned',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14h14M3.5 14v-3C3.5 7.4 5.5 5 9 5s5.5 2.4 5.5 6v3" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6" stroke="#E8702A" stroke-width="1.3" stroke-linecap="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#E8702A"></span>
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14h14M3.5 14v-3C3.5 7.4 5.5 5 9 5s5.5 2.4 5.5 6v3" stroke="#B3643E" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="#B3643E" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6" stroke="#B3643E" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+        <span class="sb-layer-pip" style="background:#B3643E"></span>
       </button>
       <button class="sb-layer-btn" data-l="onhold" data-tip="Out of stock" onclick="togLayer('onhold',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2.5 2.5h6.5l6 6-6.5 6.5-6-6V2.5z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="6" r="1.2" fill="#E03E3E"/></svg></div>
-        <span class="sb-layer-pip" style="background:#E03E3E"></span>
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2.5 2.5h6.5l6 6-6.5 6.5-6-6V2.5z" stroke="#B14541" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="6" r="1.2" fill="#B14541"/></svg></div>
+        <span class="sb-layer-pip" style="background:#B14541"></span>
       </button>
       <button class="sb-layer-btn" data-l="changes" data-tip="Change orders" onclick="togLayer('changes',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#E03E3E" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#E03E3E"/></svg></div>
-        <span class="sb-layer-pip" style="background:#E03E3E"></span>
+        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#B14541" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#B14541" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#B14541"/></svg></div>
+        <span class="sb-layer-pip" style="background:#B14541"></span>
       </button>
     </div>
     <div style="display:flex;align-items:center;gap:0;flex-shrink:0">
@@ -2983,7 +3034,7 @@ table.dt tr:hover td { background:var(--bg-2); }
               <!-- Pool/patio -->
               <rect x="163" y="218" width="28" height="20" rx="2" fill="#8BBCD4" opacity=".7" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
               <!-- Pin -->
-              <circle cx="196" cy="185" r="8" fill="#E03E3E" stroke="#fff" stroke-width="2"/>
+              <circle cx="196" cy="185" r="8" fill="#B14541" stroke="#fff" stroke-width="2"/>
               <circle cx="196" cy="185" r="3" fill="#fff"/>
             </svg>
           </div>
@@ -5418,7 +5469,7 @@ function getTaskStatusForWalk(task, walkId){
 }
 let zoom = 0, selRoomId = null, selTask = null;
 
-const RC = { kitchen:'#E8702A', living:'#3B8FD4', dining:'#8B5DD4', bath:'#3DA86A', hall:'#888780', master:'#C4783A', bed2:'#5BAED4', garage:'#7a8c6e', exterior_general:'#A8734A' };
+const RC = { kitchen:'#B3643E', living:'#567DA3', dining:'#8B5DD4', bath:'#60926C', hall:'#888780', master:'#C4783A', bed2:'#5BAED4', garage:'#7a8c6e', exterior_general:'#A8734A' };
 
 // ── UNASSIGNED PHOTOS ─────────────────────────────────────────────────────────
 // Photos captured but not yet assigned to a group or task
@@ -5914,7 +5965,7 @@ function _renderGpOverlay(){
   const tasks = room.taskList || [];
 
   det.innerHTML = `
-    <div class="po-section" style="padding-right:48px">
+    <div class="po-section" style="padding-right:48px;padding-top:22px">
       <div class="po-grid" style="padding-bottom:14px">
         <span class="po-grid-lbl" style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);font-weight:700;padding-top:0">Group photo</span>
         <span class="po-grid-val" style="grid-column:1/-1;font-size:18px;font-weight:600;color:var(--t1);line-height:1.3;padding-top:8px">${room.name}</span>
@@ -5991,7 +6042,7 @@ function _renderGpOverlay(){
       const list = document.getElementById('gp-assign-list');
       if(list){
         list.innerHTML =
-          '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(61,168,106,.1);border:1px solid rgba(61,168,106,.4);border-radius:var(--rm);color:#1f6e3f;font-size:12px">' +
+          '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(96,146,108,.1);border:1px solid rgba(96,146,108,.4);border-radius:var(--rm);color:#1f6e3f;font-size:12px">' +
             '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             '<span>Assigned to <strong>'+t.name+'</strong>. The photo will appear under this task on the next walk.</span>' +
           '</div>';
@@ -6262,7 +6313,7 @@ function renderOverlay() {
   detail.innerHTML = `
 
     <!-- HEADER — task name + group in grid alignment -->
-    <div class="po-section" style="padding-right:48px">
+    <div class="po-section" style="padding-right:48px;padding-top:22px">
       <div class="po-section-title" style="padding-bottom:0"></div>
       <div class="po-grid" style="padding-bottom:14px">
         <span class="po-grid-lbl" style="font-size:14px;font-weight:600;color:var(--t1);padding-top:0" colspan="2"></span>
@@ -6343,9 +6394,9 @@ function renderOverlay() {
     </div>
 
     <div class="po-footer">
-      <button class="af-edit" style="font-size:12px;padding:6px 10px;color:var(--red);border-color:rgba(224,62,62,.3);flex-shrink:0"
+      <button class="af-edit" style="font-size:12px;padding:6px 10px;color:var(--red);border-color:rgba(177,69,65,.3);flex-shrink:0"
         onmouseenter="this.style.borderColor='var(--red)';this.style.background='#fef2f2'"
-        onmouseleave="this.style.borderColor='rgba(224,62,62,.3)';this.style.background='transparent'">
+        onmouseleave="this.style.borderColor='rgba(177,69,65,.3)';this.style.background='transparent'">
         <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2.5h3v1M6 6v4M8 6v4M3.5 3.5l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Delete
       </button>
@@ -6622,7 +6673,7 @@ function renderFloorplanLayers(){
       const g = svgEl('g', {});
       const tx = b.x, ty = b.y;
       const size = 28;
-      const tri = svgEl('polygon', { points:`${tx},${ty} ${tx+size},${ty} ${tx},${ty+size}`, fill:'#E03E3E' });
+      const tri = svgEl('polygon', { points:`${tx},${ty} ${tx+size},${ty} ${tx},${ty+size}`, fill:'#B14541' });
       const cx = tx + 8, cy = ty + 8;
       const ico = svgEl('polygon', { points:`${cx},${cy-4} ${cx+6},${cy+5} ${cx-6},${cy+5}`, fill:'none', stroke:'#fff', 'stroke-width':'1.4', 'stroke-linejoin':'round' });
       g.appendChild(tri); g.appendChild(ico);
@@ -6637,7 +6688,7 @@ function renderFloorplanLayers(){
     if(LAYERS.onhold && attn.outOfStock.length){
       const g = svgEl('g', {});
       const bx = trX, by = b.y + TOPPAD;
-      const bg = svgEl('rect', { x:bx, y:by, width:PW, height:PH, rx:2, fill:'rgba(224,62,62,.9)' });
+      const bg = svgEl('rect', { x:bx, y:by, width:PW, height:PH, rx:2, fill:'rgba(177,69,65,.9)' });
       // Tag icon — matches toolbar (square + pointed right + circle hole), scaled to 9×9
       const s = 9/18; // scale from 18px viewBox to ~9px
       const ox = bx + 2, oy = by + 1;
@@ -6690,7 +6741,7 @@ function renderFloorplanLayers(){
     if(LAYERS.contractor && ctors.length > 0 && blX + BPW <= b.x + b.w - 4){
       const g = svgEl('g', {});
       const bx = blX, by = blY - PH;
-      const r = svgEl('rect', { x:bx, y:by, width:BPW, height:PH, rx:2, fill:'rgba(59,143,212,.88)' });
+      const r = svgEl('rect', { x:bx, y:by, width:BPW, height:PH, rx:2, fill:'rgba(86,125,163,.88)' });
       // Hard hat icon
       const dome = svgEl('path', { d:`M${bx+1.5} ${by+8.5}h7M${bx+2.5} ${by+8.5}C${bx+2.5} ${by+5} ${bx+5.5} ${by+3} ${bx+5.5} ${by+3}S${bx+8.5} ${by+5} ${bx+8.5} ${by+8.5}`, stroke:'#fff', 'stroke-width':'1', fill:'none', 'stroke-linecap':'round' });
       const band = svgEl('line', { x1:bx+3, y1:by+7, x2:bx+8, y2:by+7, stroke:'#fff', 'stroke-width':'.8', 'stroke-linecap':'round' });
@@ -6737,7 +6788,7 @@ function renderFloorplanLayers(){
       if(blX + pw <= b.x + b.w - 4){
         const g = svgEl('g', {});
         const bx = blX, by = blY - PH;
-        const r = svgEl('rect', { x:bx, y:by, width:pw, height:PH, rx:2, fill:'rgba(61,168,106,.88)' });
+        const r = svgEl('rect', { x:bx, y:by, width:pw, height:PH, rx:2, fill:'rgba(96,146,108,.88)' });
         const t = svgEl('text', { x:bx+pw/2, y:by+8, 'text-anchor':'middle', 'font-size':'6.5', fill:'#fff', 'font-family':'DM Sans,sans-serif', 'font-weight':'700' });
         t.textContent = label;
         g.appendChild(r); g.appendChild(t);
@@ -6759,8 +6810,8 @@ function renderFloorplanLayers(){
         if(!taskMatchesCtor(task)) return;
 
         // Pin status color
-        const pinColor = task.issue ? '#E03E3E'
-          : task.done   ? '#3DA86A'
+        const pinColor = task.issue ? '#B14541'
+          : task.done   ? '#60926C'
           : task.modifier === 'Deferred' ? '#9a9590'
           : color;
 
@@ -7307,9 +7358,9 @@ function renderApprovalFooter(){
     function _iconBtn({title, html, onClick, theme}){
       const b = mk('button','');
       const palette = theme === 'red'
-        ? { fg:'var(--red)',   bdr:'rgba(224,62,62,.3)',  hoverBg:'#fef2f2', hoverBdr:'var(--red)',   hoverFg:'var(--red)' }
+        ? { fg:'var(--red)',   bdr:'rgba(177,69,65,.3)',  hoverBg:'#fef2f2', hoverBdr:'var(--red)',   hoverFg:'var(--red)' }
         : theme === 'green'
-        ? { fg:'var(--green)', bdr:'rgba(61,168,106,.4)', hoverBg:'rgba(61,168,106,.08)', hoverBdr:'var(--green)', hoverFg:'var(--green)' }
+        ? { fg:'var(--green)', bdr:'rgba(96,146,108,.4)', hoverBg:'rgba(96,146,108,.08)', hoverBdr:'var(--green)', hoverFg:'var(--green)' }
         : theme === 'green-on'
         ? { fg:'#fff', bdr:'var(--green)', bg:'var(--green)' }
         : { fg:'var(--t2)',    bdr:'var(--border-mid)',   hoverBg:'var(--bg-2)',         hoverBdr:'var(--t2)',     hoverFg:'var(--t1)' };
@@ -7931,12 +7982,12 @@ function render(){
       // Build header pills conditionally
       let layerPills = '';
       if(LAYERS.contractor && ctors.length)
-        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(59,143,212,.12);color:#1565c0;font-size:11px;font-weight:500"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="3.5" r="1.8" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 9c0-1.9 1.6-3.5 3.5-3.5S8.5 7.1 8.5 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${ctors.length} contractor${ctors.length>1?'s':''}</span>`;
+        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(86,125,163,.12);color:#1565c0;font-size:11px;font-weight:500"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="3.5" r="1.8" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 9c0-1.9 1.6-3.5 3.5-3.5S8.5 7.1 8.5 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${ctors.length} contractor${ctors.length>1?'s':''}</span>`;
       if(LAYERS.budget && room.budget > 0)
-        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(61,168,106,.12);color:#1a6e3a;font-size:11px;font-weight:600">${fmt(room.budget)}</span>`;
+        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(96,146,108,.12);color:#1a6e3a;font-size:11px;font-weight:600">${fmt(room.budget)}</span>`;
       if(LAYERS.materials){
         const matCount = room.taskList.reduce((s,t)=>s+((TASK_MATERIALS[t.id]||[]).filter(m=>m.type==='material').length),0);
-        if(matCount) layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(232,112,42,.12);color:#b34d00;font-size:11px;font-weight:500">${matCount} product${matCount>1?'s':''}</span>`;
+        if(matCount) layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(179,100,62,.12);color:#b34d00;font-size:11px;font-weight:500">${matCount} product${matCount>1?'s':''}</span>`;
       }
       if(LAYERS.notes && totalNotes)
         layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(139,93,212,.1);color:#5a2d9a;font-size:11px;font-weight:500">${totalNotes} notes</span>`;
@@ -7951,14 +8002,14 @@ function render(){
         const _pill = (count, label, key, bg, fg) =>
           `<span style="display:inline-flex;align-items:center;gap:4px;background:${bg};color:${fg};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">${ICON_STATUS(key,11)}${count} ${label}</span>`;
         const _bits = [];
-        if(_counts.completed)  _bits.push(_pill(_counts.completed,  'completed',   'completed',  'rgba(61,168,106,.15)', '#1f6e3f'));
+        if(_counts.completed)  _bits.push(_pill(_counts.completed,  'completed',   'completed',  'rgba(96,146,108,.15)', '#1f6e3f'));
         if(_counts.rework)     _bits.push(_pill(_counts.rework,     'rework',      'rework',     'rgba(212,90,40,.15)',  '#a04020'));
         if(_counts.progress)   _bits.push(_pill(_counts.progress,   'in progress', 'progress',   'rgba(46,125,143,.15)', '#1f5b6b'));
         if(_counts.notstarted) _bits.push(_pill(_counts.notstarted, 'not started', 'notstarted', 'rgba(140,140,140,.18)', '#555'));
         layerPills += _bits.join('');
       }
       if(LAYERS.changes && hasIssue)
-        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(224,62,62,.1);color:#a03030;font-size:11px;font-weight:500">${ICON_CO} Change order</span>`;
+        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(177,69,65,.1);color:#a03030;font-size:11px;font-weight:500">${ICON_CO} Change order</span>`;
 
       // Attention pills — gated by layer toggles. In contractor mode we
       // synthesise the same shape from the bucket's tasks; we also suppress
@@ -7972,9 +8023,9 @@ function render(){
         : getAttentionItems(id);
       const showUnassignedPill = byContractor ? !room.isUnassigned : true;
       if(LAYERS.unassigned && attn.unassigned.length && showUnassignedPill)
-        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(232,112,42,.12);color:#b34d00;font-size:11px;font-weight:500">${ICON_HARDHAT} ${attn.unassigned.length} unassigned</span>`;
+        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(179,100,62,.12);color:#b34d00;font-size:11px;font-weight:500">${ICON_HARDHAT} ${attn.unassigned.length} unassigned</span>`;
       if(LAYERS.onhold && attn.outOfStock.length)
-        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(224,62,62,.1);color:#a03030;font-size:11px;font-weight:500">${ICON_TAG} ${attn.outOfStock.length} out of stock</span>`;
+        layerPills += `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:rgba(177,69,65,.1);color:#a03030;font-size:11px;font-weight:500">${ICON_TAG} ${attn.outOfStock.length} out of stock</span>`;
 
       // In contractor mode the header title/dot aren't clickable room pickers
       // (the bucket id isn't a valid roomId). We still show a small "N groups"
@@ -8598,7 +8649,7 @@ function render(){
 
       const card = mk('div','');
       const approvedBorderColor = task.done ? 'var(--green)' : color;
-      const approvedBg = task.done ? 'rgba(61,168,106,.04)' : 'var(--bg-card)';
+      const approvedBg = 'var(--bg-card)';
       card.style.cssText = `background:${approvedBg};border:1px solid var(--border);border-left:4px solid ${approvedBorderColor};border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:box-shadow .15s;margin-bottom:8px`;
       card.onmouseenter = () => card.style.boxShadow='0 2px 10px rgba(0,0,0,.07)';
       card.onmouseleave = () => card.style.boxShadow='';
@@ -8696,7 +8747,7 @@ function render(){
           const _st = getTaskStatus(task);
           const _stColors = {
             rework:     'background:rgba(212,90,40,.15);color:#a04020',
-            completed:  'background:rgba(61,168,106,.15);color:#1f6e3f',
+            completed:  'background:rgba(96,146,108,.15);color:#1f6e3f',
             notstarted: 'background:rgba(140,140,140,.18);color:#555',
             progress:   'background:rgba(46,125,143,.15);color:#1f5b6b',
           };
@@ -9221,15 +9272,15 @@ function render(){
         let rows = '';
         products.forEach(p => {
           const isOos = LAYERS.onhold && p.status === 'On hold';
-          const [bg,fg] = isOos ? 'rgba(224,62,62,.08),var(--red)' : statusColor(p.status).split(',');
+          const [bg,fg] = isOos ? 'rgba(177,69,65,.08),var(--red)' : statusColor(p.status).split(',');
           // Only show row if: materials layer on (show all), or onhold layer on and this is oos
           if(!LAYERS.materials && !isOos) return;
-          rows += `<tr style="border-bottom:1px solid var(--border)${isOos?';background:rgba(224,62,62,.04)':''}">
+          rows += `<tr style="border-bottom:1px solid var(--border)${isOos?';background:rgba(177,69,65,.04)':''}">
             <td style="padding:10px 12px;font-size:12px;color:${isOos?'var(--red)':'var(--t1)'};font-weight:500">${isOos?`${ICON_TAG.replace('12','11')} `:''}${p.name}</td>
             <td class="dt-mono" style="padding:10px 12px;text-align:right;color:var(--t2)">${p.qty} ${p.unit}</td>
             <td class="dt-mono" style="padding:10px 12px;text-align:right;color:var(--t2)">${p.unitPrice>=1?'$'+p.unitPrice.toLocaleString():'$'+p.unitPrice.toFixed(2)}</td>
             <td style="padding:10px 12px;text-align:right;color:var(--t3);font-size:11px">${p.vendor||'—'}</td>
-            <td style="padding:10px 12px;text-align:right"><span style="padding:2px 7px;border-radius:10px;background:${isOos?'rgba(224,62,62,.12)':bg};color:${isOos?'var(--red)':fg};font-size:10px;font-weight:600;white-space:nowrap">${isOos?'Out of stock':p.status}</span></td>
+            <td style="padding:10px 12px;text-align:right"><span style="padding:2px 7px;border-radius:10px;background:${isOos?'rgba(177,69,65,.12)':bg};color:${isOos?'var(--red)':fg};font-size:10px;font-weight:600;white-space:nowrap">${isOos?'Out of stock':p.status}</span></td>
           </tr>`;
         });
         if(LAYERS.materials && labor.length){
@@ -9502,7 +9553,7 @@ function appendStackedTasksFeed(body, currentRoomId, currentTask){
     const _st = (typeof getTaskStatus === 'function') ? getTaskStatus(slot.task) : { label:'In progress', key:'progress' };
     const _stColors = {
       rework:     'background:rgba(212,90,40,.15);color:#a04020',
-      completed:  'background:rgba(61,168,106,.15);color:#1f6e3f',
+      completed:  'background:rgba(96,146,108,.15);color:#1f6e3f',
       notstarted: 'background:rgba(140,140,140,.18);color:#555',
       progress:   'background:rgba(46,125,143,.15);color:#1f5b6b',
     };
@@ -9696,7 +9747,7 @@ function appendStackedGroupsFeed(body, currentRoomId){
       const _st = (typeof getTaskStatus === 'function') ? getTaskStatus(t) : { label:'In progress', key:'progress' };
       const _stColors = {
         rework:     'background:rgba(212,90,40,.15);color:#a04020',
-        completed:  'background:rgba(61,168,106,.15);color:#1f6e3f',
+        completed:  'background:rgba(96,146,108,.15);color:#1f6e3f',
         notstarted: 'background:rgba(140,140,140,.18);color:#555',
         progress:   'background:rgba(46,125,143,.15);color:#1f5b6b',
       };
@@ -10158,7 +10209,7 @@ function renderBpGroupFeed(){
         const _st = getTaskStatus(task);
         const _stPalette = {
           rework:     'background:rgba(212,90,40,.15);color:#a04020',
-          completed:  'background:rgba(61,168,106,.15);color:#1f6e3f',
+          completed:  'background:rgba(96,146,108,.15);color:#1f6e3f',
           notstarted: 'background:rgba(140,140,140,.18);color:#555',
           progress:   'background:rgba(46,125,143,.15);color:#1f5b6b',
         };
@@ -10233,7 +10284,7 @@ function renderBpGroupFeed(){
 // gets the same swatch so the Contractors list stays visually stable.
 function __ctorColor(name){
   if(!name || name === 'Unassigned') return 'var(--border-mid)';
-  const palette = ['#3B8FD4','#3DA86A','#8B5DD4','#E8702A','#D4A017','#C4783A','#5BAED4','#7a8c6e','#E03E3E'];
+  const palette = ['#567DA3','#60926C','#8B5DD4','#B3643E','#D4A017','#C4783A','#5BAED4','#7a8c6e','#B14541'];
   const seed = (typeof __tlHashStr === 'function') ? __tlHashStr(String(name)) : 0;
   return palette[seed % palette.length];
 }
@@ -10349,7 +10400,7 @@ function renderBpContractorFeed(){
         const _st = getTaskStatus(task);
         const _stPalette = {
           rework:     'background:rgba(212,90,40,.15);color:#a04020',
-          completed:  'background:rgba(61,168,106,.15);color:#1f6e3f',
+          completed:  'background:rgba(96,146,108,.15);color:#1f6e3f',
           notstarted: 'background:rgba(140,140,140,.18);color:#555',
           progress:   'background:rgba(46,125,143,.15);color:#1f5b6b',
         };
@@ -10614,16 +10665,16 @@ function toggleCtorSel(e){
 // Layer-toggle metadata for the unified Filters dropdown — each entry
 // mirrors the original sb-layer-btn icon + label.
 const FILTER_LAYERS = [
-  { key:'budget',     label:'Budget',        icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#3DA86A" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#3DA86A" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#3DA86A" stroke-width="1"/></svg>' },
-  { key:'contractor', label:'Contractor',    icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6.5" r="3" stroke="#3B8FD4" stroke-width="1.4"/><path d="M3 15.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#3B8FD4" stroke-width="1.4" stroke-linecap="round"/></svg>' },
+  { key:'budget',     label:'Budget',        icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#60926C" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#60926C" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#60926C" stroke-width="1"/></svg>' },
+  { key:'contractor', label:'Contractor',    icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6.5" r="3" stroke="#567DA3" stroke-width="1.4"/><path d="M3 15.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#567DA3" stroke-width="1.4" stroke-linecap="round"/></svg>' },
   { key:'modifier',   label:'Modifiers',     icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2.5l1.6 4.9H16l-4.1 3 1.6 4.9L9 12.3l-4.5 3.1 1.6-4.9L2 7.4h5.4z" stroke="#D4A017" stroke-width="1.4" stroke-linejoin="round"/></svg>' },
-  { key:'materials',  label:'Materials',     icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="8.5" width="5" height="7" rx="1" stroke="#E8702A" stroke-width="1.3"/><rect x="10.5" y="5" width="5" height="10.5" rx="1" stroke="#E8702A" stroke-width="1.3"/><path d="M4.5 8.5V6a2 2 0 014 0v2.5" stroke="#E8702A" stroke-width="1.2" stroke-linecap="round"/></svg>' },
+  { key:'materials',  label:'Materials',     icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="8.5" width="5" height="7" rx="1" stroke="#B3643E" stroke-width="1.3"/><rect x="10.5" y="5" width="5" height="10.5" rx="1" stroke="#B3643E" stroke-width="1.3"/><path d="M4.5 8.5V6a2 2 0 014 0v2.5" stroke="#B3643E" stroke-width="1.2" stroke-linecap="round"/></svg>' },
   { key:'notes',      label:'Notes',         icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="3" y="2.5" width="12" height="13" rx="1.5" stroke="#8B5DD4" stroke-width="1.4"/><line x1="6" y1="6.5" x2="12" y2="6.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="9.5" x2="12" y2="9.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/></svg>' },
   { key:'activity',   label:'Activity',      icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#5a5751" stroke-width="1.4"/><path d="M9 5.5V9l2.5 2.5" stroke="#5a5751" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
   { key:'status',     label:'Status',        icon:'<svg width="16" height="16" viewBox="0 0 8 8" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.33642 8.05629e-05C4.27596 0.00203982 4.21797 0.0244662 4.17193 0.0636877C4.12589 0.102909 4.09452 0.156601 4.08298 0.215973C4.07623 0.250385 4.07632 0.285789 4.08326 0.320164C4.09019 0.35454 4.10383 0.387212 4.1234 0.416315C4.14296 0.445419 4.16807 0.470383 4.19728 0.489783C4.22649 0.509182 4.25924 0.522637 4.29365 0.529379C4.91639 0.652592 5.48846 0.95762 5.93734 1.4065C6.95955 2.4287 7.17086 4.00424 6.45412 5.25967C6.43666 5.29007 6.42535 5.32362 6.42086 5.35839C6.41636 5.39317 6.41875 5.42849 6.4279 5.46234C6.43706 5.49618 6.45279 5.5279 6.4742 5.55567C6.49561 5.58344 6.52227 5.60672 6.55268 5.62418C6.58309 5.64164 6.61663 5.65294 6.65141 5.65744C6.68618 5.66194 6.7215 5.65955 6.75535 5.65039C6.7892 5.64124 6.82091 5.62551 6.84868 5.6041C6.87645 5.58269 6.89973 5.55602 6.91719 5.52562C7.75202 4.06334 7.50448 2.21854 6.31385 1.0279C5.79019 0.504254 5.12286 0.149033 4.39639 0.00529353C4.37666 0.00130512 4.35654 -0.000452262 4.33642 8.05629e-05ZM2.78086 0.0449306C2.76538 0.0460256 2.75002 0.0484682 2.73497 0.0522306C2.08929 0.219343 1.49979 0.556303 1.02818 1.02791C0.556711 1.49938 0.219668 2.08922 0.0525076 2.73469C0.0347341 2.80315 0.0448489 2.87586 0.0806319 2.93687C0.116415 2.99787 0.174942 3.04219 0.243367 3.06009C0.311895 3.07785 0.38467 3.06766 0.44569 3.03177C0.50671 2.99588 0.55098 2.93723 0.568766 2.86871C0.712054 2.31542 1.00211 1.81064 1.40625 1.4065C1.8105 1.00225 2.31553 0.713822 2.86899 0.570574C2.9373 0.55267 2.99573 0.508433 3.0315 0.447547C3.06727 0.38666 3.07746 0.314082 3.05985 0.245698C3.04443 0.184738 3.00799 0.131176 2.95695 0.0944482C2.90592 0.0577205 2.84356 0.040186 2.78086 0.0449306ZM3.70439 1.21929C2.33495 1.21929 1.21905 2.33519 1.21905 3.70463C1.21905 5.07408 2.33495 6.18998 3.70439 6.18998C5.07383 6.18998 6.18973 5.07408 6.18973 3.70463C6.18973 2.33519 5.07383 1.21929 3.70439 1.21929ZM3.70439 1.75328C4.78524 1.75328 5.65574 2.62378 5.65574 3.70463C5.65574 4.78549 4.78524 5.65547 3.70439 5.65547C2.62354 5.65547 1.75304 4.78549 1.75304 3.70463C1.75304 2.62378 2.62354 1.75328 3.70439 1.75328ZM0.273093 4.08009C0.253336 4.07947 0.233571 4.08105 0.214163 4.08479C0.144949 4.09877 0.0840888 4.13959 0.0448992 4.19832C0.00570969 4.25706 -0.0086176 4.32893 0.00505258 4.3982C0.148853 5.12449 0.504647 5.79056 1.02818 6.3141C2.21882 7.50473 4.06152 7.75176 5.52381 6.91692C5.58492 6.88192 5.62973 6.8242 5.64849 6.75632C5.66724 6.68844 5.65841 6.6159 5.62393 6.55449C5.60664 6.52391 5.58349 6.49704 5.5558 6.47543C5.52811 6.45381 5.49643 6.43787 5.46256 6.42852C5.4287 6.41917 5.39333 6.4166 5.35847 6.42094C5.32361 6.42529 5.28995 6.43647 5.25942 6.45385C4.00399 7.17059 2.42846 6.9598 1.40625 5.93759C0.957473 5.48881 0.650838 4.91649 0.527569 4.2939C0.515565 4.23475 0.483871 4.1814 0.437655 4.14258C0.391439 4.10375 0.333433 4.08172 0.273093 4.08009Z" fill="#2E7D8F"/></svg>' },
-  { key:'unassigned', label:'Unassigned',    icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M2 14h14M3.5 14v-3C3.5 7.4 5.5 5 9 5s5.5 2.4 5.5 6v3" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="#E8702A" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6" stroke="#E8702A" stroke-width="1.3" stroke-linecap="round"/></svg>' },
-  { key:'onhold',     label:'Out of stock',  icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M2.5 2.5h6.5l6 6-6.5 6.5-6-6V2.5z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="6" r="1.2" fill="#E03E3E"/></svg>' },
-  { key:'changes',    label:'Change orders', icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#E03E3E" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#E03E3E" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#E03E3E"/></svg>' },
+  { key:'unassigned', label:'Unassigned',    icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M2 14h14M3.5 14v-3C3.5 7.4 5.5 5 9 5s5.5 2.4 5.5 6v3" stroke="#B3643E" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="#B3643E" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6" stroke="#B3643E" stroke-width="1.3" stroke-linecap="round"/></svg>' },
+  { key:'onhold',     label:'Out of stock',  icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M2.5 2.5h6.5l6 6-6.5 6.5-6-6V2.5z" stroke="#B14541" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="6" r="1.2" fill="#B14541"/></svg>' },
+  { key:'changes',    label:'Change orders', icon:'<svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#B14541" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#B14541" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#B14541"/></svg>' },
 ];
 
 function renderCtorSel(){
@@ -10658,7 +10709,7 @@ function renderCtorSel(){
     FILTER_LAYERS.forEach(L => {
       const isOn = !!LAYERS[L.key];
       const row = document.createElement('button');
-      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:12px;width:100%;text-align:left;border:none;border-bottom:1px solid var(--border);font-family:var(--font);cursor:pointer;background:'+(isOn?'rgba(61,168,106,.04)':'none')+';color:var(--t1)';
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:12px;width:100%;text-align:left;border:none;border-bottom:1px solid var(--border);font-family:var(--font);cursor:pointer;background:'+(isOn?'rgba(96,146,108,.04)':'none')+';color:var(--t1)';
       row.innerHTML =
         '<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0">'+L.icon+'</span>' +
         '<span style="flex:1;font-weight:'+(isOn?'600':'500')+';color:var(--t1)">'+L.label+'</span>' +
@@ -10706,7 +10757,7 @@ function renderCtorSel(){
       <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0">
         <span style="font-size:12px;font-weight:${isActive?'600':'500'};color:var(--t1);display:flex;align-items:center;gap:5px">
           ${name}
-          ${meta?.gc ? `<span style="font-size:9px;font-weight:700;letter-spacing:.05em;background:rgba(61,168,106,.12);color:var(--green);padding:1px 5px;border-radius:8px">GC</span>` : ''}
+          ${meta?.gc ? `<span style="font-size:9px;font-weight:700;letter-spacing:.05em;background:rgba(96,146,108,.12);color:var(--green);padding:1px 5px;border-radius:8px">GC</span>` : ''}
         </span>
         ${meta ? `<span style="font-size:10px;color:var(--t3)">${meta.trade}</span>` : ''}
       </span>
@@ -12467,7 +12518,7 @@ function renderCompare(){
         : getTaskStatus(slot.task);
       const _stColors = {
         rework:     'background:rgba(212,90,40,.95)',
-        completed:  'background:rgba(61,168,106,.95)',
+        completed:  'background:rgba(96,146,108,.95)',
         notstarted: 'background:rgba(140,140,140,.95)',
         progress:   'background:rgba(46,125,143,.95)',
       };
