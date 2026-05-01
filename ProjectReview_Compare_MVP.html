@@ -2056,20 +2056,36 @@ table.dt tr:hover td { background:var(--bg-2); }
 .tl-root .tl-nav-tick.is-current { background:var(--charcoal); height:8px; }
 /* Group-stretch labels — each group gets a horizontal segment sized by how
    many slots (group + its tasks) it covers. Truncates with ellipsis. */
-.tl-root .tl-nav-groups { position:relative; height:16px; margin-top:2px; pointer-events:none; }
-.tl-root .tl-nav-group-label {
-  position:absolute; top:0;
-  font-size:10px; line-height:16px;
-  color:var(--t3);
-  padding:0 6px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  text-align:center;
-  box-sizing:border-box;
-  border-left:1px solid var(--border);
-  letter-spacing:.01em;
+/* MVP: horizontal scroller of group label buttons that replaces the
+   original scrubber slider. Click a label to jump to its group. */
+.tl-root .tl-nav-groups {
+  display:flex; align-items:center; gap:6px;
+  overflow-x:auto; overflow-y:hidden;
+  padding:4px 0 6px;
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
 }
-.tl-root .tl-nav-group-label:first-child { border-left:none; }
-.tl-root .tl-nav-group-label.is-current { color:var(--t1); font-weight:500; background:var(--bg-2); border-radius:3px; }
+.tl-root .tl-nav-groups::-webkit-scrollbar { height:4px; }
+.tl-root .tl-nav-groups::-webkit-scrollbar-thumb { background:var(--border-mid); border-radius:2px; }
+.tl-root .tl-nav-group-label {
+  flex-shrink:0;
+  font:inherit;
+  font-size:11.5px;
+  line-height:1.2;
+  color:var(--t2);
+  background:var(--bg-card);
+  padding:6px 12px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  cursor:pointer;
+  white-space:nowrap;
+  letter-spacing:.01em;
+  transition:background .12s, color .12s, border-color .12s;
+}
+.tl-root .tl-nav-group-label:hover { background:var(--bg-2); color:var(--t1); border-color:var(--border-mid); }
+.tl-root .tl-nav-group-label:focus-visible { outline:2px solid var(--charcoal); outline-offset:1px; }
+.tl-root .tl-nav-group-label.is-current { color:#fff; background:var(--charcoal); border-color:var(--charcoal); font-weight:500; }
+.tl-root .tl-nav-group-label.is-current:hover { background:var(--charcoal); color:#fff; }
 
 .tl-root .tl-body { flex:1; display:flex; flex-direction:column; gap:12px; padding:14px 18px 18px; overflow:auto; transition:background-color .25s ease; }
 /* v5: alternate the body tint between consecutive groups so scrubbing past a
@@ -2701,51 +2717,9 @@ table.dt tr:hover td { background:var(--bg-2); }
     </button>
     <span class="t-address" title="Back to project home" onclick="if(typeof selectAllGroups==='function'){selectAllGroups();}else{selRoomId=null;selTask=null;if(typeof hlRoom==='function')hlRoom(null);if(typeof setZoom==='function')setZoom(0);}">3484 South Main Street, Atlanta</span>
     <div class="t-divider"></div>
-    <!-- Layer toggles + Filter button — moved up here from the secondary
-         menu bar so the toolbar carries every page-level control in one row. -->
+    <!-- Layer toggle icons removed for MVP — the off/on info layers are
+         out of v1 scope. Contractor filter button remains. -->
     <div style="display:flex;align-items:center;gap:0;flex-shrink:0">
-      <button class="sb-layer-btn on" data-l="budget" data-tip="Budget" onclick="togLayer('budget',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#60926C" stroke-width="1.4"/><circle cx="9" cy="9" r="2" stroke="#60926C" stroke-width="1.3"/><line x1="2" y1="7" x2="16" y2="7" stroke="#60926C" stroke-width="1"/></svg></div>
-        <span class="sb-layer-pip" style="background:#60926C"></span>
-      </button>
-      <button class="sb-layer-btn" data-l="contractor" data-tip="Contractor" onclick="togLayer('contractor',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6.5" r="3" stroke="#567DA3" stroke-width="1.4"/><path d="M3 15.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#567DA3" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#567DA3"></span>
-      </button>
-      <button class="sb-layer-btn" data-l="modifier" data-tip="Modifiers" onclick="togLayer('modifier',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5l1.6 4.9H16l-4.1 3 1.6 4.9L9 12.3l-4.5 3.1 1.6-4.9L2 7.4h5.4z" stroke="#D4A017" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#D4A017"></span>
-      </button>
-      <button class="sb-layer-btn" data-l="materials" data-tip="Materials" onclick="togLayer('materials',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="8.5" width="5" height="7" rx="1" stroke="#B3643E" stroke-width="1.3"/><rect x="10.5" y="5" width="5" height="10.5" rx="1" stroke="#B3643E" stroke-width="1.3"/><path d="M4.5 8.5V6a2 2 0 014 0v2.5" stroke="#B3643E" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#B3643E"></span>
-      </button>
-      <div class="sb-sep"></div>
-      <button class="sb-layer-btn" data-l="notes" data-tip="Notes" onclick="togLayer('notes',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="2.5" width="12" height="13" rx="1.5" stroke="#8B5DD4" stroke-width="1.4"/><line x1="6" y1="6.5" x2="12" y2="6.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="9.5" x2="12" y2="9.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/><line x1="6" y1="12.5" x2="9.5" y2="12.5" stroke="#8B5DD4" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#8B5DD4"></span>
-      </button>
-      <button class="sb-layer-btn" data-l="activity" data-tip="Activity" onclick="togLayer('activity',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#5a5751" stroke-width="1.4"/><path d="M9 5.5V9l2.5 2.5" stroke="#5a5751" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#5a5751"></span>
-      </button>
-      <button class="sb-layer-btn on" data-l="status" data-tip="Status" onclick="togLayer('status',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 8 8" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M4.33642 8.05629e-05C4.27596 0.00203982 4.21797 0.0244662 4.17193 0.0636877C4.12589 0.102909 4.09452 0.156601 4.08298 0.215973C4.07623 0.250385 4.07632 0.285789 4.08326 0.320164C4.09019 0.35454 4.10383 0.387212 4.1234 0.416315C4.14296 0.445419 4.16807 0.470383 4.19728 0.489783C4.22649 0.509182 4.25924 0.522637 4.29365 0.529379C4.91639 0.652592 5.48846 0.95762 5.93734 1.4065C6.95955 2.4287 7.17086 4.00424 6.45412 5.25967C6.43666 5.29007 6.42535 5.32362 6.42086 5.35839C6.41636 5.39317 6.41875 5.42849 6.4279 5.46234C6.43706 5.49618 6.45279 5.5279 6.4742 5.55567C6.49561 5.58344 6.52227 5.60672 6.55268 5.62418C6.58309 5.64164 6.61663 5.65294 6.65141 5.65744C6.68618 5.66194 6.7215 5.65955 6.75535 5.65039C6.7892 5.64124 6.82091 5.62551 6.84868 5.6041C6.87645 5.58269 6.89973 5.55602 6.91719 5.52562C7.75202 4.06334 7.50448 2.21854 6.31385 1.0279C5.79019 0.504254 5.12286 0.149033 4.39639 0.00529353C4.37666 0.00130512 4.35654 -0.000452262 4.33642 8.05629e-05ZM2.78086 0.0449306C2.76538 0.0460256 2.75002 0.0484682 2.73497 0.0522306C2.08929 0.219343 1.49979 0.556303 1.02818 1.02791C0.556711 1.49938 0.219668 2.08922 0.0525076 2.73469C0.0347341 2.80315 0.0448489 2.87586 0.0806319 2.93687C0.116415 2.99787 0.174942 3.04219 0.243367 3.06009C0.311895 3.07785 0.38467 3.06766 0.44569 3.03177C0.50671 2.99588 0.55098 2.93723 0.568766 2.86871C0.712054 2.31542 1.00211 1.81064 1.40625 1.4065C1.8105 1.00225 2.31553 0.713822 2.86899 0.570574C2.9373 0.55267 2.99573 0.508433 3.0315 0.447547C3.06727 0.38666 3.07746 0.314082 3.05985 0.245698C3.04443 0.184738 3.00799 0.131176 2.95695 0.0944482C2.90592 0.0577205 2.84356 0.040186 2.78086 0.0449306ZM3.70439 1.21929C2.33495 1.21929 1.21905 2.33519 1.21905 3.70463C1.21905 5.07408 2.33495 6.18998 3.70439 6.18998C5.07383 6.18998 6.18973 5.07408 6.18973 3.70463C6.18973 2.33519 5.07383 1.21929 3.70439 1.21929ZM3.70439 1.75328C4.78524 1.75328 5.65574 2.62378 5.65574 3.70463C5.65574 4.78549 4.78524 5.65547 3.70439 5.65547C2.62354 5.65547 1.75304 4.78549 1.75304 3.70463C1.75304 2.62378 2.62354 1.75328 3.70439 1.75328ZM0.273093 4.08009C0.253336 4.07947 0.233571 4.08105 0.214163 4.08479C0.144949 4.09877 0.0840888 4.13959 0.0448992 4.19832C0.00570969 4.25706 -0.0086176 4.32893 0.00505258 4.3982C0.148853 5.12449 0.504647 5.79056 1.02818 6.3141C2.21882 7.50473 4.06152 7.75176 5.52381 6.91692C5.58492 6.88192 5.62973 6.8242 5.64849 6.75632C5.66724 6.68844 5.65841 6.6159 5.62393 6.55449C5.60664 6.52391 5.58349 6.49704 5.5558 6.47543C5.52811 6.45381 5.49643 6.43787 5.46256 6.42852C5.4287 6.41917 5.39333 6.4166 5.35847 6.42094C5.32361 6.42529 5.28995 6.43647 5.25942 6.45385C4.00399 7.17059 2.42846 6.9598 1.40625 5.93759C0.957473 5.48881 0.650838 4.91649 0.527569 4.2939C0.515565 4.23475 0.483871 4.1814 0.437655 4.14258C0.391439 4.10375 0.333433 4.08172 0.273093 4.08009Z" fill="#2E7D8F"/></svg></div>
-        <span class="sb-layer-pip" style="background:#2E7D8F"></span>
-      </button>
-      <div class="sb-sep"></div>
-      <button class="sb-layer-btn" data-l="unassigned" data-tip="Unassigned" onclick="togLayer('unassigned',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 14h14M3.5 14v-3C3.5 7.4 5.5 5 9 5s5.5 2.4 5.5 6v3" stroke="#B3643E" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="14" x2="16" y2="14" stroke="#B3643E" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6" stroke="#B3643E" stroke-width="1.3" stroke-linecap="round"/></svg></div>
-        <span class="sb-layer-pip" style="background:#B3643E"></span>
-      </button>
-      <button class="sb-layer-btn" data-l="onhold" data-tip="Out of stock" onclick="togLayer('onhold',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2.5 2.5h6.5l6 6-6.5 6.5-6-6V2.5z" stroke="#B14541" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="6" r="1.2" fill="#B14541"/></svg></div>
-        <span class="sb-layer-pip" style="background:#B14541"></span>
-      </button>
-      <button class="sb-layer-btn" data-l="changes" data-tip="Change orders" onclick="togLayer('changes',this)">
-        <div class="sb-layer-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5L16 14.5H2L9 2.5Z" stroke="#B14541" stroke-width="1.4" stroke-linejoin="round"/><line x1="9" y1="7" x2="9" y2="10.5" stroke="#B14541" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="12.5" r=".7" fill="#B14541"/></svg></div>
-        <span class="sb-layer-pip" style="background:#B14541"></span>
-      </button>
       <div style="position:relative;display:inline-flex;align-items:center;margin-left:8px" id="ctor-sel-wrap">
         <button class="sb-layer-btn sb-layer-btn-filter" id="ctor-sel-btn" data-tip="Filter by contractor" onclick="toggleCtorSel(event)">
           <div class="sb-layer-ico" style="width:24px;height:24px;opacity:1">
@@ -11761,33 +11735,13 @@ function renderCompare(){
 
   root.appendChild(bodyEl);
 
-  // ── Bottom slider — scrubs through the full slot list (groups + tasks).
-  // Ticks mark where each group begins so the user can see the section
-  // boundaries at a glance. The slider is kept in sync with the arrow
-  // buttons and keyboard nav via renderSlider().
+  // ── MVP: horizontal scroller of group labels — replaces the original
+  // scrubber slider. Click a group label to jump to that group's slot. The
+  // active group label gets highlighted and scrolls into view as the user
+  // navigates via the prev/next arrows on the header.
   const sliderWrap = mk('div','tl-nav-slider');
-  const sliderHdr = mk('div','tl-nav-slider-hdr');
-  sliderHdr.appendChild(mk('span','tl-nav-slider-title','Scrub through groups and tasks'));
-  const sliderLabel = mk('span','tl-nav-current-label','');
-  sliderHdr.appendChild(sliderLabel);
-  sliderWrap.appendChild(sliderHdr);
 
-  const rangeWrap = mk('div','tl-nav-range-wrap');
-  rangeWrap.setAttribute('role','slider');
-  rangeWrap.setAttribute('tabindex','0');
-  rangeWrap.setAttribute('aria-label','Navigate through groups and tasks');
-  rangeWrap.setAttribute('aria-valuemin','0');
-  rangeWrap.setAttribute('aria-valuemax', String(Math.max(0, slots.length - 1)));
-  rangeWrap.setAttribute('aria-valuenow', String(state.currentIdx));
-  const track = mk('div','tl-nav-track');
-  const trackFill = mk('div','tl-nav-track-fill');
-  const thumb = mk('div','tl-nav-thumb');
-  track.appendChild(trackFill);
-  track.appendChild(thumb);
-  rangeWrap.appendChild(track);
-  // Back-compat shim for legacy code that reads/writes `range.value` or
-  // `range.getBoundingClientRect()`. The shim delegates those to the track
-  // div and the shared state so older callers keep working without change.
+  // `range` shim kept for back-compat — other code reads/writes range.value.
   const range = {
     get value(){ return String(state.currentIdx); },
     set value(v){
@@ -11795,190 +11749,64 @@ function renderCompare(){
       if(!isNaN(n)){
         state.currentIdx = Math.max(0, Math.min(slots.length - 1, n));
         _persisted.currentIdx = state.currentIdx;
-        rangeWrap.setAttribute('aria-valuenow', String(state.currentIdx));
         __syncScopeFromSlot();
       }
     },
-    getBoundingClientRect(){ return track.getBoundingClientRect(); },
-    style:{ setProperty(name, val){ track.style.setProperty(name, val); } },
-    focus(){ try { rangeWrap.focus({ preventScroll:true }); } catch(e){ try{ rangeWrap.focus(); }catch(_){} } },
-    addEventListener(){ /* no-op: native 'input' events no longer exist */ },
+    getBoundingClientRect(){ return sliderWrap.getBoundingClientRect(); },
+    style:{ setProperty(){} },
+    focus(){},
+    addEventListener(){},
   };
-  // v5: floating label that tracks the thumb while the user is scrubbing.
-  const floatLbl = mk('div','tl-nav-float-label','');
-  rangeWrap.appendChild(floatLbl);
-  sliderWrap.appendChild(rangeWrap);
 
-  const ticks = mk('div','tl-nav-ticks');
-  const denom = Math.max(1, slots.length - 1);
-  slots.forEach((s, i) => {
-    if(s.type !== 'group') return;
-    const pct = (i / denom) * 100;
-    const tick = mk('div','tl-nav-tick');
-    tick.dataset.slotIdx = i;
-    tick.style.left = pct + '%';
-    tick.title = s.roomName;
-    ticks.appendChild(tick);
-  });
-  sliderWrap.appendChild(ticks);
-
-  // Group-stretch labels row — one label per group, sized to span the group's
-  // portion of the slider (its own slot + all its tasks). Truncates with
-  // ellipsis if the stretch isn't wide enough for the full name.
+  // Horizontal-scrolling row of group buttons.
   const groupLabels = mk('div','tl-nav-groups');
   const groupSlotIdxs = slots.map((s,i) => s.type==='group' ? i : -1).filter(i => i >= 0);
   groupSlotIdxs.forEach((gi, gArrIdx) => {
     const nextGi = (gArrIdx + 1 < groupSlotIdxs.length) ? groupSlotIdxs[gArrIdx + 1] : slots.length;
-    const leftPct = (gi / denom) * 100;
-    // Last group extends to 100% so its last task is covered by its label.
-    const rightPct = (gArrIdx + 1 < groupSlotIdxs.length)
-      ? (nextGi / denom) * 100
-      : 100;
-    const widthPct = Math.max(0, rightPct - leftPct);
-    // Number of task slots owned by this group stretch (excludes the group
-    // slot itself). Shown in parentheses so each label reads like
-    // "Bathroom (4 tasks)".
     const taskCount = Math.max(0, nextGi - gi - 1);
     const countStr = taskCount + (taskCount === 1 ? ' task' : ' tasks');
     const labelText = slots[gi].roomName + ' (' + countStr + ')';
-    const lbl = mk('div','tl-nav-group-label', labelText);
-    lbl.dataset.slotIdx = gi;
-    lbl.dataset.slotEnd = String(nextGi - 1); // last slot idx owned by this group
-    lbl.style.left  = leftPct  + '%';
-    lbl.style.width = widthPct + '%';
-    lbl.title = labelText;
-    groupLabels.appendChild(lbl);
+    const btn = mk('button','tl-nav-group-label', labelText);
+    btn.type = 'button';
+    btn.dataset.slotIdx = String(gi);
+    btn.dataset.slotEnd = String(nextGi - 1);
+    btn.title = labelText;
+    btn.addEventListener('click', () => __applyIdx(gi));
+    groupLabels.appendChild(btn);
   });
   sliderWrap.appendChild(groupLabels);
 
+  function __applyIdx(v){
+    v = Math.max(0, Math.min(slots.length - 1, v));
+    if(v === state.currentIdx) return;
+    state.currentIdx = v;
+    _persisted.currentIdx = v;
+    if(typeof renderHead === 'function') renderHead();
+    if(typeof updatePhotos === 'function') updatePhotos();
+    renderSlider();
+    if(typeof __syncScopeFromSlot === 'function') __syncScopeFromSlot();
+  }
+
   function renderSlider(){
-    range.value = String(state.currentIdx);
-    const pct = (state.currentIdx / denom) * 100;
-    range.style.setProperty('--tl-nav-fill', pct + '%');
-    const cur = slots[state.currentIdx];
-    if(cur){
-      const lab = cur.type === 'group'
-        ? cur.roomName + (cur.isContractor ? ' (contractor)' : ' (group)')
-        : cur.task.name + ' · ' + cur.roomName;
-      const labHtml =
-        lab.replace(/</g,'&lt;') +
-        '<span class="tl-nav-idx">'+ (state.currentIdx+1) +' / '+ slots.length +'</span>';
-      sliderLabel.innerHTML = labHtml;
-      // Mirror the same text into the floating tooltip and park it above the
-      // thumb. The thumb's center aligns with pct% of the track; the label's
-      // own `translateX(-50%)` centers it over that point.
-      floatLbl.innerHTML =
-        lab.replace(/</g,'&lt;') +
-        '<span class="tl-nav-float-idx">'+ (state.currentIdx+1) +' / '+ slots.length +'</span>';
-      floatLbl.style.left = pct + '%';
-    } else {
-      sliderLabel.textContent = '';
-      floatLbl.textContent = '';
-    }
-    // Highlight the active group tick + group label (the tick/label at/before
-    // the current slot — i.e. the group that owns the current scrub position).
-    ticks.querySelectorAll('.tl-nav-tick.is-current').forEach(t => t.classList.remove('is-current'));
+    // Highlight the active group label, scroll it into view, and update the
+    // body parity tint so adjacent groups read as different sections.
     groupLabels.querySelectorAll('.tl-nav-group-label.is-current').forEach(l => l.classList.remove('is-current'));
     let activeGroupIdx = -1;
     for(let i = state.currentIdx; i >= 0; i--){
       if(slots[i] && slots[i].type === 'group'){ activeGroupIdx = i; break; }
     }
     if(activeGroupIdx >= 0){
-      const t = ticks.querySelector('.tl-nav-tick[data-slot-idx="'+activeGroupIdx+'"]');
-      if(t) t.classList.add('is-current');
       const l = groupLabels.querySelector('.tl-nav-group-label[data-slot-idx="'+activeGroupIdx+'"]');
-      if(l) l.classList.add('is-current');
+      if(l){
+        l.classList.add('is-current');
+        try { l.scrollIntoView({ block:'nearest', inline:'center', behavior:'smooth' }); } catch(_){ try { l.scrollIntoView(); } catch(__){} }
+      }
     }
-
-    // Echo the active group onto the floor plan on the left. hlRoom() mutates
-    // the .room SVG elements so the highlight persists across sidebar tab
-    // switches and is visible the moment the floorplan tab is active. We
-    // intentionally don't touch selRoomId — scrubbing is a preview, not a
-    // selection change.
-    try {
-      const activeRoomId = (slots[activeGroupIdx] && slots[activeGroupIdx].roomId) || null;
-      if(typeof hlRoom === 'function') hlRoom(activeRoomId);
-    } catch(e){}
-
-    // Alternate the body background between the current group and its
-    // neighbors. The parity is derived from the active group's index inside
-    // the groupSlotIdxs array so adjacent groups always get different tints.
     try {
       const gArrIdx = groupSlotIdxs.indexOf(activeGroupIdx);
       bodyEl.dataset.groupParity = (gArrIdx >= 0) ? String(gArrIdx % 2) : '0';
     } catch(e){}
   }
-
-  range.addEventListener('input', () => {
-    // While our custom pointer drag owns the scrub, ignore any native
-    // <input type="range"> 'input' events. The native track-click handler
-    // would otherwise fire with a step-by-1 value and override the position
-    // we just set, which users see as the thumb "snapping back" on release.
-    // Keyboard arrow-key input still works because __scrubDragging is false
-    // when the range has keyboard focus but no active pointer drag.
-    if(typeof __scrubDragging !== 'undefined' && __scrubDragging) return;
-    const v = parseInt(range.value, 10);
-    if(isNaN(v) || v === state.currentIdx) return;
-    state.currentIdx = v;
-    _persisted.currentIdx = v;
-    renderHead();
-    updatePhotos();
-    renderSlider();
-    __syncScopeFromSlot();
-  });
-
-  // v5++: pointer scrubbing is owned by rangeWrap, not the <input> itself.
-  // Putting `pointer-events: none` on the range kills the browser's built-in
-  // track-click step and thumb-drag, so nothing can race with our state
-  // updates. rangeWrap catches all pointer events, we compute the slot
-  // index from the wrapper's bounding rect, and pointer capture keeps the
-  // drag alive even if the cursor leaves the slider area. Keyboard nav
-  // still works: on pointerdown we focus the range, and the 'input'
-  // listener above continues to handle arrow-key value changes.
-  function __idxFromClientX(clientX){
-    const rect = range.getBoundingClientRect();
-    if(rect.width <= 0) return state.currentIdx;
-    const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    return Math.round(frac * Math.max(0, slots.length - 1));
-  }
-  function __applyIdx(v){
-    v = Math.max(0, Math.min(slots.length - 1, v));
-    if(v === state.currentIdx) return;
-    state.currentIdx = v;
-    _persisted.currentIdx = v;
-    range.value = String(v);
-    renderHead();
-    updatePhotos();
-    renderSlider();
-    __syncScopeFromSlot();
-  }
-  let __scrubDragging = false;
-  function __startScrub(ev){
-    if(ev.button != null && ev.button !== 0) return; // left button / touch only
-    ev.preventDefault();
-    __scrubDragging = true;
-    try { rangeWrap.setPointerCapture(ev.pointerId); } catch(e){}
-    sliderWrap.classList.add('is-scrubbing');
-    __applyIdx(__idxFromClientX(ev.clientX));
-    // Keep keyboard accessibility: give the range focus so arrow keys scrub.
-    try { range.focus({ preventScroll: true }); } catch(e){ try { range.focus(); } catch(_){} }
-  }
-  function __moveScrub(ev){
-    if(!__scrubDragging) return;
-    ev.preventDefault();
-    __applyIdx(__idxFromClientX(ev.clientX));
-  }
-  function __endScrub(){
-    if(!__scrubDragging) return;
-    __scrubDragging = false;
-    sliderWrap.classList.remove('is-scrubbing');
-  }
-  rangeWrap.addEventListener('pointerdown',  __startScrub);
-  rangeWrap.addEventListener('pointermove',  __moveScrub);
-  rangeWrap.addEventListener('pointerup',    __endScrub);
-  rangeWrap.addEventListener('pointercancel',__endScrub);
-  rangeWrap.addEventListener('lostpointercapture', __endScrub);
-  window.addEventListener('pointerup',       __endScrub);
 
   root.appendChild(sliderWrap);
 
